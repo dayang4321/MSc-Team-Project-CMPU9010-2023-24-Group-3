@@ -1,5 +1,6 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
+import FileUploadButton from "./components/FileUploadButton";
 
 export default function Home() {
   return (
@@ -15,6 +16,8 @@ export default function Home() {
         <p className={styles.description}>
           Improving accessibility of documents for ease of access
         </p>
+
+        <FileUploadButton />
 
         {/* <div className={styles.grid}>
           <a href="https://nextjs.org/docs" className={styles.card}>
