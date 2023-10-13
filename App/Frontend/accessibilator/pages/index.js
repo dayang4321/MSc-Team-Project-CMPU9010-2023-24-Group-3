@@ -1,7 +1,18 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
+import React, { useState } from "react";
+import FileUploadButton from "./components/FileUploadButton";
+import PopupMessage from "./components/PopupMessage";
 
 export default function Home() {
+  const [showMessage, setShowMessage] = useState(false);
+
+  const handleUploadSuccess = () => {
+    setShowMessage(true);
+    setTimeout(() => {
+      setShowMessage(false);
+    }, 3000);
+  };
   return (
     <div className={styles.container}>
       <Head>
@@ -15,6 +26,11 @@ export default function Home() {
         <p className={styles.description}>
           Improving accessibility of documents for ease of access
         </p>
+
+        <FileUploadButton onUploadSuccess={handleUploadSuccess} />
+        {showMessage && (
+          <PopupMessage type="success" content="File Uploaded successfully" />
+        )}
 
         {/* <div className={styles.grid}>
           <a href="https://nextjs.org/docs" className={styles.card}>
