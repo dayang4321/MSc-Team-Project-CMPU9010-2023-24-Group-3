@@ -3,7 +3,6 @@ import styles from "../styles/Home.module.css";
 import React, { useState } from "react";
 import FileUploadButton from "./components/FileUploadButton";
 import PopupMessage from "./components/PopupMessage";
-import FileUploadButton from "./components/FileUploadButton";
 
 export default function Home() {
   const [showMessage, setShowMessage] = useState(false);
@@ -32,7 +31,6 @@ export default function Home() {
         {showMessage && (
           <PopupMessage type="success" content="File Uploaded successfully" />
         )}
-        <FileUploadButton />
 
         {/* <div className={styles.grid}>
           <a href="https://nextjs.org/docs" className={styles.card}>
