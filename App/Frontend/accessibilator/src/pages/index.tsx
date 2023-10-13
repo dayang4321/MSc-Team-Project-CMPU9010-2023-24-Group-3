@@ -1,8 +1,8 @@
-import Head from "next/head";
-import styles from "../styles/Home.module.css";
-import React, { useState } from "react";
-import FileUploadButton from "./components/FileUploadButton";
-import PopupMessage from "./components/PopupMessage";
+import Head from 'next/head';
+import styles from '../styles/Home.module.css';
+import React, { useState } from 'react';
+import FileUploadButton from '../components/FileUploadButton';
+import PopupMessage from '../components/PopupMessage';
 
 export default function Home() {
   const [showMessage, setShowMessage] = useState(false);
