@@ -1,7 +1,8 @@
 import { Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
-const FileUploadButton = (altText) => {
+
+const FileUploadButton = ({onUploadSuccess}) => {
   const checkFileType = (file) => {
     const allowedFileTypes = [
       ".txt",
@@ -33,6 +34,7 @@ const FileUploadButton = (altText) => {
     // Adding a short delay to simulate file upload.
     setTimeout(() => {
       onSuccess("ok");
+      onUploadSuccess(); 
     }, 1000);
   };
 
