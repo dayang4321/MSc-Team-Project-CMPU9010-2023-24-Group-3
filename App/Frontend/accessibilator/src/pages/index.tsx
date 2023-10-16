@@ -2,6 +2,7 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import FileUploadButton from '../components/FileUploadButton';
 import PopupMessage from '../components/PopupMessage';
+import DefaultLayout from '../layouts/DefaultLayout';
 
 export default function Home() {
   const [showMessage, setShowMessage] = useState(false);
@@ -13,13 +14,13 @@ export default function Home() {
     }, 3000);
   };
   return (
-    <>
+    <DefaultLayout>
       <Head>
         <title>Accessibilator</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex min-h-screen flex-col text-center justify-center items-center flex-1 bg-slate-50 text-gray-900">
+      <main className="flex flex-col text-center justify-center items-center flex-1 bg-slate-50 text-gray-900">
         <h1 className="text-5xl max-w-4xl font-bold mb-11">
           Reading documents made more accessible😁
         </h1>
@@ -42,8 +43,6 @@ export default function Home() {
           <PopupMessage type="success" content="File Uploaded successfully" />
         )}
       </main>
-
-      <footer>Footer</footer>
-    </>
+    </DefaultLayout>
   );
 }
