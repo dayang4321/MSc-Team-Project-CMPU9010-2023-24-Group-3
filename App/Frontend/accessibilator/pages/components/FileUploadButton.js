@@ -44,6 +44,7 @@ const FileUploadButton = ({onUploadSuccess}) => {
       customRequest={customRequest}
       progress={true}
       showUploadList={true}
+      multiple={true}
     >
       <Button
         icon={<UploadOutlined>Select File</UploadOutlined>}
