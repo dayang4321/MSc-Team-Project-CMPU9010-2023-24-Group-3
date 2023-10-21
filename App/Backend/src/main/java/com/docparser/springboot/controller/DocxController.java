@@ -35,4 +35,18 @@ public class DocxController {
 
     }
 
+    @PostMapping("/parseDocToIncreaseFontSize")
+    public ResponseEntity<Resource> increaseFontSize(@RequestParam("filename") String fileName) throws IOException {
+        // Code to save the file to a database or disk
+        Resource resource = documentParser.increaseFont(fileName);
+        HttpHeaders headers = new HttpHeaders();
+        String modifiedFileName= documentParser.getUnigueFileName("FontSizeModifiedFile");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + modifiedFileName);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(resource.contentLength())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
 }

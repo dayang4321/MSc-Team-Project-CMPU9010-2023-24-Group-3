@@ -3,7 +3,6 @@ package com.docparser.springboot.service;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTFontSize;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTFonts;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHpsMeasure;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
@@ -51,6 +50,28 @@ public class DocumentParser {
             e.printStackTrace(); // Handle the exception
         }
 
+        return new FileSystemResource(tempFile);
+    }
+
+    public FileSystemResource increaseFont(String key) throws IOException {
+        InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key);
+        File tempFile = File.createTempFile("modifiedFile", ".docx");
+        tempFile.deleteOnExit();
+        try (XWPFDocument document = new XWPFDocument(inputStream)) {
+            for (XWPFParagraph paragraph : document.getParagraphs()) {
+                for (XWPFRun run : paragraph.getRuns()) {
+                    CTRPr rpr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
+                    CTHpsMeasure fontSize = rpr.isSetSz() ? rpr.getSz() : rpr.addNewSz();
+                    if(fontSize != null && fontSize.getVal()!=null)
+                    fontSize.setVal(BigInteger.valueOf(fontSize.getVal().longValue() + 25));
+                }
+            }
+            FileOutputStream out = new FileOutputStream(tempFile);
+            document.write(out);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle the exception
+        }
         return new FileSystemResource(tempFile);
     }
 
