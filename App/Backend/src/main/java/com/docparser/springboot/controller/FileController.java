@@ -7,7 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,14 +23,13 @@ public class FileController {
     private S3BucketStorage s3FileUploadService;
 
     @PostMapping("/uploadFile")
-    public ResponseEntity<S3StorageInfo> fileUploading(@RequestParam("file") MultipartFile file)  {
+    public ResponseEntity<S3StorageInfo> fileUploading(@RequestParam("file") MultipartFile file) throws IOException  {
         // Code to save the file to a database or disk
         S3StorageInfo storageInfo = s3FileUploadService.uploadFile(file);
-
         return ResponseEntity.ok(storageInfo);
     }
 
-    @PostMapping("/downloadFile")
+    @GetMapping("/downloadFile")
     public ResponseEntity<Resource> download(@RequestParam("filename") String fileName) throws IOException {
         // Code to save the file to a database or disk
 
