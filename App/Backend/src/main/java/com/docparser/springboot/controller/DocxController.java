@@ -6,7 +6,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +17,7 @@ public class DocxController {
     @Autowired
     private DocumentParser documentParser;
 
-    @PostMapping("/parseDocToChangeFontType")
+    @GetMapping("/parseDocToChangeFontType")
     public ResponseEntity<Resource> changeFont(@RequestParam("filename") String fileName) throws IOException {
         // Code to save the file to a database or disk
 
@@ -35,7 +35,7 @@ public class DocxController {
 
     }
 
-    @PostMapping("/parseDocToIncreaseFontSize")
+    @GetMapping("/parseDocToIncreaseFontSize")
     public ResponseEntity<Resource> increaseFontSize(@RequestParam("filename") String fileName) throws IOException {
         // Code to save the file to a database or disk
         Resource resource = documentParser.increaseFont(fileName);

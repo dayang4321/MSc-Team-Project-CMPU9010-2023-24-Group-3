@@ -30,6 +30,6 @@ public class AWSConfig {
                 .region(Region.of(region))
                 .credentialsProvider(credentialsProvider)
                 .build();
-    }
+    } 
 }
 

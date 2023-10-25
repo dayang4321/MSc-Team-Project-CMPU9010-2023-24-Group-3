@@ -1,6 +1,5 @@
 package com.docparser.springboot.service;
 
-
 import com.docparser.springboot.model.S3StorageInfo;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import java.io.*;
 import java.util.Date;
 import java.util.Objects;
 
-
 @Service
 public class S3BucketStorage {
 
@@ -25,9 +23,9 @@ public class S3BucketStorage {
     @Value("${amazonProperties.region}")
     private String region;
 
-
     @Autowired
     private S3Client s3Client;
+
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
         File convFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
         FileOutputStream fos = new FileOutputStream(convFile);
@@ -42,12 +40,10 @@ public class S3BucketStorage {
 
     private PutObjectResponse uploadFileToS3(String key, File file) throws IOException {
 
-
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .build();
-
 
         PutObjectResponse response = s3Client.putObject(putObjectRequest, file.toPath());
         System.out.println("File uploaded successfully. ETag: " + response.eTag());
@@ -60,21 +56,18 @@ public class S3BucketStorage {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
     }
 
-    public S3StorageInfo uploadFile(MultipartFile multipartFile) {
-        try {
-            File file = convertMultiPartToFile(multipartFile);
-            String fileName = generateFileName(multipartFile);
-            PutObjectResponse s3response = uploadFileToS3(fileName, file);
-            String fileUrl = getUploadedObjectUrl(fileName);
-            file.delete(); // Delete the temporary file after successful upload
-            return new S3StorageInfo(s3response.eTag(), fileUrl,fileName);
-        } catch (Exception e) {
-            e.printStackTrace(); // Consider logging the exception instead of printing it
-        }
-        return null; // Return null if an error occurs
+    public S3StorageInfo uploadFile(MultipartFile multipartFile) throws IOException {
+
+        File file = convertMultiPartToFile(multipartFile);
+        String fileName = generateFileName(multipartFile);
+        PutObjectResponse s3response = uploadFileToS3(fileName, file);
+        String fileUrl = getUploadedObjectUrl(fileName);
+        file.delete(); // Delete the temporary file after successful upload
+
+        return new S3StorageInfo(s3response.eTag(), fileUrl, fileName);
     }
 
-    public InputStream getFileStreamFromS3(String key){
+    public InputStream getFileStreamFromS3(String key) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -82,11 +75,12 @@ public class S3BucketStorage {
         ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
         byte[] data = objectBytes.asByteArray();
         InputStream inputStream = new ByteArrayInputStream(data);
-        return  inputStream;
+        return inputStream;
     }
+
     public FileSystemResource download(String key) throws IOException {
 
-        InputStream inputStream=getFileStreamFromS3(key);
+        InputStream inputStream = getFileStreamFromS3(key);
         File tempFile = File.createTempFile("downloadedFile", ".docx");
         tempFile.deleteOnExit();
         try (XWPFDocument document = new XWPFDocument(inputStream)) {
