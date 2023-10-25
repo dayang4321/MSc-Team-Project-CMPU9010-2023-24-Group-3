@@ -13,6 +13,9 @@ public class S3StorageInfo {
         this.key=key;
     }
 
+    public S3StorageInfo() {
+    }
+
     // Getters and setters
     public String getEtag() {
         return etag;
