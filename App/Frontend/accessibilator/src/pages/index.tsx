@@ -2,9 +2,19 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
 import Button from '../components/UI/Button';
+import axiosInit from '../services/axios';
+import { useRouter } from 'next/router';
 
 export default function Home() {
   const [showMessage, setShowMessage] = useState(false);
+
+  const router = useRouter();
+
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [isUploading, setIsUploading] = useState(false);
+
+  const [docUploadError, setDocUploadError] = useState<null | string>('');
 
   const handleUploadSuccess = () => {
     setShowMessage(true);
@@ -18,6 +28,46 @@ export default function Home() {
   >([]);
 
   console.log(uploadedFiles);
+
+  const onUploadConfirm = () => {
+    setIsUploading(true);
+    const formData = new FormData();
+
+    formData.append('file', uploadedFiles[0].file);
+
+    axiosInit
+      .post('/uploadFile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: function (progressEvent) {
+          let percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percentCompleted);
+        },
+      })
+      .then((res) => {
+        console.log(res);
+
+        //  router.push('/accessibility-review');
+        router.push({
+          pathname: '/accessibility-review',
+          query: { doc_key: res.data.key },
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        setDocUploadError(
+          `An Error Occurred, Please try again ${
+            err?.message ? `(Message: ${err?.message})` : ''
+          }`
+        );
+      })
+      .finally(() => {
+        setIsUploading(false);
+      });
+  };
 
   const onFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (uploadedFiles?.length > 1) {
@@ -47,6 +97,11 @@ export default function Home() {
       }
     });
   };
+
+  const onRetryUpload = () => {
+    setDocUploadError('');
+  };
+
   return (
     <DefaultLayout>
       <Head>
@@ -70,8 +125,20 @@ export default function Home() {
 
           {uploadedFiles.length ? (
             <div className="bg-zinc-700 mt-14 text-zinc-100 text-base rounded-md text-left px-12 py-3">
-              <p className="mb-1">{uploadedFiles?.[0]?.file.name}</p>
-              <p>{niceBytes(uploadedFiles?.[0]?.file.size)}</p>
+              {isUploading ? (
+                <p className="font-semibold text-2xl">
+                  Uploading Document... {uploadProgress} %
+                </p>
+              ) : !!docUploadError ? (
+                <div className="flex justify-between">
+                  <p className="text-lg">{docUploadError}</p>
+                </div>
+              ) : (
+                <>
+                  <p className="mb-1">{uploadedFiles?.[0]?.file.name}</p>
+                  <p>{niceBytes(uploadedFiles?.[0]?.file.size)}</p>
+                </>
+              )}
             </div>
           ) : (
             <label
@@ -106,27 +173,40 @@ export default function Home() {
             </label>
           )}
 
-          {/* <Button text={'Select Document'} onClick={() => {}} /> */}
-          {/* <FileUploadButton onUploadSuccess={handleUploadSuccess} /> */}
-
           <div className="bg-zinc-800 text-right px-8 py-3 absolute bottom-0 left-0 w-full">
             <div
               aria-hidden={!uploadedFiles.length}
               className={uploadedFiles.length ? 'visible' : 'invisible'}
             >
-              <Button
-                variant="link"
-                className=" text-zinc-50 mr-10 py-2 px-6 text-base font-medium"
-                text={'Cancel'}
-                onClick={() => {
-                  setUploadedFiles([]);
-                }}
-              />
-              <Button
-                className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
-                text={'Scan for Accessibility'}
-                onClick={() => {}}
-              />
+              {!!docUploadError ? (
+                <>
+                  <Button
+                    className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
+                    text={'Retry'}
+                    onClick={() => {
+                      onRetryUpload();
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="link"
+                    className=" text-zinc-50 mr-10 py-2 px-6 text-base font-medium"
+                    text={'Cancel'}
+                    onClick={() => {
+                      setUploadedFiles([]);
+                    }}
+                  />
+                  <Button
+                    className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
+                    text={'Scan for Accessibility'}
+                    onClick={() => {
+                      onUploadConfirm();
+                    }}
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>
