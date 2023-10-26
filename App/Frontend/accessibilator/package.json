@@ -7,10 +7,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
-    "antd": "^5.10.0",
     "next": "latest",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-spinners": "^0.13.8"
   },
   "engines": {
     "node": ">=18"

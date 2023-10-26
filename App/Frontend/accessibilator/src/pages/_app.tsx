@@ -1,7 +1,17 @@
 // These styles apply to every route in the application
 import '../styles/global.css';
 import type { AppProps } from 'next/app';
+import { Lexend } from 'next/font/google';
+
+const lexend = Lexend({
+  subsets: ['latin'],
+  variable: '--font-lexend',
+});
 
 export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  return (
+    <div className={`${lexend.variable} font-sans`}>
+      <Component {...pageProps} />
+    </div>
+  );
 }

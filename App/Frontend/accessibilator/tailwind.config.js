@@ -1,8 +1,16 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
-  theme: {
-    extend: {},
+
+import { stone } from 'tailwindcss/colors';
+
+export const content = ['./src/**/*.{js,ts,jsx,tsx,mdx}'];
+export const theme = {
+  extend: {
+    colors: {
+      primary: stone,
+    },
+    fontFamily: {
+      sans: ['var(--font-lexend)'],
+    },
   },
-  plugins: [],
 };
+export const plugins = [];
