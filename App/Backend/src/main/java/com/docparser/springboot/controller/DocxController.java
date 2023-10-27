@@ -7,12 +7,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+@CrossOrigin
 @RestController
 public class DocxController {
     @Autowired
@@ -49,6 +51,7 @@ public class DocxController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
 
      @GetMapping("/modifyFile")
     public ResponseEntity<S3StorageInfo> modifyDocument(@RequestParam("filename") String fileName) throws IOException  {
