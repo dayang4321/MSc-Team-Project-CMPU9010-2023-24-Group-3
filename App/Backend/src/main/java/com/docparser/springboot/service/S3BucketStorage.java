@@ -39,6 +39,9 @@ public class S3BucketStorage {
     private String generateFileName(MultipartFile multiPart) {
         return new Date().getTime() + "-" + multiPart.getOriginalFilename().replace(" ", "_");
     }
+    private String generateFileName(File file) {
+        return new Date().getTime() + "-" + file.getName().replace(" ", "_");
+    }
 
     private PutObjectResponse uploadFileToS3(String key, File file) throws IOException {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -67,6 +70,13 @@ public class S3BucketStorage {
     public S3StorageInfo uploadFile(MultipartFile multipartFile) throws IOException {
         File file = convertMultiPartToFile(multipartFile);
         String fileName = generateFileName(multipartFile);
+        PutObjectResponse s3response = uploadFileToS3(fileName, file);
+        String fileUrl = getUploadedObjectUrl(fileName);
+        file.delete(); // Delete the temporary file after successful upload
+        return new S3StorageInfo(s3response.eTag(), fileUrl, fileName);
+    }
+    public S3StorageInfo uploadFile(File file) throws IOException {
+        String fileName = generateFileName(file);
         PutObjectResponse s3response = uploadFileToS3(fileName, file);
         String fileUrl = getUploadedObjectUrl(fileName);
         file.delete(); // Delete the temporary file after successful upload
