@@ -7,10 +7,15 @@
 @layer base {
   html,
   body {
-    font-family: Lexend, Verdana, 'Segoe UI', Tahoma, sans-serif sans-serif;
+    font-family: Lexend, Verdana, 'Segoe UI', Tahoma, sans-serif;
   }
   * {
     box-sizing: border-box;
+  }
+
+  #react-doc-viewer {
+    /* background-color: red; */
+    flex: 1;
   }
 }
 
