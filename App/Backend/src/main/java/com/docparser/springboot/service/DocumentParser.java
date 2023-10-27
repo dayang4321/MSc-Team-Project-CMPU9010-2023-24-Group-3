@@ -77,7 +77,8 @@ public class DocumentParser {
 
     public S3StorageInfo modifyFile(String key) throws IOException{
         InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key);
-        File tempFile = new File("modified");
+       // File tempFile = new File("modified");
+        File tempFile = File.createTempFile("modifiedFile", ".docx");
         new S3StorageInfo();
         S3StorageInfo storageInfo;
         tempFile.deleteOnExit();
