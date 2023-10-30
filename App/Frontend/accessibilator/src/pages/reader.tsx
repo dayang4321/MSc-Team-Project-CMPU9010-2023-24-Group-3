@@ -18,7 +18,6 @@ const reader = (props: Props) => {
   const docs = [
     {
       uri: Array.isArray(doc_url) ? doc_url[0] : doc_url,
-      //   uri: 'https://accessibilatorfilebucket.s3.eu-north-1.amazonaws.com/1698388929722-Database_of_Databases-Assignment-A.docx?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231027T064210Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=AKIAQ7U36AWOZJW3UAVL%2F20231027%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=67ff1391e9a996fadaf03ea758da9500674c15445399cb01ff69b74ee42a13ba',
     },
   ];
   return (
