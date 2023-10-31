@@ -7,12 +7,36 @@ import MyToggle from '../components/UI/MyToogle';
 import { useRouter } from 'next/router';
 import axiosInit from '../services/axios';
 
+type PrimaryFix =
+  | 'fontStyle'
+  | 'fontSize'
+  | 'interSpacing'
+  | 'lineSpacing'
+  | 'contrast'
+  | 'italics';
+
 export default function IdentifiedFixes() {
   const [showMessage, setShowMessage] = useState(false);
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
   const router = useRouter();
   const { doc_key } = router.query;
+
+  const [choicesObj, setChoicesObj] = useState<Record<PrimaryFix, boolean>>({
+    fontStyle: true,
+    fontSize: true,
+    interSpacing: true,
+    lineSpacing: true,
+    contrast: false,
+    italics: false,
+  });
+
+  const setChoiceHandler = (choice: PrimaryFix) => {
+    setChoicesObj((s) => ({
+      ...s,
+      [choice]: !s[choice],
+    }));
+  };
 
   const onReviewConfirm = () => {
     setIsModifyLoading(true);
@@ -34,11 +58,6 @@ export default function IdentifiedFixes() {
       })
       .catch((err) => {
         console.log(err);
-        // setDocUploadError(
-        //   `An Error Occurred, Please try again ${
-        //     err?.message ? `(Message: ${err?.message})` : ''
-        //   }`
-        // );
       })
       .finally(() => {
         setIsModifyLoading(false);
@@ -65,27 +84,39 @@ export default function IdentifiedFixes() {
           <div className="border rounded-md border-gray-600 p-7 mt-12 divide-y divide-solid">
             <div className="justify-between flex items-center py-5">
               <p>Font style changed</p>
-              <MyToggle />
+              <MyToggle
+                checked={choicesObj.fontStyle}
+                onChange={() => setChoiceHandler('fontStyle')}
+              />
             </div>
             <div className="justify-between flex items-center py-5">
               <p>Font size increased</p>
-              <MyToggle />
+              <MyToggle
+                checked={choicesObj.fontSize}
+                onChange={() => setChoiceHandler('fontSize')}
+              />
             </div>
             <div className="justify-between flex items-center py-5">
               <p>Inter-letter spacing increased</p>
-              <MyToggle />
+              <MyToggle
+                checked={choicesObj.interSpacing}
+                onChange={() => setChoiceHandler('interSpacing')}
+              />
             </div>
             <div className="justify-between flex items-center py-5">
               <p>Line spacing increased</p>
-              <MyToggle />
+              <MyToggle
+                checked={choicesObj.lineSpacing}
+                onChange={() => setChoiceHandler('lineSpacing')}
+              />
             </div>
             <div className="justify-between flex items-center py-5">
               <p>Contrast increased</p>
-              <MyToggle />
+              <MyToggle checked={choicesObj.contrast} />
             </div>
             <div className="justify-between flex items-center py-5">
               <p>Italics removed</p>
-              <MyToggle />
+              <MyToggle checked={choicesObj.italics} />
             </div>
           </div>
         </div>
