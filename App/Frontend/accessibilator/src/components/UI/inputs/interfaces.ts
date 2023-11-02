@@ -22,3 +22,9 @@ export interface MyInputProps
     RHFInputProps {
   id: string | `${string}.${string}` | `${string}.${number}`;
 }
+
+export interface MyTextAreaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    RHFInputProps {
+  id: string | `${string}.${string}` | `${string}.${number}`;
+}
