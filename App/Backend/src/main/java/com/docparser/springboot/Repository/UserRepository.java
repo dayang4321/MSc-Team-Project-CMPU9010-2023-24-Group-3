@@ -7,6 +7,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 
 @Repository
 public class UserRepository {
@@ -21,8 +22,6 @@ public class UserRepository {
 
     public void save(Users user) {
         DynamoDbTable<Users> userTable = getTable();
-        //Thread.currentThread().setContextClassLoader(Users.class.getClassLoader());
-
         userTable.putItem(user);
     }
 

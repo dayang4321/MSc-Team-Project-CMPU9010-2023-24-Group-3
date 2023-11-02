@@ -29,7 +29,7 @@ public class Users {
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
     }
-
+    @DynamoDbAttribute("token")
     public String getTokenID() {
         return tokenID;
     }
@@ -37,7 +37,7 @@ public class Users {
     public void setTokenID(String tokenID) {
         this.tokenID = tokenID;
     }
-
+    @DynamoDbAttribute("created_date")
     public Instant getCreatedDate() {
         return createdDate;
     }
