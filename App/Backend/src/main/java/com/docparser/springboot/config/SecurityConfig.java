@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Configuration
 public class SecurityConfig {
 
-    private static final String[] WHITE_LIST_URL = {"/authenticate"}; // Add your whitelist URLs here
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
