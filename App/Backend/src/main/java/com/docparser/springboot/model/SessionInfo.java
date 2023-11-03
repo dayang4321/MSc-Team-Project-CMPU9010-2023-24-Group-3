@@ -20,6 +20,7 @@ public class SessionInfo {
 
 
     @DynamoDbAttribute("ipAddress")
+    @DynamoDbPartitionKey
     public String getIpAddress() {
         return ipAddress;
     }
@@ -57,7 +58,7 @@ public class SessionInfo {
         this.createdDate = createdDate;
     }
 
-    @DynamoDbPartitionKey
+
     @DynamoDbAttribute("sessionID")
     public String getSessionID() {
         return sessionID;
@@ -67,6 +68,7 @@ public class SessionInfo {
         this.sessionID = sessionID;
     }
     @DynamoDbAttribute("feedbackForms")
+    @DynamoDbConvertedBy(FeedBackFormListConverter.class)
     public List<FeedBackForm> getFeedBackForms() {
         return feedBackForms;
     }

@@ -51,14 +51,16 @@ public class SessionService {
     }
 
     public SessionInfo saveFeedbackInfo(String token, FeedBackForm feedBackForm){
-        SessionInfo session= new SessionInfo();
-        List<FeedBackForm> feedBackFormList =new ArrayList<FeedBackForm>();
+        String ipAddress= getIpAddressFromToken(token);
+        SessionInfo session= sessionRepository.getSessionInfo(ipAddress);
+        List<FeedBackForm> feedBackFormList =session.getFeedBackForms();
+        if(feedBackFormList==null){
+            feedBackFormList= new ArrayList<>();
+        }
         feedBackFormList.add(feedBackForm);
-        String sessionID= getSessionIdFromToken(token);
-        session.setSessionID(sessionID);
         session.setFeedBackForms(feedBackFormList);
         sessionRepository.save(session);
-        SessionInfo sessionInfo = sessionRepository.getSessionInfo(sessionID);
+        SessionInfo sessionInfo = sessionRepository.getSessionInfo(ipAddress);
         return sessionInfo;
     }
 }

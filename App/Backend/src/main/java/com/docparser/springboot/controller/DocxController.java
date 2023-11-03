@@ -63,7 +63,7 @@ public class DocxController {
         return ResponseEntity.ok(storageInfo);
     }
 
-    @GetMapping("/feedback")
+    @PostMapping("/feedback")
     public ResponseEntity<SessionInfo> feedback(@RequestBody FeedBackForm feedBackForm, HttpServletRequest request) throws IOException {
         // Code to save the file to a database or disk
         String token = request.getHeader("Authorization");
