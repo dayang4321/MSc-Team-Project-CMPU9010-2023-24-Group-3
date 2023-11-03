@@ -22,7 +22,7 @@ const MyTextArea: React.FC<MyTextAreaProps> = (props) => {
         <label
           htmlFor={id}
           {...(labelProps && { ...labelProps })}
-          className={`mb-2 block text-sm font-semibold ${
+          className={`mb-2 block text-sm font-medium ${
             labelProps?.className || ''
           }`}
         >

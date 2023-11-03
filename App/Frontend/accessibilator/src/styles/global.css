@@ -21,22 +21,22 @@
 
 @layer components {
   .btn {
-    @apply inline-flex flex-row items-center rounded-lg p-3 text-base font-bold focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-opacity-40  md:text-sm;
+    @apply inline-flex flex-row items-center rounded-lg p-3 text-base font-bold focus:outline-none focus:ring-2 focus:ring-yellow-800 focus:ring-opacity-40  md:text-sm;
   }
 
   .btn-primary {
-    @apply inline-block rounded-md bg-primary-700 px-7 py-3 text-sm font-medium  leading-snug text-white shadow-md transition duration-150 ease-in-out  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-lg;
+    @apply inline-block rounded-md bg-yellow-950 px-7 py-3 text-sm font-medium  leading-snug text-white shadow-md transition duration-150 ease-in-out  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-900 active:shadow-lg;
   }
 
   .btn-link {
-    @apply bg-transparent text-stone-800;
+    @apply bg-transparent text-yellow-950;
   }
 
   .form-control-input {
-    @apply flex h-[3rem] w-full rounded-lg border  border-gray-200 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-2 hover:border-yellow-600  focus:outline-none sm:h-11 sm:text-sm;
+    @apply flex h-[3rem] w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-yellow-600 focus-within:ring-2 hover:border-yellow-600  focus:outline-none sm:h-11 sm:text-sm;
   }
   .form-control-textarea {
-    @apply flex w-full rounded-lg border  border-gray-200 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-2  hover:border-yellow-600  focus:outline-none sm:text-sm;
+    @apply flex w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600  hover:border-yellow-600  focus:outline-none sm:text-sm;
   }
 
   .form-control-prepend {
