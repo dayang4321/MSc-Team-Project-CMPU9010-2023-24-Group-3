@@ -14,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -21,16 +22,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private SessionService jwtTokenService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, ServletException, IOException {
-        String token = request.getHeader("Authorization");
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws  ServletException, IOException {
+        Optional<String> token= Optional.of(request.getHeader("Authorization"));
 
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            String ipAddress = jwtTokenService.getIpAddressFromToken(token);
-
+        if ( token.get().startsWith("Bearer ")) {
+            token = Optional.of(token.get().substring(7));
+            String ipAddress = jwtTokenService.getIpAddressFromToken(token.get());
             // Compare the IP address from the token with the client's IP address
             String clientIpAddress = request.getRemoteAddr();
-
             if (ipAddress.equals(clientIpAddress)) {
                Authentication authentication = new UsernamePasswordAuthenticationToken(ipAddress, null, Collections.emptyList());
                SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -1,5 +1,7 @@
 package com.docparser.springboot.service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.docparser.springboot.Repository.SessionRepository;
 import com.docparser.springboot.model.FeedBackForm;
 import com.docparser.springboot.model.SessionInfo;
@@ -39,7 +41,21 @@ public class SessionService {
 
 
     public String generateAndSaveUserInfo(String ipAddress){
-        SessionInfo session= new SessionInfo();
+        SessionInfo session= sessionRepository.getSessionInfo(ipAddress);
+        if(session!=null){
+            String savedToken= session.getTokenID();
+            DecodedJWT decodedJWT = JWT.decode(savedToken);
+            Date expiresAt = decodedJWT.getExpiresAt();
+            if(expiresAt.before(new Date())){
+                sessionRepository.save(session);
+                String newtoken = generateToken(ipAddress,session.getSessionID());
+                session.setTokenID(newtoken);
+                sessionRepository.save(session);
+                return newtoken;
+            }
+            return  savedToken;
+        }
+        session= new SessionInfo();
        String sessionID= UUID.randomUUID().toString();
         String token = generateToken(ipAddress,sessionID);
         session.setCreatedDate(Instant.now());
@@ -50,7 +66,7 @@ public class SessionService {
         return token;
     }
 
-    public SessionInfo saveFeedbackInfo(String token, FeedBackForm feedBackForm){
+    public SessionInfo saveFeedbackInfo(String token, FeedBackForm feedBackForm) throws NullPointerException{
         String ipAddress= getIpAddressFromToken(token);
         SessionInfo session= sessionRepository.getSessionInfo(ipAddress);
         List<FeedBackForm> feedBackFormList =session.getFeedBackForms();
