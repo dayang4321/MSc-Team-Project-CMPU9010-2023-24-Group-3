@@ -20,7 +20,6 @@ public class SessionInfo {
 
 
     @DynamoDbAttribute("ipAddress")
-    @DynamoDbPartitionKey
     public String getIpAddress() {
         return ipAddress;
     }
@@ -41,6 +40,7 @@ public class SessionInfo {
     }
 
     @DynamoDbAttribute("token")
+
     public String getTokenID() {
         return tokenID;
     }
@@ -60,6 +60,7 @@ public class SessionInfo {
 
 
     @DynamoDbAttribute("sessionID")
+    @DynamoDbPartitionKey
     public String getSessionID() {
         return sessionID;
     }

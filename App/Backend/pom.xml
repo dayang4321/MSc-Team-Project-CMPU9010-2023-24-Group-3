@@ -93,7 +93,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>backend_application</finalName>
+        <finalName>backend_application_01</finalName>
     </build>
 
 </project>

@@ -5,8 +5,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.docparser.springboot.Repository.SessionRepository;
 import com.docparser.springboot.model.FeedBackForm;
 import com.docparser.springboot.model.SessionInfo;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,20 +20,28 @@ public class SessionService {
     @Autowired
     SessionRepository sessionRepository;
     private static final String SECRET_KEY = "ana7263nsnakka838";
-    public String generateToken(String ipAddress, String sessionID){
+    public String generateToken( String sessionID){
     Instant now = Instant.now();
     Instant expirationTime = now.plusSeconds(3600);
         return Jwts.builder().setId(sessionID)
-                .setSubject(ipAddress)
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(expirationTime))
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
                 .compact();
 
+
 }
-    public String getIpAddressFromToken(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+            return true;
+        } catch (SignatureException | IllegalArgumentException | MalformedJwtException | ExpiredJwtException |
+                 UnsupportedJwtException ex) {
+            throw  new RuntimeException(ex.getMessage());
+        }
     }
+
     public String getSessionIdFromToken(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getId();
     }
@@ -47,8 +54,7 @@ public class SessionService {
             DecodedJWT decodedJWT = JWT.decode(savedToken);
             Date expiresAt = decodedJWT.getExpiresAt();
             if(expiresAt.before(new Date())){
-                sessionRepository.save(session);
-                String newtoken = generateToken(ipAddress,session.getSessionID());
+                String newtoken = generateToken(session.getSessionID());
                 session.setTokenID(newtoken);
                 sessionRepository.save(session);
                 return newtoken;
@@ -57,7 +63,7 @@ public class SessionService {
         }
         session= new SessionInfo();
        String sessionID= UUID.randomUUID().toString();
-        String token = generateToken(ipAddress,sessionID);
+        String token = generateToken(sessionID);
         session.setCreatedDate(Instant.now());
         session.setIpAddress(ipAddress);
         session.setTokenID(token);
@@ -67,8 +73,8 @@ public class SessionService {
     }
 
     public SessionInfo saveFeedbackInfo(String token, FeedBackForm feedBackForm) throws NullPointerException{
-        String ipAddress= getIpAddressFromToken(token);
-        SessionInfo session= sessionRepository.getSessionInfo(ipAddress);
+        String sessionID= getSessionIdFromToken(token);
+        SessionInfo session= sessionRepository.getSessionInfo(sessionID);
         List<FeedBackForm> feedBackFormList =session.getFeedBackForms();
         if(feedBackFormList==null){
             feedBackFormList= new ArrayList<>();
@@ -76,9 +82,11 @@ public class SessionService {
         feedBackFormList.add(feedBackForm);
         session.setFeedBackForms(feedBackFormList);
         sessionRepository.save(session);
-        SessionInfo sessionInfo = sessionRepository.getSessionInfo(ipAddress);
+        SessionInfo sessionInfo = sessionRepository.getSessionInfo(sessionID);
         return sessionInfo;
     }
+
+
 }
 
 

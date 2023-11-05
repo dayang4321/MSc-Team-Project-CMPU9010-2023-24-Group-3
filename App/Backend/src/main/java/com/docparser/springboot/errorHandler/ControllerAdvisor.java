@@ -37,5 +37,12 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(RuntimeException.class )
+    public ResponseEntity<Object> handleAuthenticationError(
+            RuntimeException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(400, ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
 
 }

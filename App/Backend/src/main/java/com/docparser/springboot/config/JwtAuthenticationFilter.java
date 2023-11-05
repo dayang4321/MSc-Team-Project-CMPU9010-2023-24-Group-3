@@ -23,15 +23,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws  ServletException, IOException {
-        Optional<String> token= Optional.of(request.getHeader("Authorization"));
+        Optional<String> token= Optional.ofNullable(request.getHeader("Authorization"));
 
-        if ( token.get().startsWith("Bearer ")) {
+        if ( !token.isEmpty() && token.get().startsWith("Bearer ")) {
             token = Optional.of(token.get().substring(7));
-            String ipAddress = jwtTokenService.getIpAddressFromToken(token.get());
-            // Compare the IP address from the token with the client's IP address
-            String clientIpAddress = request.getRemoteAddr();
-            if (ipAddress.equals(clientIpAddress)) {
-               Authentication authentication = new UsernamePasswordAuthenticationToken(ipAddress, null, Collections.emptyList());
+
+            // validate the token
+            if ( jwtTokenService.validateToken(token.get())) {
+               Authentication authentication = new UsernamePasswordAuthenticationToken(jwtTokenService.getSessionIdFromToken(token.get()), null, Collections.emptyList());
                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
