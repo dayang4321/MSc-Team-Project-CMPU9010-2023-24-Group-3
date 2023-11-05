@@ -48,7 +48,7 @@ public class DocumentParser {
             document.write(out);
             out.close();
         } catch (IOException e) {
-            e.printStackTrace(); // Handle the exception
+           throw new IOException("Error while changing font type"+e.getMessage());
         }
 
         return new FileSystemResource(tempFile);
