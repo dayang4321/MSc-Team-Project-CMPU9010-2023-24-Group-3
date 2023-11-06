@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws  ServletException, IOException {
         Optional<String> token= Optional.ofNullable(request.getHeader("Authorization"));
 
-        if ( !token.isEmpty() && token.get().startsWith("Bearer ")) {
+        if ( token.isPresent() && token.get().startsWith("Bearer ")) {
             token = Optional.of(token.get().substring(7));
 
             // validate the token
