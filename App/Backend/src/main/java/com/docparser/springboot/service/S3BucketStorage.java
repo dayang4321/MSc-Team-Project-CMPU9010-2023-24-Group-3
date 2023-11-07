@@ -1,12 +1,13 @@
 package com.docparser.springboot.service;
 
-import com.docparser.springboot.model.S3StorageInfo;
+
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -16,71 +17,43 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 
 import java.io.*;
 import java.time.Duration;
-import java.util.Date;
-import java.util.Objects;
+
 
 @Service
 public class S3BucketStorage {
+    Logger logger = LoggerFactory.getLogger(S3BucketStorage.class);
     @Value("${amazonProperties.bucketName}")
     private String bucketName;
     @Autowired
     private S3Client s3Client;
     @Autowired
     private S3Presigner s3Presigner;
+  
 
-    private File convertMultiPartToFile(MultipartFile file) throws IOException {
-        File convFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
-        FileOutputStream fos = new FileOutputStream(convFile);
-        fos.write(file.getBytes());
-        fos.close();
-        return convFile;
-    }
 
-    private String generateFileName(MultipartFile multiPart) {
-        return new Date().getTime() + "-" + multiPart.getOriginalFilename().replace(" ", "_");
-    }
-    private String generateFileName(File file) {
-        return new Date().getTime() + "-" + file.getName().replace(" ", "_");
-    }
-
-    private PutObjectResponse uploadFileToS3(String key, File file) throws IOException {
+    public PutObjectResponse uploadFileToS3(String key, File file) throws IOException {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .build();
         PutObjectResponse response = s3Client.putObject(putObjectRequest, file.toPath());
-        System.out.println("File uploaded successfully. ETag: " + response.eTag());
+        logger.info("modified file successfully uploaded to s3"+response.toString());
         return response;
     }
 
-    private String getUploadedObjectUrl(String fileName) {
+    public String getUploadedObjectUrl(String fileName, String versionId) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)
+                .versionId(versionId)
                 .build();
         GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofMinutes(180))
                 .getObjectRequest(getObjectRequest)
                 .build();
         PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(getObjectPresignRequest);
-
+        logger.info("successfully obtained presigned URL"+presignedGetObjectRequest.url().toString());
         return presignedGetObjectRequest.url().toString();
-    }
-
-    public S3StorageInfo uploadFile(MultipartFile multipartFile) throws IOException {
-        File file = convertMultiPartToFile(multipartFile);
-        String fileName = generateFileName(multipartFile);
-        PutObjectResponse s3response = uploadFileToS3(fileName, file);
-        String fileUrl = getUploadedObjectUrl(fileName);
-        file.delete(); // Delete the temporary file after successful upload
-        return new S3StorageInfo(s3response.eTag(), fileUrl, fileName);
-    }
-    public S3StorageInfo uploadFile(File file) throws IOException {
-        String fileName = generateFileName(file);
-        PutObjectResponse s3response = uploadFileToS3(fileName, file);
-        String fileUrl = getUploadedObjectUrl(fileName);
-        file.delete(); // Delete the temporary file after successful upload
-        return new S3StorageInfo(s3response.eTag(), fileUrl, fileName);
     }
 
     public InputStream getFileStreamFromS3(String key) {

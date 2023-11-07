@@ -2,7 +2,6 @@ package com.docparser.springboot.model;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.time.Instant;
@@ -69,7 +68,6 @@ public class SessionInfo {
         this.sessionID = sessionID;
     }
     @DynamoDbAttribute("feedbackForms")
-    @DynamoDbConvertedBy(FeedBackFormListConverter.class)
     public List<FeedBackForm> getFeedBackForms() {
         return feedBackForms;
     }

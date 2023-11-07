@@ -4,13 +4,15 @@ public class S3StorageInfo {
     private String etag;
     private String url;
     private String key;
+    private String versionID;
 
 
     // Constructors, getters, and setters
-    public S3StorageInfo(String etag, String url, String key) {
+    public S3StorageInfo(String etag, String url, String key, String versionID){
         this.etag = etag;
         this.url = url;
         this.key=key;
+        this.versionID= versionID;
     }
 
     public S3StorageInfo() {
@@ -36,4 +38,7 @@ public class S3StorageInfo {
     public void setKey(String key) { this.key = key; }
 
     public String getKey() { return key; }
+    public void setVersionID(String versionID) { this.versionID = versionID; }
+
+    public String getVersionID() { return versionID; }
 }
