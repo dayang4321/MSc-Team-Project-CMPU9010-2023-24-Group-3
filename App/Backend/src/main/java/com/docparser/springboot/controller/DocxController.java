@@ -1,10 +1,7 @@
 package com.docparser.springboot.controller;
 
-import com.docparser.springboot.model.DocumentInfo;
 import com.docparser.springboot.model.S3StorageInfo;
-
 import com.docparser.springboot.service.DocumentParser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +31,7 @@ public class DocxController {
         Resource resource = documentParser.changeFontType(fileName);
 
         HttpHeaders headers = new HttpHeaders();
-        String modifiedFileName = documentParser.getUniqueFileName("FontTypeModifiedFile");
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + modifiedFileName);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
 
         return ResponseEntity.ok()
                 .headers(headers)
@@ -45,9 +41,9 @@ public class DocxController {
 
     }
     @PostMapping("/uploadFile")
-    public ResponseEntity<DocumentInfo> fileUploading(@RequestParam("file") MultipartFile file) throws IOException  {
+    public ResponseEntity<S3StorageInfo> fileUploading(@RequestParam("file") MultipartFile file) throws IOException  {
         // Code to save the file to a database or disk
-        DocumentInfo storageInfo = documentParser.uploadFile(file);
+        S3StorageInfo storageInfo = documentParser.uploadFile(file);
         return ResponseEntity.ok(storageInfo);
     }
 
@@ -56,8 +52,7 @@ public class DocxController {
         // Code to save the file to a database or disk
         Resource resource = documentParser.increaseFont(fileName);
         HttpHeaders headers = new HttpHeaders();
-        String modifiedFileName = documentParser.getUniqueFileName("FontSizeModifiedFile");
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + modifiedFileName);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentLength(resource.contentLength())
@@ -67,9 +62,9 @@ public class DocxController {
 
 
     @GetMapping("/modifyFile")
-    public ResponseEntity<S3StorageInfo> modifyDocument(@RequestParam("filename") String fileName) throws IOException {
+    public ResponseEntity<S3StorageInfo> modifyDocument(@RequestParam("filename") String fileName,@RequestParam("docID") String docID) throws IOException {
         // Code to save the file to a database or disk
-        S3StorageInfo storageInfo = documentParser.modifyFile(fileName);
+        S3StorageInfo storageInfo = documentParser.modifyFile(fileName,docID);
         return ResponseEntity.ok(storageInfo);
     }
 

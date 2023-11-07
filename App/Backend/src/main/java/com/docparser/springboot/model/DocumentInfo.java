@@ -11,6 +11,8 @@ public class DocumentInfo {
 
     private String documentID;
 
+    private String documentKey;
+
     private List<ParagraphStyleInfo> paragraphInfo;
 
     private List<String> documentVersions;
@@ -38,5 +40,13 @@ public class DocumentInfo {
 
     public void setDocumentVersions(List<String> documentVersions) {
         this.documentVersions = documentVersions;
+    }
+
+    @DynamoDbAttribute("documentKey")
+    public String getDocumentKey() {
+        return documentKey;
+    }
+    public  void setDocumentKey(String documentKey) {
+        this.documentKey = documentKey;
     }
 }
