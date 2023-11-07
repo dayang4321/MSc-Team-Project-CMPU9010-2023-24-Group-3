@@ -16,10 +16,7 @@ public class AuthController {
     private SessionService jwtTokenService;
 
     @GetMapping("/getToken")
-        public String authenticate(HttpServletRequest request) {
-        String ipAddress = request.getRemoteAddr();
-        String token = jwtTokenService.generateAndSaveUserInfo(ipAddress);
-        logger.info("token generated for ip address "+ipAddress);
-        return token;
+        public String authenticate() {
+        return  jwtTokenService.generateAndSaveUserInfo();
     }
 }

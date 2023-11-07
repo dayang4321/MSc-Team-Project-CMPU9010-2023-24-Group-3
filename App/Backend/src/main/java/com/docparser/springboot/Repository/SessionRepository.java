@@ -16,9 +16,18 @@ public class SessionRepository {
 
     public static final TableSchema<FeedBackForm> TABLE_SCHEMA_FEEDBACKFORM = TableSchema.builder(FeedBackForm.class)
             .newItemSupplier(FeedBackForm::new)
-            .addAttribute(String.class, a -> a.name("message")
-                    .getter(FeedBackForm::getMessage)
-                    .setter(FeedBackForm::setMessage))
+            .addAttribute(String.class, a -> a.name("email")
+                    .getter(FeedBackForm::getEmail)
+                    .setter(FeedBackForm::setEmail))
+            .addAttribute(String.class, a -> a.name("whatUserLiked")
+                    .getter(FeedBackForm::getWhatUserLiked)
+                    .setter(FeedBackForm::setWhatUserLiked))
+            .addAttribute(String.class, a -> a.name("whatUserDisliked")
+                    .getter(FeedBackForm::getWhatUserDisliked)
+                    .setter(FeedBackForm::setWhatUserDisliked))
+            .addAttribute(String.class, a -> a.name("newFeatures")
+                    .getter(FeedBackForm::getNewFeatures)
+                    .setter(FeedBackForm::setNewFeatures))
             .build();
 
     public static final TableSchema<SessionInfo> SESSION_INFO_TABLE_SCHEMA =

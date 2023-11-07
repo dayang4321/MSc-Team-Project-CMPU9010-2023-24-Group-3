@@ -9,40 +9,28 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
+
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<ErrorResponse> handleException(IOException ex) {
+
+
+    @ExceptionHandler({IOException.class, NullPointerException.class, IllegalStateException.class})
+    public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse(500, ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(ServletException.class )
-    public ResponseEntity<Object> handleAccessDeniedException(
-            ServletException ex, WebRequest request) {
+    @ExceptionHandler({ServletException.class,SessionNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(ServletException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(403, ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(NullPointerException.class )
-    public ResponseEntity<Object> handleNullPointerException(
-            NullPointerException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(500, ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-    @ExceptionHandler(IllegalStateException.class )
-    public ResponseEntity<Object> handleIllegalStateException(
-            IllegalStateException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(500, ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(RuntimeException.class )
-    public ResponseEntity<Object> handleAuthenticationError(
-            RuntimeException ex) {
+    @ExceptionHandler({RuntimeException.class, FileParsingException.class})
+    public ResponseEntity<ErrorResponse> handleSpecificExceptions(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse(400, ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-
-
 }
+
+

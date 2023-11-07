@@ -36,7 +36,7 @@ public class DocumentParser {
     private static final int FONT_SIZE = 16;
     private static final String FONT_COLOR = "000000";
     private static final String BACKGROUND_COLOR = "FFFFFF";
-    private static final String PARAGRAPH_ALIGNMENT = "LEFT";
+    //private static final String PARAGRAPH_ALIGNMENT = "LEFT";
     private static final int LINE_SPACING = 360;
     private static final int CHAR_SPACING = 50;
 

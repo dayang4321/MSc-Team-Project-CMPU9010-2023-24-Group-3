@@ -28,17 +28,16 @@ public class FeedbackController {
 
 
     @ResponseBody
-    @PostMapping("/postFeedback")
+    @PostMapping("/feedback")
     public ResponseEntity<String> postFeedback(@RequestBody FeedBackForm feedBackForm, HttpServletRequest request) throws JsonProcessingException {
         // Code to save the file to a database or disk
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
         sessionService.saveFeedbackInfo(token.get().substring(7), feedBackForm);
-
         return ResponseEntity.ok("Feedback saved successfully");
     }
 
 
-    @GetMapping("/getFeedback")
+    @GetMapping("/fetch/feedback")
     public ResponseEntity<Object> getFeedback(HttpServletRequest request) throws JsonProcessingException {
         // Code to save the file to a database or disk
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
