@@ -55,6 +55,7 @@ public class DocumentRepository {
     public void save(DocumentInfo documentInfo) {
         DynamoDbTable<DocumentInfo> documentInfoTable = getTable();
         documentInfoTable.putItem(documentInfo);
+
     }
 
     public DocumentInfo getDocumentInfo(String documentID) {
