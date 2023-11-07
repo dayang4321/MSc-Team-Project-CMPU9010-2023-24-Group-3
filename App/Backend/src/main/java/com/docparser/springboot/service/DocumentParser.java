@@ -8,6 +8,8 @@ import com.docparser.springboot.model.S3StorageInfo;
 import com.docparser.springboot.utils.FileUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class DocumentParser {
+    Logger logger = LoggerFactory.getLogger(DocumentParser.class);
     private final S3BucketStorage s3FileUploadService;
     @Autowired
     private FileUtils fileUtils;
@@ -66,6 +69,7 @@ public class DocumentParser {
             document.write(out);
             out.close();
         } catch (IOException e) {
+            logger.error("Error while changing font type" + e.getMessage());
             throw new IOException("Error while changing font type" + e.getMessage());
         }
 
@@ -100,7 +104,6 @@ public class DocumentParser {
         return run -> {
             run.setFontSize(FONT_SIZE);
             CTRPr rpr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
-            Optional.ofNullable(rpr.getColor()).ifPresent(color -> color.setVal(FONT_COLOR));
             Optional.ofNullable(rpr.getColor()).ifPresentOrElse(
                     color -> {
                         color.setVal(FONT_COLOR);
@@ -111,7 +114,7 @@ public class DocumentParser {
                     }
             );
             run.setFontFamily(FONT_TYPE);
-            run.setColor("FF0000");
+            run.setColor(FONT_COLOR);
             CTRPr rPr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
             CTSignedTwipsMeasure charSpacing = rPr.addNewSpacing();
             charSpacing.setVal(BigInteger.valueOf(CHAR_SPACING));
@@ -142,12 +145,14 @@ public class DocumentParser {
                                 ctpPr.getSpacing().setLine(new BigInteger(String.valueOf(LINE_SPACING)));
                             }
                         }
+                        logger.info("modifying runs in paragraph");
                         paragraph.getRuns().forEach(modifyRun());
                     });
             FileOutputStream out = new FileOutputStream(tempFile);
             document.write(out);
             out.close();
         } catch (Exception e) {
+            logger.error("Error while modifying document" + e.getMessage());
             throw new FileParsingException(e.getMessage()); // Handle or log the exception appropriately
         }
     }
@@ -157,6 +162,7 @@ public class DocumentParser {
         File tempFile = new File(key);
         S3StorageInfo documentInfo = new S3StorageInfo();
         tempFile.deleteOnExit();
+        logger.info("initiating file modification");
         modifyDocument(tempFile, inputStream);
         documentInfo = uploadFileAfterModification(tempFile, docID);
 
@@ -215,6 +221,7 @@ public class DocumentParser {
         DocumentInfo documentInfo = documentRepository.getDocumentInfo(docID);
         documentInfo.getDocumentVersions().add(fileUrl);
         documentRepository.save(documentInfo);
+
         file.delete(); // Delete the temporary file after successful upload
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }

@@ -2,6 +2,8 @@ package com.docparser.springboot.service;
 
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -19,6 +21,7 @@ import java.time.Duration;
 
 @Service
 public class S3BucketStorage {
+    Logger logger = LoggerFactory.getLogger(S3BucketStorage.class);
     @Value("${amazonProperties.bucketName}")
     private String bucketName;
     @Autowired
@@ -34,7 +37,7 @@ public class S3BucketStorage {
                 .key(key)
                 .build();
         PutObjectResponse response = s3Client.putObject(putObjectRequest, file.toPath());
-        System.out.println("File uploaded successfully. ETag: " + response.eTag());
+        logger.info("modified file successfully uploaded to s3"+response.toString());
         return response;
     }
 
@@ -49,7 +52,7 @@ public class S3BucketStorage {
                 .getObjectRequest(getObjectRequest)
                 .build();
         PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(getObjectPresignRequest);
-
+        logger.info("successfully obtained presigned URL"+presignedGetObjectRequest.url().toString());
         return presignedGetObjectRequest.url().toString();
     }
 
