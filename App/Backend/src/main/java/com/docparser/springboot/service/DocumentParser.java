@@ -146,6 +146,7 @@ public class DocumentParser {
                                 ctpPr.getSpacing().setLine(new BigInteger(String.valueOf(LINE_SPACING)));
                             }
                         }
+                        logger.info("modifying runs in paragraph");
                         paragraph.getRuns().forEach(modifyRun());
                     });
             FileOutputStream out = new FileOutputStream(tempFile);
