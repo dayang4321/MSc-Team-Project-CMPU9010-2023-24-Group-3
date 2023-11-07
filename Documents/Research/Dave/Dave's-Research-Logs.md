@@ -421,3 +421,14 @@ https://tailwindcomponents.com/component/dragdrop-sortable-dropzone-file-upload-
 
 Web API design best practices - Azure Architecture Center | Microsoft Learn
 https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
+
+## Week 8
+
+The thundering herd — Distributed Systems rate limiting | by Venktesh Subramaniam | Medium
+https://medium.com/@venkteshsubramaniam/the-thundering-herd-distributed-systems-rate-limiting-9128d20e1f00
+
+Don’t Build AI Products The Way Everyone Else Is Doing It | Steve Sewell
+https://www.builder.io/blog/build-ai
+
+Top 5 Redis Use Cases - YouTube
+https://www.youtube.com/watch?v=a4yX7RUgTxI
