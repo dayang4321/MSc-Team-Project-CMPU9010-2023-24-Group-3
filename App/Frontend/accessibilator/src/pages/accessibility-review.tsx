@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
 
 import Button from '../components/UI/Button';
-import MyToggle from '../components/UI/MyToogle';
+import MyToggle from '../components/UI/MyToggle';
 import { useRouter } from 'next/router';
 import axiosInit from '../services/axios';
 

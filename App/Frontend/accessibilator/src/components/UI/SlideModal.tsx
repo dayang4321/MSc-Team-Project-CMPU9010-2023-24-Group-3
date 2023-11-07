@@ -1,4 +1,3 @@
-/* This example requires Tailwind CSS v2.0+ */
 import { Dispatch, Fragment, SetStateAction, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -88,9 +87,7 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
                     </Dialog.Title>
                   </div>
                   <div className="pt-8 font-sans px-1 text-base sm:text-sm flex-1 flex flex-col overflow-y-hidden">
-                    {/* Replace with your content */}
                     {children}
-                    {/* /End replace */}
                   </div>
                 </div>
               </div>
