@@ -450,3 +450,10 @@ https://www.youtube.com/watch?v=u8vMu7viCm8
 
 React Testing Crash Course with Next.js
 https://www.youtube.com/watch?v=Q-Sg4p_iQvw&pp=ygUUdW5pdCB0ZXN0aW5nICBuZXh0anM%3D
+
+How to Manage Permissions for Members in a Github Organization
+https://www.howtogeek.com/devops/how-to-manage-permissions-for-members-in-a-github-organization
+
+How to manage collaborator rights in Github?
+(Only organization accounts can provide role based access to collaborators)
+https://stackoverflow.com/questions/16250301/how-to-manage-collaborator-rights-in-github
