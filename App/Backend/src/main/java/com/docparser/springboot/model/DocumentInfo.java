@@ -15,7 +15,7 @@ public class DocumentInfo {
 
     private List<ParagraphStyleInfo> paragraphInfo;
 
-    private List<String> documentVersions;
+    private List<VersionInfo> documentVersions;
     @DynamoDbAttribute("documentID")
     @DynamoDbPartitionKey
     public String getDocumentID() {
@@ -34,11 +34,11 @@ public class DocumentInfo {
         this.paragraphInfo = paragraphInfo;
     }
     @DynamoDbAttribute("documentVersions")
-    public List<String> getDocumentVersions() {
+    public List<VersionInfo> getDocumentVersions() {
         return documentVersions;
     }
 
-    public void setDocumentVersions(List<String> documentVersions) {
+    public void setDocumentVersions(List<VersionInfo> documentVersions) {
         this.documentVersions = documentVersions;
     }
 

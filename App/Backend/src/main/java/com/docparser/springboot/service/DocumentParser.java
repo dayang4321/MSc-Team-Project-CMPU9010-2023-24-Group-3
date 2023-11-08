@@ -5,6 +5,7 @@ import com.docparser.springboot.errorHandler.FileParsingException;
 import com.docparser.springboot.model.DocumentInfo;
 import com.docparser.springboot.model.ParagraphStyleInfo;
 import com.docparser.springboot.model.S3StorageInfo;
+import com.docparser.springboot.model.VersionInfo;
 import com.docparser.springboot.utils.FileUtils;
 import com.docparser.springboot.utils.ParsingUtils;
 import org.apache.poi.xwpf.usermodel.*;
@@ -149,29 +150,38 @@ public class DocumentParser {
                         return paragraphStyleInfo;
                     })
                     .collect(Collectors.toList());
-        } catch (IOException  | RuntimeException e) {
+        } catch (IOException | RuntimeException e) {
             throw new FileParsingException("Error while fetching document metadata" + e.getMessage());
         }
         return paragraphStyleInfoList;
     }
 
+        private List<VersionInfo> setDocumentVersions (PutObjectResponse s3response, String fileName){
+            VersionInfo versionInfo = new VersionInfo();
+            List<VersionInfo> documentVersions = new ArrayList<>();
+            versionInfo.seteTag(s3response.eTag());
+            String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
+            versionInfo.setUrl(fileUrl);
+            versionInfo.setVersionID(s3response.versionId());
+            documentVersions.add(versionInfo);
+            return documentVersions;
+        }
+
+
     public S3StorageInfo uploadFile(MultipartFile multipartFile) throws IOException {
         File file = fileUtils.convertMultiPartToFile(multipartFile);
         String fileName = fileUtils.generateFileName(multipartFile);
         DocumentInfo documentInfo = new DocumentInfo();
-        List<String> documentVersions = new ArrayList<>();
-
         List<ParagraphStyleInfo> paragraphStyleInfoList = fetchDocumentMetaData(file);
         documentInfo.setParagraphInfo(paragraphStyleInfoList);
         documentInfo.setDocumentKey(fileName);
 
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
-        documentInfo.setDocumentID(UUID.randomUUID().toString());
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
-        documentVersions.add(fileUrl);
-        documentInfo.setDocumentVersions(documentVersions);
-        documentRepository.save(documentInfo);
+        documentInfo.setDocumentID(UUID.randomUUID().toString());
 
+        documentInfo.setDocumentVersions(setDocumentVersions(s3response, fileName));
+        documentRepository.save(documentInfo);
         file.delete();
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
@@ -182,7 +192,7 @@ public class DocumentParser {
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
 
         DocumentInfo documentInfo = documentRepository.getDocumentInfo(docID);
-        documentInfo.getDocumentVersions().add(fileUrl);
+        documentInfo.getDocumentVersions().add(new VersionInfo(s3response.versionId(), s3response.eTag(), fileUrl));
         documentRepository.save(documentInfo);
 
         file.delete(); // Delete the temporary file after successful upload
