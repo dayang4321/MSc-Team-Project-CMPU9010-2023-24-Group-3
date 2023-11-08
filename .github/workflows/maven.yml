@@ -30,7 +30,7 @@ jobs:
         working-directory: /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend
         run: mvn -B -DskipTests package --file pom.xml
       - name: Deploy jar file
-        run: sudo kill -9 `sudo lsof -t -i:80` &  java -jar /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend/target/backend_application_01.jar  --spring.config.location=/home/ec2-user/config &
+        run: sudo kill -9 `sudo lsof -t -i:80` &  java -jar /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend/target/backend_application_01.jar  --spring.config.location=/home/ec2-user/config/ &
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
       - name: Update dependency graph
