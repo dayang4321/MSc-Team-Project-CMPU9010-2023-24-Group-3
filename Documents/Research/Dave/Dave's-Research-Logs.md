@@ -430,5 +430,17 @@ https://medium.com/@venkteshsubramaniam/the-thundering-herd-distributed-systems-
 Don’t Build AI Products The Way Everyone Else Is Doing It | Steve Sewell
 https://www.builder.io/blog/build-ai
 
+REST API Design Guidance - Code With Engineering Playbook
+https://microsoft.github.io/code-with-engineering-playbook/design/design-patterns/rest-api-design-guidance/
+
 Top 5 Redis Use Cases - YouTube
 https://www.youtube.com/watch?v=a4yX7RUgTxI
+
+Create your own GPU accelerated Jupyter Notebook Server for Google Colab using Docker | by Sascha Kirch | Towards Data Science
+https://towardsdatascience.com/create-your-own-gpu-accelerated-yupyter-notebook-server-with-google-colab-using-docker-2fa14900bab5
+
+Build boring software - The Intercom Blog (an insight to how new is not always better)
+https://www.intercom.com/blog/videos/build-boring-software/
+
+APIs vs Webhooks - YouTube
+https://www.youtube.com/watch?v=K7Fl9EJ92cg&pp=ygUId2ViaG9va3M%3D
