@@ -444,3 +444,9 @@ https://www.intercom.com/blog/videos/build-boring-software/
 
 APIs vs Webhooks - YouTube
 https://www.youtube.com/watch?v=K7Fl9EJ92cg&pp=ygUId2ViaG9va3M%3D
+
+Testing JavaScript with Cypress – Full Course
+https://www.youtube.com/watch?v=u8vMu7viCm8
+
+React Testing Crash Course with Next.js
+https://www.youtube.com/watch?v=Q-Sg4p_iQvw&pp=ygUUdW5pdCB0ZXN0aW5nICBuZXh0anM%3D
