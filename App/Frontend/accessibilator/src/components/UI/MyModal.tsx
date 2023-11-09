@@ -16,7 +16,7 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={onModalClose}>
+        <Dialog as="div" static className="relative z-10" onClose={() => {}}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
