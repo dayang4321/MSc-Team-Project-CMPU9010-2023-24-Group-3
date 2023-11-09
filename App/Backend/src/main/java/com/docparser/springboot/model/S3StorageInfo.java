@@ -1,15 +1,15 @@
 package com.docparser.springboot.model;
 
 public class S3StorageInfo {
-    private String etag;
+    private String documentID;
     private String url;
     private String key;
     private String versionID;
 
 
     // Constructors, getters, and setters
-    public S3StorageInfo(String etag, String url, String key, String versionID){
-        this.etag = etag;
+    public S3StorageInfo(String documentID, String url, String key, String versionID){
+        this.documentID = documentID;
         this.url = url;
         this.key=key;
         this.versionID= versionID;
@@ -19,12 +19,12 @@ public class S3StorageInfo {
     }
 
     // Getters and setters
-    public String getEtag() {
-        return etag;
+    public String getDocumentID() {
+        return documentID;
     }
 
-    public void setEtag(String etag) {
-        this.etag = etag;
+    public void setDocumentID(String documentID) {
+        this.documentID = documentID;
     }
 
     public String getUrl() {
