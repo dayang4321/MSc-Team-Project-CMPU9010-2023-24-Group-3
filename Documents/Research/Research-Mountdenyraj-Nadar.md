@@ -18,3 +18,7 @@ module.exports = nextConfig
 `next.config.js` is a regular Node.js module, not a JSON file. It gets used by the NEXT.JS server and build phases, and it's not included in the browser build.
 
 Reference: [NEXT.JS Accessibility Documentation](https://nextjs.org/docs/app/api-reference/next-config-js)
+
+## NEXT.JS Guidelines for better web accessibility in our forms
+
+Reference: [NEXT.JS Accessibility Article](https://nextjs.org/learn/dashboard-app/improving-accessibility)
