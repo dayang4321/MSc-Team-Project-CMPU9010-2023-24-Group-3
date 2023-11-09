@@ -34,7 +34,9 @@ const DefaultLayout: FC<LayoutProps> = ({ children, variant }) => {
           <Button
             role="navigation"
             variant="link"
-            className="ml-auto text-stone-100 underline py-2 px-6 text-base font-medium"
+            className={`ml-auto inline-block  underline py-2 px-6 text-base font-medium  ${
+              variant === 'dark' ? 'text-stone-100' : 'text-stone-900'
+            } `}
             text={'Send Feedback'}
             onClick={() => {
               setIsShowingFeedback(true);
