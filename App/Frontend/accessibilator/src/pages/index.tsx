@@ -1,9 +1,9 @@
-import Head from 'next/head';
-import React, { useState } from 'react';
-import DefaultLayout from '../layouts/DefaultLayout';
-import Button from '../components/UI/Button';
-import axiosInit from '../services/axios';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import React, { useRef, useState } from "react";
+import DefaultLayout from "../layouts/DefaultLayout";
+import Button from "../components/UI/Button";
+import axiosInit from "../services/axios";
+import { useRouter } from "next/router";
 
 export default function Home() {
   const [showMessage, setShowMessage] = useState(false);
@@ -14,7 +14,9 @@ export default function Home() {
 
   const [isUploading, setIsUploading] = useState(false);
 
-  const [docUploadError, setDocUploadError] = useState<null | string>('');
+  const [docUploadError, setDocUploadError] = useState<null | string>("");
+
+  const [dragActive, setDragActive] = useState(false);
 
   const handleUploadSuccess = () => {
     setShowMessage(true);
@@ -24,21 +26,23 @@ export default function Home() {
   };
 
   const [uploadedFiles, setUploadedFiles] = useState<
-    { file: File | null; data: FileReader['result'] }[]
+    { file: File | null; data: FileReader["result"] }[]
   >([]);
 
   console.log(uploadedFiles);
+
+  const dragOverRef = useRef<HTMLLabelElement>(null);
 
   const onUploadConfirm = () => {
     setIsUploading(true);
     const formData = new FormData();
 
-    formData.append('file', uploadedFiles[0].file);
+    formData.append("file", uploadedFiles[0].file);
 
     axiosInit
-      .post('/uploadFile', formData, {
+      .post("/uploadFile", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
         onUploadProgress: function (progressEvent) {
           let percentCompleted = Math.round(
@@ -52,7 +56,7 @@ export default function Home() {
 
         //  router.push('/accessibility-review');
         router.push({
-          pathname: '/accessibility-review',
+          pathname: "/accessibility-review",
           query: { doc_key: res.data.key },
         });
       })
@@ -60,7 +64,7 @@ export default function Home() {
         console.log(err);
         setDocUploadError(
           `An Error Occurred, Please try again ${
-            err?.message ? `(Message: ${err?.message})` : ''
+            err?.message ? `(Message: ${err?.message})` : ""
           }`
         );
       })
@@ -69,13 +73,34 @@ export default function Home() {
       });
   };
 
-  const onFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (uploadedFiles?.length > 1) {
-      //  toast.error("We don't need more than 1 file");
+  const onDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setDragActive(true);
+    // dragOverRef.current?.classList.add("drag-over");
+  };
+
+  const onDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setDragActive(false);
+    // dragOverRef.current?.classList.remove("drag-over");
+  };
+
+  const onFileDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setDragActive(false);
+    // dragOverRef.current?.classList.remove("drag-over");
+
+    if (e.dataTransfer.files.length > 0) {
+      handleDroppedFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleDroppedFiles = (files: FileList) => {
+    if (uploadedFiles.length > 0) {
       return;
     }
-    const fileList = e.target.files;
-    var fileListArr = !!fileList ? Array.from(fileList) : [];
+
+    const fileListArr = Array.from(files);
 
     fileListArr.forEach((fileItem) => {
       const fileSizeKiloBytes = fileItem.size / 1024;
@@ -83,23 +108,28 @@ export default function Home() {
 
       if (fileSizeKiloBytes < MAX_FILE_SIZE) {
         const reader = new FileReader();
-        // eslint-disable-next-line no-loop-func
 
         reader.onload = (readEvt) => {
-          setUploadedFiles((s) => [
-            ...s,
+          setUploadedFiles((prevFiles) => [
+            ...prevFiles,
             { file: fileItem, data: readEvt?.target?.result || null },
           ]);
         };
         reader.readAsDataURL(fileItem);
       } else {
-        //  toast.error('File is too large (max. 5MB)');
+        // Handle file size too large error
       }
     });
   };
 
+  const onFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleDroppedFiles(e.target.files);
+    }
+  };
+
   const onRetryUpload = () => {
-    setDocUploadError('');
+    setDocUploadError("");
   };
 
   return (
@@ -143,7 +173,13 @@ export default function Home() {
           ) : (
             <label
               htmlFor="file-upload"
-              className="mt-1 flex flex-col justify-center items-center rounded-md border-2 border-dashed border-zinc-400 px-6 pt-5 pb-6"
+              className={`${
+                dragActive ? "bg-zinc-900" : "bg-zinc-700"
+              } mt-1 flex flex-col justify-center items-center rounded-md border-2 border-dashed border-zinc-400 px-6 pt-5 pb-6`}
+              ref={dragOverRef}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onDrop={onFileDrop}
             >
               <div>
                 <p className="mb-3">Select a file or drag and drop here</p>
@@ -176,13 +212,13 @@ export default function Home() {
           <div className="bg-zinc-800 text-right px-8 py-3 absolute bottom-0 left-0 w-full">
             <div
               aria-hidden={!uploadedFiles.length}
-              className={uploadedFiles.length ? 'visible' : 'invisible'}
+              className={uploadedFiles.length ? "visible" : "invisible"}
             >
               {!!docUploadError ? (
                 <>
                   <Button
                     className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
-                    text={'Retry'}
+                    text={"Retry"}
                     onClick={() => {
                       onRetryUpload();
                     }}
@@ -193,14 +229,14 @@ export default function Home() {
                   <Button
                     variant="link"
                     className=" text-zinc-50 mr-10 py-2 px-6 text-base font-medium"
-                    text={'Cancel'}
+                    text={"Cancel"}
                     onClick={() => {
                       setUploadedFiles([]);
                     }}
                   />
                   <Button
                     className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
-                    text={'Scan for Accessibility'}
+                    text={"Scan for Accessibility"}
                     onClick={() => {
                       onUploadConfirm();
                     }}
@@ -220,7 +256,7 @@ export default function Home() {
 }
 
 function niceBytes(x) {
-  const units = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+  const units = ["Bytes", "KB", "MB", "GB", "TB", "PiB", "EiB", "ZiB", "YiB"];
   let l = 0,
     n = parseInt(x, 10) || 0;
 
@@ -228,5 +264,5 @@ function niceBytes(x) {
     n = n / 1024;
   }
 
-  return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l];
+  return n.toFixed(n < 10 && l > 0 ? 1 : 0) + " " + units[l];
 }
