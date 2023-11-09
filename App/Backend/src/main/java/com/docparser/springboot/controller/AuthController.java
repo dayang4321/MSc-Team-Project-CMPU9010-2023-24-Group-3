@@ -1,13 +1,16 @@
 package com.docparser.springboot.controller;
 
 import com.docparser.springboot.service.SessionService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
+
 @CrossOrigin
 @RestController
 public class AuthController {
@@ -16,7 +19,7 @@ public class AuthController {
     private SessionService jwtTokenService;
 
     @GetMapping("/getToken")
-        public String authenticate() {
-        return  jwtTokenService.generateAndSaveUserInfo();
+    public String authenticate() {
+        return jwtTokenService.generateAndSaveUserInfo();
     }
 }
