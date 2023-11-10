@@ -8,7 +8,10 @@ type InfoTooltipProps = PropsWithChildren<{
 const InfoTooltip: FC<InfoTooltipProps> = ({ children, infoTip }) => {
   return (
     <div className='relative inline-block'>
-      <div className='tooltip absolute -right-6 -top-2' data-tip={infoTip}>
+      <div
+        className='daisy-tooltip absolute -right-6 -top-2'
+        data-tip={infoTip}
+      >
         <span className='inline-flex items-center justify-center'>
           <InformationCircleIcon
             className='h-5 w-5'
