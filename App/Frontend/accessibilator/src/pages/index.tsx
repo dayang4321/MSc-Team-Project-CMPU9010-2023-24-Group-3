@@ -174,8 +174,10 @@ export default function Home() {
             <label
               htmlFor="file-upload"
               className={`${
-                dragActive ? "bg-zinc-900" : "bg-zinc-700"
-              } mt-1 flex flex-col justify-center items-center rounded-md border-2 border-dashed border-zinc-400 px-6 pt-5 pb-6`}
+                dragActive
+                  ? 'bg-zinc-900 border-zinc-50'
+                  : 'bg-zinc-700 border-zinc-400'
+              } mt-1 flex flex-col justify-center items-center rounded-md border-2 border-dashed  px-6 pt-5 pb-6`}
               ref={dragOverRef}
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
