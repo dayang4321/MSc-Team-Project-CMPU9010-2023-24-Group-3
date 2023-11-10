@@ -12,7 +12,7 @@ export type BtnProps = {
 
 export type Ref = any;
 
-const Button = React.forwardRef<Ref, BtnProps>((props, ref) => {
+const Button = React.forwardRef<Ref, BtnProps>(function Button(props, ref) {
   const {
     text,
     icon,
