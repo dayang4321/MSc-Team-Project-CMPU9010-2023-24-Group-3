@@ -238,7 +238,7 @@ export default function Home() {
                   />
                   <Button
                     className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
-                    text={"Scan for Accessibility"}
+                    text={'Continue to review'}
                     onClick={() => {
                       onUploadConfirm();
                     }}
