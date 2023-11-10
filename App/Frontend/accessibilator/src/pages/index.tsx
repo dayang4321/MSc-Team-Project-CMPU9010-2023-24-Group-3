@@ -4,6 +4,7 @@ import DefaultLayout from '../layouts/DefaultLayout';
 import Button from '../components/UI/Button';
 import axiosInit from '../services/axios';
 import { useRouter } from 'next/router';
+import { AxiosResponse } from 'axios';
 
 export default function Home() {
   const router = useRouter();
@@ -42,13 +43,22 @@ export default function Home() {
           setUploadProgress(percentCompleted);
         },
       })
-      .then((res) => {
-        console.log(res);
-        router.push({
-          pathname: '/accessibility-review',
-          query: { doc_key: res.data.key },
-        });
-      })
+      .then(
+        (
+          res: AxiosResponse<{
+            documentID: string;
+            url: string;
+            key: string;
+            versionID: string;
+          }>
+        ) => {
+          console.log(res);
+          router.push({
+            pathname: '/accessibility-review',
+            query: { doc_key: res.data.key, doc_id: res.data.documentID },
+          });
+        }
+      )
       .catch((err) => {
         console.log(err);
         setDocUploadError(
