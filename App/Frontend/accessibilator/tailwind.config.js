@@ -18,6 +18,7 @@ export const daisyui = {
   themes: false,
   darkTheme: 'light',
   styled: false,
+  prefix: 'daisy-',
 };
 export const plugins = [
   require('@tailwindcss/forms'),
