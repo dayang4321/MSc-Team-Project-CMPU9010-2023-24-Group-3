@@ -2,14 +2,14 @@ import { Dispatch, Fragment, SetStateAction, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 <svg
-  xmlns="http://www.w3.org/2000/svg"
-  fill="none"
-  viewBox="0 0 24 24"
+  xmlns='http://www.w3.org/2000/svg'
+  fill='none'
+  viewBox='0 0 24 24'
   strokeWidth={1.5}
-  stroke="currentColor"
-  className="w-6 h-6"
+  stroke='currentColor'
+  className='h-6 w-6'
 >
-  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  <path strokeLinecap='round' strokeLinejoin='round' d='M6 18L18 6M6 6l12 12' />
 </svg>;
 
 interface SlideModalProps {
@@ -26,67 +26,67 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
-        as="div"
-        className="fixed inset-0 overflow-hidden z-50"
+        as='div'
+        className='fixed inset-0 z-50 overflow-hidden'
         open={open}
         onClose={setOpen}
       >
-        <div className="absolute inset-0 overflow-hidden">
+        <div className='absolute inset-0 overflow-hidden'>
           <Transition.Child
             as={Fragment}
-            enter="ease-in-out duration-500"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in-out duration-500"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+            enter='ease-in-out duration-500'
+            enterFrom='opacity-0'
+            enterTo='opacity-100'
+            leave='ease-in-out duration-500'
+            leaveFrom='opacity-100'
+            leaveTo='opacity-0'
           >
-            <Dialog.Overlay className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            <Dialog.Overlay className='absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
           </Transition.Child>
-          <div className="fixed inset-y-0 right-0 pl-5 pl:3 sm:pl-10 max-w-full flex">
+          <div className='pl:3 fixed inset-y-0 right-0 flex max-w-full pl-5 sm:pl-10'>
             <Transition.Child
               as={Fragment}
-              enter="transform transition ease-in-out duration-500 sm:duration-700"
-              enterFrom="translate-x-full"
-              enterTo="translate-x-0"
-              leave="transform transition ease-in-out duration-500 sm:duration-700"
-              leaveFrom="translate-x-0"
-              leaveTo="translate-x-full"
+              enter='transform transition ease-in-out duration-500 sm:duration-700'
+              enterFrom='translate-x-full'
+              enterTo='translate-x-0'
+              leave='transform transition ease-in-out duration-500 sm:duration-700'
+              leaveFrom='translate-x-0'
+              leaveTo='translate-x-full'
             >
-              <div className="my-dialog relative w-[82vw] max-w-[34.375rem] overflow-y-scroll">
+              <div className='my-dialog relative w-[82vw] max-w-[34.375rem] overflow-y-scroll'>
                 <Transition.Child
                   as={Fragment}
-                  enter="ease-in-out duration-500"
-                  enterFrom="opacity-0"
-                  enterTo="opacity-100"
-                  leave="ease-in-out duration-500"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
+                  enter='ease-in-out duration-500'
+                  enterFrom='opacity-0'
+                  enterTo='opacity-100'
+                  leave='ease-in-out duration-500'
+                  leaveFrom='opacity-100'
+                  leaveTo='opacity-0'
                 >
-                  <div className="absolute z-10 top-4 right-8  pt-4 pr-2 flex sm:-ml-10 sm:pr-4">
+                  <div className='absolute right-8 top-4 z-10  flex pr-2 pt-4 sm:-ml-10 sm:pr-4'>
                     <button
-                      className="p-1 rounded-full bg-primary-50 text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+                      className='text-primary focus:ring-primary rounded-full bg-primary-50 p-1 focus:outline-none focus:ring-2 focus:ring-opacity-50'
                       onClick={() => setOpen(false)}
                     >
-                      <span className="sr-only">Close panel</span>
-                      <XMarkIcon className="h-6 w-6 " aria-hidden="true" />
+                      <span className='sr-only'>Close panel</span>
+                      <XMarkIcon className='h-6 w-6 ' aria-hidden='true' />
                     </button>
                   </div>
                 </Transition.Child>
                 <div
-                  className={`relative min-h-screen flex flex-col flex-1 p-14 sm:p-16 bg-white shadow-xl ${
+                  className={`relative flex min-h-screen flex-1 flex-col bg-white p-14 shadow-xl sm:p-16 ${
                     modalContentClasses || ''
                   }`}
                 >
-                  <div className="">
+                  <div className=''>
                     <Dialog.Title
-                      as="h2"
-                      className="font-semibold font-sans text-2xl px-1"
+                      as='h2'
+                      className='px-1 font-sans text-2xl font-semibold'
                     >
                       {title}
                     </Dialog.Title>
                   </div>
-                  <div className="pt-8 font-sans px-1 text-base sm:text-sm flex-1 flex flex-col overflow-y-hidden">
+                  <div className='flex flex-1 flex-col overflow-y-hidden px-1 pt-8 font-sans text-base sm:text-sm'>
                     {children}
                   </div>
                 </div>

@@ -16,15 +16,15 @@ const DefaultLayout: FC<LayoutProps> = ({ children, variant }) => {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col">
+      <div className='flex min-h-screen flex-col'>
         <nav
-          className={`px-8 flex  ${
-            variant === 'dark' ? 'bg-stone-900 text-stone-100 py-2' : 'py-5'
+          className={`flex px-8  ${
+            variant === 'dark' ? 'bg-stone-900 py-2 text-stone-100' : 'py-5'
           } `}
         >
           <Link
-            className="text-2xl uppercase font-extrabold"
-            href="/"
+            className='text-2xl font-extrabold uppercase'
+            href='/'
             // onClick={() => {
             //   router.push('/');
             // }}
@@ -32,9 +32,9 @@ const DefaultLayout: FC<LayoutProps> = ({ children, variant }) => {
             Accessibilator
           </Link>
           <Button
-            role="navigation"
-            variant="link"
-            className={`ml-auto inline-block  underline py-2 px-6 text-base font-medium  ${
+            role='navigation'
+            variant='link'
+            className={`ml-auto inline-block  px-6 py-2 text-base font-medium underline  ${
               variant === 'dark' ? 'text-stone-100' : 'text-stone-900'
             } `}
             text={'Send Feedback'}
@@ -44,7 +44,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, variant }) => {
           />
         </nav>
         {children}
-        <footer className="p-5">Footer</footer>
+        <footer className='p-5'>Footer</footer>
       </div>
       <FeedbackForm
         isShowing={isShowingFeedback}

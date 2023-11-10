@@ -73,14 +73,14 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
   };
 
   const loader = (
-    <div className="w-full h-96 flex flex-col justify-center items-center">
+    <div className='flex h-96 w-full flex-col items-center justify-center'>
       <HashLoader
         loading={true}
-        color="#451a03"
+        color='#451a03'
         size={'120px'}
-        aria-description="Submitting Feedback"
+        aria-description='Submitting Feedback'
       />
-      <p className="text-lg mt-6">Submitting Feedback...</p>
+      <p className='mt-6 text-lg'>Submitting Feedback...</p>
     </div>
   );
 
@@ -88,15 +88,15 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
     <>
       {sendFeedbackSuccess ? (
         <div>
-          <p className="text-xl mt-12 mb-6">We received your feedback</p>
-          <p className="text-lg mb-10">Your feedback means alot to us🫡</p>
+          <p className='mb-6 mt-12 text-xl'>We received your feedback</p>
+          <p className='mb-10 text-lg'>Your feedback means alot to us🫡</p>
         </div>
       ) : (
         <>
           {' '}
-          <form className="mt-6">
+          <form className='mt-6'>
             <MyInput
-              id="Email"
+              id='Email'
               label={'Email address (optional)'}
               inputRef={register('email', {
                 required: false,
@@ -106,20 +106,20 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
                 },
               })}
               autoFocus
-              groupClasses="mb-4"
+              groupClasses='mb-4'
               errors={errors}
-              className=""
+              className=''
               labelProps={{ className: '' }}
-              autoComplete="email"
+              autoComplete='email'
               defaultValue={''}
-              placeholder="e.g jamie@gmail.com"
+              placeholder='e.g jamie@gmail.com'
             ></MyInput>
             <MyTextArea
-              id="whatUserLiked"
+              id='whatUserLiked'
               label={'What did you like? (*)'}
-              className=""
-              groupClasses="mb-4"
-              placeholder="Share your experience..."
+              className=''
+              groupClasses='mb-4'
+              placeholder='Share your experience...'
               inputRef={register('whatUserLiked', {
                 minLength: {
                   value: 10,
@@ -135,11 +135,11 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
               rows={4}
             />
             <MyTextArea
-              id="whatUserDisliked"
+              id='whatUserDisliked'
               label={'What can we do better? (*)'}
-              className=""
-              groupClasses="mb-4"
-              placeholder="Share your experience..."
+              className=''
+              groupClasses='mb-4'
+              placeholder='Share your experience...'
               inputRef={register('whatUserDisliked', {
                 minLength: {
                   value: 10,
@@ -155,11 +155,11 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
               rows={4}
             />
             <MyTextArea
-              id="newFeatures"
+              id='newFeatures'
               label={'Any new feature(s) you would like to see?'}
-              className=""
-              groupClasses="mb-0"
-              placeholder="Share your experience..."
+              className=''
+              groupClasses='mb-0'
+              placeholder='Share your experience...'
               inputRef={register('newFeatures', {
                 minLength: {
                   value: 10,
@@ -175,20 +175,20 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
               rows={4}
             />
           </form>
-          <div className="p-1 flex justify-end mt-5 mb-2">
+          <div className='mb-2 mt-5 flex justify-end p-1'>
             <Button
-              role="navigation"
-              type="button"
-              variant="link"
-              className="text-yellow-950 border border-yellow-950 mr-10 py-2 px-6 text-base font-medium"
+              role='navigation'
+              type='button'
+              variant='link'
+              className='mr-10 border border-yellow-950 px-6 py-2 text-base font-medium text-yellow-950'
               text={'Cancel'}
               onClick={() => {
                 onFeedBackClose();
               }}
             />
             <Button
-              type="button"
-              className="text-base py-2 px-6 text-zinc-50 font-medium"
+              type='button'
+              className='px-6 py-2 text-base font-medium text-zinc-50'
               text={'Send'}
               onClick={() => {
                 handleSubmit(submitHandler)();
@@ -199,7 +199,7 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
       )}
 
       {sendFeedbackError && (
-        <p className="text-red-800 bg-red-200 px-4 py-2 rounded-md text-lg mt-3">
+        <p className='mt-3 rounded-md bg-red-200 px-4 py-2 text-lg text-red-800'>
           {sendFeedbackError}
         </p>
       )}

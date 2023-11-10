@@ -135,83 +135,83 @@ export default function Home() {
     <DefaultLayout>
       <Head>
         <title>Accessibilator</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <main className="flex flex-col text-center justify-center items-center flex-1 bg-slate-50 text-gray-900">
-        <h1 className="text-5xl max-w-4xl font-bold mb-11">
+      <main className='flex flex-1 flex-col items-center justify-center bg-slate-50 text-center text-gray-900'>
+        <h1 className='mb-11 max-w-4xl text-5xl font-bold'>
           Reading documents made more accessible😁
         </h1>
 
-        <div className="bg-zinc-900 relative overflow-hidden rounded-2xl pt-12 px-8 pb-28 max-w-4xl text-white">
-          <h2 className="text-4xl max-w-4xl font-semibold mb-4">
+        <div className='relative max-w-4xl overflow-hidden rounded-2xl bg-zinc-900 px-8 pb-28 pt-12 text-white'>
+          <h2 className='mb-4 max-w-4xl text-4xl font-semibold'>
             Upload a document
           </h2>
-          <p className="mb-5">
+          <p className='mb-5'>
             Supported documents include Word(docx), Powerpoint(ppt), Excel
             (xlsx).
           </p>
 
           {uploadedFiles.length ? (
-            <div className="bg-zinc-700 mt-14 text-zinc-100 text-base rounded-md text-left px-12 py-3">
+            <div className='mt-14 rounded-md bg-zinc-700 px-12 py-3 text-left text-base text-zinc-100'>
               {isUploading ? (
-                <p className="font-semibold text-2xl">
+                <p className='text-2xl font-semibold'>
                   Uploading Document... {uploadProgress} %
                 </p>
               ) : !!docUploadError ? (
-                <div className="flex justify-between">
-                  <p className="text-lg">{docUploadError}</p>
+                <div className='flex justify-between'>
+                  <p className='text-lg'>{docUploadError}</p>
                 </div>
               ) : (
                 <>
-                  <p className="mb-1">{uploadedFiles?.[0]?.file.name}</p>
+                  <p className='mb-1'>{uploadedFiles?.[0]?.file.name}</p>
                   <p>{niceBytes(uploadedFiles?.[0]?.file.size)}</p>
                 </>
               )}
             </div>
           ) : (
             <label
-              htmlFor="file-upload"
+              htmlFor='file-upload'
               className={`${
                 dragActive
-                  ? 'bg-zinc-900 border-zinc-50'
-                  : 'bg-zinc-700 border-zinc-400'
-              } mt-1 flex flex-col justify-center items-center rounded-md border-2 border-dashed  px-6 pt-5 pb-6`}
+                  ? 'border-zinc-50 bg-zinc-900'
+                  : 'border-zinc-400 bg-zinc-700'
+              } mt-1 flex flex-col items-center justify-center rounded-md border-2 border-dashed  px-6 pb-6 pt-5`}
               ref={dragOverRef}
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
               onDrop={onFileDrop}
             >
               <div>
-                <p className="mb-3">Select a file or drag and drop here</p>
+                <p className='mb-3'>Select a file or drag and drop here</p>
               </div>
-              <div className="space-y-1 text-center">
-                <div className="flex text-sm text-gray-600">
+              <div className='space-y-1 text-center'>
+                <div className='flex text-sm text-gray-600'>
                   <label
-                    htmlFor="file-upload"
-                    className="focus-within:ring-primary-500 hover:text-primary-500 relative cursor-pointer rounded-md bg-white font-medium text-primary-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2"
+                    htmlFor='file-upload'
+                    className='relative cursor-pointer rounded-md bg-white font-medium text-primary-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2 hover:text-primary-500'
                   >
-                    <span className="btn inline-block border-white border-[1px] px-4 bg-gray-700 text-white ">
+                    <span className='btn inline-block border-[1px] border-white bg-gray-700 px-4 text-white '>
                       Select Document
                     </span>
                     <input
-                      accept="doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      className="sr-only"
+                      accept='doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                      id='file-upload'
+                      name='file-upload'
+                      type='file'
+                      className='sr-only'
                       ref={inputRef}
                       onChange={onFileUpload}
                     />
                   </label>
-                  <p className="pl-1"></p>
+                  <p className='pl-1'></p>
                 </div>
-                <p className="text-xs text-gray-50 pt-2">Max. size: 10MB</p>
+                <p className='pt-2 text-xs text-gray-50'>Max. size: 10MB</p>
               </div>
             </label>
           )}
 
-          <div className="bg-zinc-800 text-right px-8 py-3 absolute bottom-0 left-0 w-full">
+          <div className='absolute bottom-0 left-0 w-full bg-zinc-800 px-8 py-3 text-right'>
             <div
               aria-hidden={!uploadedFiles.length}
               className={uploadedFiles.length ? 'visible' : 'invisible'}
@@ -219,7 +219,7 @@ export default function Home() {
               {!!docUploadError ? (
                 <>
                   <Button
-                    className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
+                    className='bg-zinc-50 px-6 py-2 text-base font-medium text-zinc-900'
                     text={'Retry'}
                     onClick={() => {
                       onRetryUpload();
@@ -229,15 +229,15 @@ export default function Home() {
               ) : (
                 <>
                   <Button
-                    variant="link"
-                    className=" text-zinc-50 mr-10 py-2 px-6 text-base font-medium"
+                    variant='link'
+                    className=' mr-10 px-6 py-2 text-base font-medium text-zinc-50'
                     text={'Cancel'}
                     onClick={() => {
                       setUploadedFiles([]);
                     }}
                   />
                   <Button
-                    className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
+                    className='bg-zinc-50 px-6 py-2 text-base font-medium text-zinc-900'
                     text={'Continue to review'}
                     onClick={() => {
                       onUploadConfirm();

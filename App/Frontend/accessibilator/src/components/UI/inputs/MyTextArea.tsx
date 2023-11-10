@@ -29,7 +29,7 @@ const MyTextArea: React.FC<MyTextAreaProps> = (props) => {
           {label}
         </label>
       )}
-      <div className="relative">
+      <div className='relative'>
         <textarea
           id={id}
           name={inputRef?.name || name}
@@ -41,7 +41,7 @@ const MyTextArea: React.FC<MyTextAreaProps> = (props) => {
       </div>
 
       {get(errors, inputRef?.name || id) && (
-        <small className="form-error ml-3">
+        <small className='form-error ml-3'>
           {get(errors, inputRef?.name || id).message}
         </small>
       )}

@@ -23,7 +23,7 @@ const reader = (props: Props) => {
         requestHeaders={{
           'Access-Control-Allow-Origin': '*',
         }}
-        prefetchMethod="GET"
+        prefetchMethod='GET'
         documents={[
           {
             uri: docUri,
@@ -35,23 +35,23 @@ const reader = (props: Props) => {
           backgroundColor: 'red',
         }}
         config={{}}
-        className="my-doc-viewer-style"
+        className='my-doc-viewer-style'
       />
     );
   }, [docUri]);
 
   return (
-    <DefaultLayout variant="dark">
+    <DefaultLayout variant='dark'>
       <Head>
         <title>Accessibilator</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel='icon' href='/favicon.ico' />
       </Head>
-      <nav className="flex items-center px-20 py-3 border-b border-stone-800 justify-between">
+      <nav className='flex items-center justify-between border-b border-stone-800 px-20 py-3'>
         <div>
           <Button
-            role="navigation"
-            variant="link"
-            className=" text-stone-700 py-2 px-6 text-base font-medium"
+            role='navigation'
+            variant='link'
+            className=' px-6 py-2 text-base font-medium text-stone-700'
             text={'Back to homepage'}
             onClick={() => {
               router.push('/');
@@ -61,30 +61,30 @@ const reader = (props: Props) => {
 
         <div>
           <Button
-            role="navigation"
-            variant="link"
-            className=" text-stone-700 border border-stone-700 mr-10 py-2 px-6 text-base font-medium"
+            role='navigation'
+            variant='link'
+            className=' mr-10 border border-stone-700 px-6 py-2 text-base font-medium text-stone-700'
             text={'Upload New Document'}
             onClick={() => {
               router.push('/');
             }}
           />
           <Button
-            className="bg-stone-700 text-base py-2 px-6 text-zinc-50 font-medium"
+            className='bg-stone-700 px-6 py-2 text-base font-medium text-zinc-50'
             text={'Export'}
             onClick={() => {}}
           />
         </div>
       </nav>
-      <main className="flex py-16 pb-8 flex-1 bg-slate-50 text-gray-900">
-        <div className="border border-stone-800 items-stretch flex-1 flex flex-col">
+      <main className='flex flex-1 bg-slate-50 py-16 pb-8 text-gray-900'>
+        <div className='flex flex-1 flex-col items-stretch border border-stone-800'>
           {memoisedReader}
         </div>
-        <div className="self-stretch flex flex-col px-3">
+        <div className='flex flex-col self-stretch px-3'>
           <Button
-            className="bg-stone-700 mt-10 inline-flex flex-col gap-y-3 rounded-3xl text-base py-9 px-6 text-zinc-50 font-medium"
+            className='mt-10 inline-flex flex-col gap-y-3 rounded-3xl bg-stone-700 px-6 py-9 text-base font-medium text-zinc-50'
             text={'Edit'}
-            icon={<PencilIcon className="w-6 h-6" />}
+            icon={<PencilIcon className='h-6 w-6' />}
             onClick={() => {
               setSlideModalOpen(true);
             }}

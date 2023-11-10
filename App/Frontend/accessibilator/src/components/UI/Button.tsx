@@ -38,7 +38,7 @@ const Button = React.forwardRef<Ref, BtnProps>((props, ref) => {
       <BeatLoader
         loading={loading}
         margin={'0.25rem'}
-        color="#ffffff"
+        color='#ffffff'
         size={'0.75rem'}
         {...loaderProps}
       />

@@ -33,7 +33,7 @@
   }
 
   .form-control-input {
-    @apply flex h-[3rem] w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-yellow-600 focus-within:ring-2 hover:border-yellow-600  focus:outline-none sm:h-11 sm:text-sm;
+    @apply flex h-[3rem] w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 hover:border-yellow-600  focus:outline-none sm:h-11 sm:text-sm;
   }
   .form-control-textarea {
     @apply flex w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600  hover:border-yellow-600  focus:outline-none sm:text-sm;
