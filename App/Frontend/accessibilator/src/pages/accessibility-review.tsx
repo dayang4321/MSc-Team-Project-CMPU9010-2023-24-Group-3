@@ -6,6 +6,7 @@ import Button from '../components/UI/Button';
 import MyToggle from '../components/UI/MyToggle';
 import { useRouter } from 'next/router';
 import axiosInit from '../services/axios';
+import InfoTooltip from '../components/InfoTooltip/InfoTooltip';
 
 type PrimaryFix =
   | 'fontStyle'
@@ -82,39 +83,52 @@ export default function IdentifiedFixes() {
 
           <div className='mt-12 divide-y divide-solid rounded-md border border-gray-600 p-7'>
             <div className='flex items-center justify-between py-5'>
-              <p>Font style changed</p>
+              <InfoTooltip infoTip='We use sans serif fonts like Arial or Comic Sans as they appear less crowded, making each letter more distinct and easier to read for people living with dyslexia.'>
+                <p>Font style changed</p>
+              </InfoTooltip>
+
               <MyToggle
                 checked={choicesObj.fontStyle}
                 onChange={() => setChoiceHandler('fontStyle')}
               />
             </div>
             <div className='flex items-center justify-between py-5'>
-              <p>Font size increased</p>
+              <InfoTooltip infoTip='Larger font sizes (12-14 pt.) aid in readability, especially for readers who may find smaller text challenging to follow'>
+                <p>Font size increased</p>
+              </InfoTooltip>
               <MyToggle
                 checked={choicesObj.fontSize}
                 onChange={() => setChoiceHandler('fontSize')}
               />
             </div>
             <div className='flex items-center justify-between py-5'>
-              <p>Inter-letter spacing increased</p>
+              <InfoTooltip infoTip='Increasing the space between letters (around 35% of the average letter width) leads to a more readable text by reducing visual crowding, a common issue for those with dyslexia.'>
+                <p>Inter-letter spacing increased</p>
+              </InfoTooltip>
               <MyToggle
                 checked={choicesObj.interSpacing}
                 onChange={() => setChoiceHandler('interSpacing')}
               />
             </div>
             <div className='flex items-center justify-between py-5'>
-              <p>Line spacing increased</p>
+              <InfoTooltip infoTip='The recommended line spacing (1.5) improves text clarity and reduces visual stress, making it easier for readers to follow lines of text.'>
+                <p>Line spacing increased</p>
+              </InfoTooltip>
               <MyToggle
                 checked={choicesObj.lineSpacing}
                 onChange={() => setChoiceHandler('lineSpacing')}
               />
             </div>
             <div className='flex items-center justify-between py-5'>
-              <p>Italics removed</p>
+              <InfoTooltip infoTip='We try to avoid italics as much as possible, as they can cause letters to appear connected and crowded, which can be challenging for readers with dyslexia. Bold text will used for emphasis instead'>
+                <p>Italics removed</p>
+              </InfoTooltip>
               <MyToggle checked={choicesObj.italics} />
             </div>
             <div className='flex items-center justify-between py-5'>
-              <p>Contrast increased</p>
+              <InfoTooltip infoTip='High contrast between text and background minimizes visual strain and enhances visibility of characters, particularly important for individuals with reading and/or visual difficulties'>
+                <p>Contrast increased</p>
+              </InfoTooltip>
               <MyToggle checked={choicesObj.contrast} />
             </div>
           </div>
