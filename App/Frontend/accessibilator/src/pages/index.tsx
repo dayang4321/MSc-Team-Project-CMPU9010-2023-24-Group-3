@@ -1,48 +1,39 @@
-import Head from "next/head";
-import React, { useRef, useState } from "react";
-import DefaultLayout from "../layouts/DefaultLayout";
-import Button from "../components/UI/Button";
-import axiosInit from "../services/axios";
-import { useRouter } from "next/router";
+import Head from 'next/head';
+import React, { useRef, useState } from 'react';
+import DefaultLayout from '../layouts/DefaultLayout';
+import Button from '../components/UI/Button';
+import axiosInit from '../services/axios';
+import { useRouter } from 'next/router';
 
 export default function Home() {
-  const [showMessage, setShowMessage] = useState(false);
-
   const router = useRouter();
 
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const [isUploading, setIsUploading] = useState(false);
 
-  const [docUploadError, setDocUploadError] = useState<null | string>("");
+  const [docUploadError, setDocUploadError] = useState<null | string>('');
 
   const [dragActive, setDragActive] = useState(false);
 
-  const handleUploadSuccess = () => {
-    setShowMessage(true);
-    setTimeout(() => {
-      setShowMessage(false);
-    }, 3000);
-  };
-
   const [uploadedFiles, setUploadedFiles] = useState<
-    { file: File | null; data: FileReader["result"] }[]
+    { file: File | null; data: FileReader['result'] }[]
   >([]);
 
-  console.log(uploadedFiles);
-
   const dragOverRef = useRef<HTMLLabelElement>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const onUploadConfirm = () => {
     setIsUploading(true);
     const formData = new FormData();
 
-    formData.append("file", uploadedFiles[0].file);
+    formData.append('file', uploadedFiles[0].file);
 
     axiosInit
-      .post("/uploadFile", formData, {
+      .post('/uploadFile', formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
         onUploadProgress: function (progressEvent) {
           let percentCompleted = Math.round(
@@ -53,10 +44,8 @@ export default function Home() {
       })
       .then((res) => {
         console.log(res);
-
-        //  router.push('/accessibility-review');
         router.push({
-          pathname: "/accessibility-review",
+          pathname: '/accessibility-review',
           query: { doc_key: res.data.key },
         });
       })
@@ -64,7 +53,7 @@ export default function Home() {
         console.log(err);
         setDocUploadError(
           `An Error Occurred, Please try again ${
-            err?.message ? `(Message: ${err?.message})` : ""
+            err?.message ? `(Message: ${err?.message})` : ''
           }`
         );
       })
@@ -76,22 +65,32 @@ export default function Home() {
   const onDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setDragActive(true);
-    // dragOverRef.current?.classList.add("drag-over");
   };
 
   const onDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setDragActive(false);
-    // dragOverRef.current?.classList.remove("drag-over");
   };
 
   const onFileDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setDragActive(false);
-    // dragOverRef.current?.classList.remove("drag-over");
 
-    if (e.dataTransfer.files.length > 0) {
+    const allowedTypes = new Set(inputRef.current.accept.split(','));
+
+    const isFileTypeAllowed = allowedTypes.has(e.dataTransfer.files[0].type);
+
+    if (isFileTypeAllowed && e.dataTransfer.files.length === 1) {
+      // stop event propagation
+      e.preventDefault();
       handleDroppedFiles(e.dataTransfer.files);
+      return;
+    } else if (e.dataTransfer.files.length > 1) {
+      // Handle too many files error
+      //TODO: Toast message (One file at a time)
+    } else if (!isFileTypeAllowed) {
+      // Handle Unsupported file format
+      //TODO: Toast message (Document format not supported)
     }
   };
 
@@ -129,7 +128,7 @@ export default function Home() {
   };
 
   const onRetryUpload = () => {
-    setDocUploadError("");
+    setDocUploadError('');
   };
 
   return (
@@ -201,6 +200,7 @@ export default function Home() {
                       name="file-upload"
                       type="file"
                       className="sr-only"
+                      ref={inputRef}
                       onChange={onFileUpload}
                     />
                   </label>
@@ -214,13 +214,13 @@ export default function Home() {
           <div className="bg-zinc-800 text-right px-8 py-3 absolute bottom-0 left-0 w-full">
             <div
               aria-hidden={!uploadedFiles.length}
-              className={uploadedFiles.length ? "visible" : "invisible"}
+              className={uploadedFiles.length ? 'visible' : 'invisible'}
             >
               {!!docUploadError ? (
                 <>
                   <Button
                     className="bg-zinc-50 text-base py-2 px-6 text-zinc-900 font-medium"
-                    text={"Retry"}
+                    text={'Retry'}
                     onClick={() => {
                       onRetryUpload();
                     }}
@@ -231,7 +231,7 @@ export default function Home() {
                   <Button
                     variant="link"
                     className=" text-zinc-50 mr-10 py-2 px-6 text-base font-medium"
-                    text={"Cancel"}
+                    text={'Cancel'}
                     onClick={() => {
                       setUploadedFiles([]);
                     }}
@@ -248,17 +248,13 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* {showMessage && (
-          // <PopupMessage type="success" content="File Uploaded successfully" />
-        )} */}
       </main>
     </DefaultLayout>
   );
 }
 
 function niceBytes(x) {
-  const units = ["Bytes", "KB", "MB", "GB", "TB", "PiB", "EiB", "ZiB", "YiB"];
+  const units = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PiB', 'EiB', 'ZiB', 'YiB'];
   let l = 0,
     n = parseInt(x, 10) || 0;
 
@@ -266,5 +262,5 @@ function niceBytes(x) {
     n = n / 1024;
   }
 
-  return n.toFixed(n < 10 && l > 0 ? 1 : 0) + " " + units[l];
+  return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l];
 }
