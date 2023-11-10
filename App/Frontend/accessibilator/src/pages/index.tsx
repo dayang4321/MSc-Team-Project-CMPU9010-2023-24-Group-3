@@ -104,7 +104,7 @@ export default function Home() {
 
     fileListArr.forEach((fileItem) => {
       const fileSizeKiloBytes = fileItem.size / 1024;
-      const MAX_FILE_SIZE = 5120; // 5MB
+      const MAX_FILE_SIZE = 10240; // 10MB
 
       if (fileSizeKiloBytes < MAX_FILE_SIZE) {
         const reader = new FileReader();
