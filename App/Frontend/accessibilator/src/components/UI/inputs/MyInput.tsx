@@ -29,7 +29,7 @@ const MyInput: React.FC<MyInputProps> = (props) => {
           {label}
         </label>
       )}
-      <div className="relative">
+      <div className='relative'>
         <input
           type={'text'}
           id={id}
@@ -42,7 +42,7 @@ const MyInput: React.FC<MyInputProps> = (props) => {
       </div>
 
       {get(errors, inputRef?.name || id) && (
-        <small className="form-error ml-3">
+        <small className='form-error ml-3'>
           {get(errors, inputRef?.name || id).message}
         </small>
       )}
