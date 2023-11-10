@@ -20,7 +20,7 @@ export default function IdentifiedFixes() {
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
   const router = useRouter();
-  const { doc_key } = router.query;
+  const { doc_id, doc_key } = router.query;
 
   const [choicesObj, setChoicesObj] = useState<Record<PrimaryFix, boolean>>({
     fontStyle: true,
@@ -28,7 +28,7 @@ export default function IdentifiedFixes() {
     interSpacing: true,
     lineSpacing: true,
     contrast: false,
-    italics: false,
+    italics: true,
   });
 
   const setChoiceHandler = (choice: PrimaryFix) => {
@@ -45,12 +45,11 @@ export default function IdentifiedFixes() {
       .get('/modifyFile', {
         params: {
           filename: doc_key,
+          docID: doc_id,
         },
       })
       .then((res) => {
-        console.log(res);
-
-        //  router.push('/accessibility-review');
+        //  console.log(res);
         router.push({
           pathname: '/reader',
           query: { doc_url: res.data.url },
@@ -111,12 +110,12 @@ export default function IdentifiedFixes() {
               />
             </div>
             <div className='flex items-center justify-between py-5'>
-              <p>Contrast increased</p>
-              <MyToggle checked={choicesObj.contrast} />
-            </div>
-            <div className='flex items-center justify-between py-5'>
               <p>Italics removed</p>
               <MyToggle checked={choicesObj.italics} />
+            </div>
+            <div className='flex items-center justify-between py-5'>
+              <p>Contrast increased</p>
+              <MyToggle checked={choicesObj.contrast} />
             </div>
           </div>
         </div>
