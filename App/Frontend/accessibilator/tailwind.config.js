@@ -13,7 +13,14 @@ export const theme = {
     },
   },
 };
+
+export const daisyui = {
+  themes: false,
+  darkTheme: 'light',
+  styled: false,
+};
 export const plugins = [
   require('@tailwindcss/forms'),
   require('@headlessui/tailwindcss'),
+  require('daisyui'),
 ];
