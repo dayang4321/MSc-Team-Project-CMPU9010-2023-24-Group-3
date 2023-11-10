@@ -141,7 +141,7 @@ const SlideModalContent = ({ activeTab }) => {
   );
 };
 
-const reader = (props: Props) => {
+const Reader = (props: Props) => {
   const [slideModalOpen, setSlideModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(1); // Add this line
 
@@ -281,4 +281,4 @@ const reader = (props: Props) => {
   );
 };
 
-export default reader;
+export default Reader;
