@@ -1,15 +1,20 @@
 package com.docparser.springboot.model;
 
+import java.time.Instant;
+
 public class VersionInfo {
 
     private String url;
     private String versionID;
     private String eTag;
 
-    public VersionInfo(String url, String versionID, String eTag) {
+    private Instant createdDate;
+
+    public VersionInfo(String url, String versionID, String eTag, Instant createdDate) {
         this.url = url;
         this.versionID = versionID;
         this.eTag = eTag;
+        this.createdDate = createdDate;
 
     }
 
@@ -41,5 +46,12 @@ public class VersionInfo {
         this.eTag = eTag;
     }
 
+    public Instant getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Instant createdDate) {
+        this.createdDate = createdDate;
+    }
 }
 
