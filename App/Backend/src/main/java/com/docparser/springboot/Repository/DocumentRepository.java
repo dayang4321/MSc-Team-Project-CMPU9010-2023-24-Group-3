@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags;
 
+import java.time.Instant;
+
 
 @Repository
 public class DocumentRepository {
@@ -40,6 +42,9 @@ public class DocumentRepository {
             .addAttribute(String.class, a -> a.name("url")
                     .getter(VersionInfo::getUrl)
                     .setter(VersionInfo::setUrl))
+            .addAttribute(Instant.class, a -> a.name("createdDate")
+                    .getter(VersionInfo::getCreatedDate)
+                    .setter(VersionInfo::setCreatedDate))
             .build();
 
     public static final TableSchema<DocumentInfo> DOCUMENT_INFO_TABLE_SCHEMA =
