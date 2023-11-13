@@ -2,25 +2,23 @@ package com.docparser.springboot.service;
 
 import com.docparser.springboot.Repository.DocumentRepository;
 import com.docparser.springboot.errorHandler.FileParsingException;
-import com.docparser.springboot.model.DocumentInfo;
-import com.docparser.springboot.model.ParagraphStyleInfo;
-import com.docparser.springboot.model.S3StorageInfo;
-import com.docparser.springboot.model.VersionInfo;
+import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.FileUtils;
 import com.docparser.springboot.utils.ParsingUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -28,115 +26,129 @@ import java.util.stream.Collectors;
 public class DocumentParser {
     Logger logger = LoggerFactory.getLogger(DocumentParser.class);
     private final S3BucketStorage s3FileUploadService;
-    @Autowired
-    private FileUtils fileUtils;
-    @Autowired
-    private DocumentRepository documentRepository;
-    @Autowired
-    private ParsingUtils parsingUtils;
+
+    private final FileUtils fileUtils;
+
+    private final DocumentRepository documentRepository;
 
 
-    public DocumentParser(S3BucketStorage s3FileUploadService) {
+
+    public DocumentParser(S3BucketStorage s3FileUploadService, FileUtils fileUtils, DocumentRepository documentRepository) {
+
         this.s3FileUploadService = s3FileUploadService;
+        this.fileUtils = fileUtils;
+        this.documentRepository = documentRepository;
+
     }
 
-    private static final String FONT_TYPE = "Open Sans";
-    private static final int FONT_SIZE = 16;
-    private static final String FONT_COLOR = "000000";
-    private static final String BACKGROUND_COLOR = "FFFFFF";
-    //private static final String PARAGRAPH_ALIGNMENT = "LEFT";
-    private static final int LINE_SPACING = 360;
-    private static final int CHAR_SPACING = 50;
+
+    Function<String, Boolean> checkForFontParameterChange = fontParmeter -> fontParmeter != null && !fontParmeter.isEmpty();
 
 
-    private Consumer<XWPFRun> modifyRun =
-            run -> {
-                modifyLineFontSize(run);
-                modifyLineFontColor(run);
-                modifyFontFamily(run);
-                modifyCharSpacing(run);
+    private final BiConsumer<XWPFRun, FormattingConfig> modifyRun =
+            (run, formattingConfig) -> {
+                if (checkForFontParameterChange.apply(formattingConfig.getFontSize()))
+                    modifyLineFontSize(run, formattingConfig.getFontSize());
+                if (checkForFontParameterChange.apply(formattingConfig.getFontColor()))
+                    modifyLineFontColor(run, formattingConfig.getFontColor());
+                if (checkForFontParameterChange.apply(formattingConfig.getFontType()))
+                    modifyFontFamily(run, formattingConfig.getFontType());
+                if (checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
+                    modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
             };
-    private void modifyLineFontSize(XWPFRun run) {
-       run.setFontSize(FONT_SIZE);
+
+    private void modifyLineFontSize(XWPFRun run, String fontSize) {
+        run.setFontSize(Integer.parseInt(fontSize));
     }
 
-    private void modifyLineFontColor(XWPFRun run) {
-        run.setColor(FONT_COLOR);
+    private void modifyLineFontColor(XWPFRun run, String fontColor) {
+        run.setColor(fontColor);
     }
 
-    private void modifyFontFamily(XWPFRun run) {
-        run.setFontFamily(FONT_TYPE);
+    private void modifyFontFamily(XWPFRun run, String fontType) {
+        run.setFontFamily(fontType);
     }
 
-    private void modifyCharSpacing(XWPFRun run) {
+    private void modifyCharSpacing(XWPFRun run, String charSpacing) {
         CTRPr rpr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
-        CTSignedTwipsMeasure charSpacing = rpr.addNewSpacing();
-        charSpacing.setVal(BigInteger.valueOf(CHAR_SPACING));
+        CTSignedTwipsMeasure charSpacingNew = rpr.addNewSpacing();
+        charSpacingNew.setVal(ParsingUtils.mapStringToCharacterSpacingValueInBigInt(charSpacing));
     }
 
-    private Consumer<XWPFParagraph> modifyParagraph =
-            paragraph -> {
-                modifyAlignment(paragraph);
-                modifyLineSpacing(paragraph);
-                modifyColorShading(paragraph);
-                paragraph.getRuns().stream().forEach(modifyRun);
+    private final BiConsumer<XWPFParagraph, FormattingConfig> modifyParagraph =
+            (paragraph, formattingConfig) -> {
+                if (checkForFontParameterChange.apply(formattingConfig.getAlignment()))
+                    modifyAlignment(paragraph,formattingConfig.getAlignment());
+                if (checkForFontParameterChange.apply(formattingConfig.getLineSpacing()))
+                    modifyLineSpacing(paragraph, formattingConfig.getLineSpacing());
+                if (checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
+                    modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
+                paragraph.getRuns().stream().forEach(run -> modifyRun.accept(run, formattingConfig));
             };
 
 
-
-    private void modifyAlignment(XWPFParagraph paragraph) {
-        paragraph.setAlignment(ParagraphAlignment.LEFT);
+    private void modifyAlignment(XWPFParagraph paragraph, String alignment) {
+        paragraph.setAlignment(ParsingUtils.mapStringToAlignment(alignment));
     }
 
-    private void modifyLineSpacing(XWPFParagraph paragraph) {
-        CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
-        if (ctpPr.isSetSpacing()) {
-            ctpPr.getSpacing().setLineRule(STLineSpacingRule.AUTO);
-            ctpPr.getSpacing().setLine(new BigInteger(String.valueOf((LINE_SPACING))));
+    private void modifyLineSpacing(XWPFParagraph paragraph, String lineSpacing) {
+        if (checkForFontParameterChange.apply(lineSpacing)) {
+            CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
+            if (ctpPr.isSetSpacing()) {
+                ctpPr.getSpacing().setLineRule(STLineSpacingRule.AUTO);
+                ctpPr.getSpacing().setLine(new BigInteger(lineSpacing));
 
-        } else {
-            ctpPr.addNewSpacing().setLineRule(STLineSpacingRule.AUTO);
-            ctpPr.getSpacing().setLine(new BigInteger(String.valueOf(LINE_SPACING)));
+            } else {
+                ctpPr.addNewSpacing().setLineRule(STLineSpacingRule.AUTO);
+                ctpPr.getSpacing().setLine(ParsingUtils.mapStringToLineSpacingValueInBigInt(lineSpacing));
+            }
         }
     }
 
-    private void modifyColorShading(XWPFParagraph paragraph) {
+    private void modifyColorShading(XWPFParagraph paragraph, String colorShading) {
         CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
         Optional.ofNullable(ctpPr.getShd()).ifPresentOrElse(
-                shd -> shd.setFill(BACKGROUND_COLOR),
-                () -> {
-                    ctpPr.addNewShd().setFill(BACKGROUND_COLOR);
-                }
+                shd -> shd.setFill(colorShading),
+                () -> ctpPr.addNewShd().setFill(colorShading)
         );
     }
 
-    private void modifyDocument(File tempFile, InputStream inputStream) throws IOException {
+    private void checkIfDBdocumentKeyExists(String documentKey, String docID) {
+        Optional.of(documentRepository.getDocumentInfo(docID)).ifPresent(documentInfo -> {
+            if (!documentInfo.getDocumentKey().equals(documentKey)) {
+                throw new FileParsingException("Document key does not match with the document ID");
+            }
+        });
+    }
+
+    private void modifyDocument(File tempFile, InputStream inputStream, FormattingConfig formattingConfig) {
         try (XWPFDocument document = new XWPFDocument(inputStream)) {
             logger.info("modifying document " + tempFile.getName() + " with paragraphs : " + document.getParagraphs().size());
-            parsingUtils.getParagraphsInTheDocument(document).stream().forEach(modifyParagraph);
+            ParsingUtils.getParagraphsInTheDocument(document).stream().forEach(paragraph -> modifyParagraph.accept(paragraph, formattingConfig));
             FileOutputStream out = new FileOutputStream(tempFile);
             document.write(out);
             out.close();
         } catch (Exception e) {
             logger.error("Error while modifying document" + e.getMessage());
-            throw new FileParsingException(e.getMessage()); // Handle or log the exception appropriately
+            throw new FileParsingException("Error while modifying document::" + e.getMessage()); // Handle or log the exception appropriately
         }
     }
 
-    public S3StorageInfo modifyFile(String key, String docID) throws IOException {
+    public S3StorageInfo modifyFile(String key, String docID, FormattingConfig formattingConfig) throws IOException {
+        checkIfDBdocumentKeyExists(key, docID);
         InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key);
         File tempFile = new File(key);
         tempFile.deleteOnExit();
         logger.info("initiating file modification");
-        modifyDocument(tempFile, inputStream);
+        modifyDocument(tempFile, inputStream, formattingConfig);
         logger.info("file modification completed");
         return uploadFileAfterModification(tempFile, docID);
     }
 
-    public List<ParagraphStyleInfo> fetchDocumentMetaData(File file) throws IOException {
+    public List<ParagraphStyleInfo> fetchDocumentMetaData(File file) {
         List<ParagraphStyleInfo> paragraphStyleInfoList = new ArrayList<>();
         try (XWPFDocument document = new XWPFDocument(new FileInputStream(file))) {
-            parsingUtils.getParagraphsInTheDocument(document).stream()
+            paragraphStyleInfoList = ParsingUtils.getParagraphsInTheDocument(document).stream()
                     .map(paragraph -> {
                         ParagraphStyleInfo paragraphStyleInfo = new ParagraphStyleInfo();
                         paragraphStyleInfo.setParagraphAlignment(paragraph.getAlignment().toString());
@@ -156,23 +168,25 @@ public class DocumentParser {
         return paragraphStyleInfoList;
     }
 
-        private List<VersionInfo> setDocumentVersions (PutObjectResponse s3response, String fileName){
-            VersionInfo versionInfo = new VersionInfo();
-            List<VersionInfo> documentVersions = new ArrayList<>();
-            versionInfo.seteTag(s3response.eTag());
-            String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
-            versionInfo.setUrl(fileUrl);
-            versionInfo.setVersionID(s3response.versionId());
-            documentVersions.add(versionInfo);
-            return documentVersions;
-        }
+    private List<VersionInfo> setDocumentVersions(PutObjectResponse s3response, String fileName) {
+        VersionInfo versionInfo = new VersionInfo();
+        List<VersionInfo> documentVersions = new ArrayList<>();
+        versionInfo.seteTag(s3response.eTag());
+        String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
+        versionInfo.setUrl(fileUrl);
+        versionInfo.setVersionID(s3response.versionId());
+        versionInfo.setCreatedDate(Instant.now());
+        documentVersions.add(versionInfo);
+        return documentVersions;
+    }
 
 
     public S3StorageInfo uploadFile(MultipartFile multipartFile) throws IOException {
         File file = fileUtils.convertMultiPartToFile(multipartFile);
         String fileName = fileUtils.generateFileName(multipartFile);
         DocumentInfo documentInfo = new DocumentInfo();
-        List<ParagraphStyleInfo> paragraphStyleInfoList = fetchDocumentMetaData(file);
+        //  List<ParagraphStyleInfo> paragraphStyleInfoList = fetchDocumentMetaData(file);
+        List<ParagraphStyleInfo> paragraphStyleInfoList = new ArrayList<>();
         documentInfo.setParagraphInfo(paragraphStyleInfoList);
         documentInfo.setDocumentKey(fileName);
 
@@ -182,7 +196,6 @@ public class DocumentParser {
 
         documentInfo.setDocumentVersions(setDocumentVersions(s3response, fileName));
         documentRepository.save(documentInfo);
-        file.delete();
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
 
@@ -192,11 +205,11 @@ public class DocumentParser {
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
 
         DocumentInfo documentInfo = documentRepository.getDocumentInfo(docID);
-        documentInfo.getDocumentVersions().add(new VersionInfo(s3response.versionId(), s3response.eTag(), fileUrl));
+        documentInfo.getDocumentVersions().add(new VersionInfo(fileUrl, s3response.versionId(), s3response.eTag(), Instant.now()));
         documentRepository.save(documentInfo);
-
-        file.delete(); // Delete the temporary file after successful upload
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
+
+
 
 }
