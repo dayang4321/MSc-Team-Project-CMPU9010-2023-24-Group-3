@@ -32,7 +32,6 @@ public class DocumentParser {
     private final DocumentRepository documentRepository;
 
 
-
     public DocumentParser(S3BucketStorage s3FileUploadService, FileUtils fileUtils, DocumentRepository documentRepository) {
 
         this.s3FileUploadService = s3FileUploadService;
@@ -78,7 +77,7 @@ public class DocumentParser {
     private final BiConsumer<XWPFParagraph, FormattingConfig> modifyParagraph =
             (paragraph, formattingConfig) -> {
                 if (checkForFontParameterChange.apply(formattingConfig.getAlignment()))
-                    modifyAlignment(paragraph,formattingConfig.getAlignment());
+                    modifyAlignment(paragraph, formattingConfig.getAlignment());
                 if (checkForFontParameterChange.apply(formattingConfig.getLineSpacing()))
                     modifyLineSpacing(paragraph, formattingConfig.getLineSpacing());
                 if (checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
@@ -210,6 +209,15 @@ public class DocumentParser {
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
 
+    public HashMap<String, Object> getDocumentVersions(String docID) {
+        DocumentInfo documentInfo = documentRepository.getDocumentInfo(docID);
+        Optional<VersionInfo> versionInfoOriginal = documentInfo.getDocumentVersions().stream().min(Comparator.comparing(VersionInfo::getCreatedDate));
+        Optional<VersionInfo> versionInfoLatest = documentInfo.getDocumentVersions().stream().max(Comparator.comparing(VersionInfo::getCreatedDate));
+        HashMap<String, Object> versions = new HashMap<>();
+        versions.put("originalVersion", versionInfoOriginal.get().getUrl());
+        versions.put("latestVersion", versionInfoLatest.get().getUrl());
+        return versions;
+    }
 
 
 }
