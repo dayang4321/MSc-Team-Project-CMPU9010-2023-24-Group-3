@@ -9,8 +9,9 @@ public  class FormattingConfig {
     private final String characterSpacing;
     private final String alignment;
     private final Boolean generateTOC;
+    private final Boolean removeItalics;
 
-    public FormattingConfig(String fontType, String fontSize, String fontColor, String lineSpacing, String characterSpacing, String backgroundColor,String alignment, Boolean generateTOC) {
+    public FormattingConfig(String fontType, String fontSize, String fontColor, String lineSpacing, String characterSpacing, String backgroundColor,String alignment, Boolean generateTOC, Boolean removeItalics) {
         this.fontType = fontType;
         this.fontSize = fontSize;
         this.fontColor = fontColor;
@@ -19,6 +20,7 @@ public  class FormattingConfig {
         this.backgroundColor = backgroundColor;
         this.alignment = alignment;
         this.generateTOC = generateTOC;
+        this.removeItalics = removeItalics;
     }
 
     public String getFontType() {
@@ -50,7 +52,11 @@ public  class FormattingConfig {
     public Boolean getGenerateTOC() {
         return generateTOC;
     }
+    public Boolean getRemoveItalics() {
+        return removeItalics;
+    }
 }
+
 
 
 

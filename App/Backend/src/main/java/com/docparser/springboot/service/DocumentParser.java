@@ -50,6 +50,8 @@ public class DocumentParser {
             modifyFontFamily(run, formattingConfig.getFontType());
         if (checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
             modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
+        if (formattingConfig.getRemoveItalics())
+            modifyToRemoveItalics(run);
     };
     private final BiConsumer<XWPFRun, FormattingConfig> modifyHeadingRun = (run, formattingConfig) -> {
         run.setBold(true);
@@ -72,13 +74,17 @@ public class DocumentParser {
         run.setFontSize(ParsingUtils.getHeadingSize(Integer.parseInt(fontSize)));
     }
 
+    private void modifyToRemoveItalics(XWPFRun run) {
+        run.setItalic(false);
+    }
+
 
     private void modifyLineFontColor(XWPFRun run, String fontColor) {
         run.setColor(fontColor);
     }
 
     private void modifyFontFamily(XWPFRun run, String fontType) {
-        run.setFontFamily(fontType);
+        run.setFontFamily(ParsingUtils.mapStringToFontStyle(fontType));
     }
 
     private void modifyAlignment(XWPFParagraph paragraph, String alignment) {
@@ -100,6 +106,7 @@ public class DocumentParser {
         if (checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
             modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
         if (checkForFontParameterChange.apply(formattingConfig.getFontSize()) && checkIfHeadingStylePresent(paragraph)) {
+            modifyAlignment(paragraph, "CENTER");
             paragraph.getRuns().stream().findFirst().ifPresent(run -> modifyHeadingRun.accept(run, formattingConfig));
             headingFontSizeModified = true;
         }

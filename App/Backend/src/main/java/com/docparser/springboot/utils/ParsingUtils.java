@@ -4,9 +4,6 @@ import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPrBase;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTrPrBase;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
@@ -100,6 +97,19 @@ public class ParsingUtils {
 
     public  static Integer getHeadingSize(Integer fontSize){
         return fontSize+2;
+    }
+    public static String  mapStringToFontStyle(String fontStyle) {
+        return switch (fontStyle) {
+            case "openSans" -> "Open Sans";
+            case "comicSans" -> "Comic Sans MS";
+            case "openDyslexic" ->  "OpenDyslexic";
+            case "lexend" -> "Lexend";
+            case "arial" -> "Arial";
+            case "helvetica" -> "Helvetica";
+            default ->
+                // Default to LEFT if the input string is not recognized
+                    "Open Sans";
+        };
     }
 
 }
