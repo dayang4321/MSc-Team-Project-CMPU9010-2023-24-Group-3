@@ -9,7 +9,7 @@ const InfoTooltip: FC<InfoTooltipProps> = ({ children, infoTip }) => {
   return (
     <div className='relative inline-block'>
       <div
-        className='daisy-tooltip absolute -right-6 -top-2'
+        className='daisy-tooltip daisy-tooltip-right absolute -right-6 -top-2 inline-flex'
         data-tip={infoTip}
       >
         <span className='inline-flex items-center justify-center'>

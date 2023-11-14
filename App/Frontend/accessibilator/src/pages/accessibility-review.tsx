@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import React, { useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
-
 import Button from '../components/UI/Button';
 import MyToggle from '../components/UI/MyToggle';
 import { useRouter } from 'next/router';
@@ -14,10 +13,11 @@ type PrimaryFix =
   | 'interSpacing'
   | 'lineSpacing'
   | 'contrast'
-  | 'italics';
+  | 'italics'
+  | 'alignment';
 
-export default function IdentifiedFixes() {
-  const [showMessage, setShowMessage] = useState(false);
+export default function AccessibilityReview() {
+  // const [showMessage, setShowMessage] = useState(false);
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
   const router = useRouter();
@@ -28,8 +28,9 @@ export default function IdentifiedFixes() {
     fontSize: true,
     interSpacing: true,
     lineSpacing: true,
-    contrast: false,
+    contrast: true,
     italics: true,
+    alignment: true,
   });
 
   const setChoiceHandler = (choice: PrimaryFix) => {
@@ -42,11 +43,23 @@ export default function IdentifiedFixes() {
   const onReviewConfirm = () => {
     setIsModifyLoading(true);
 
+    const docModParams: Partial<DocModifyParams> = {
+      fontType: choicesObj.fontStyle ? 'openSans' : undefined,
+      fontSize: choicesObj.fontSize ? 12 : undefined,
+      lineSpacing: choicesObj.lineSpacing ? 1.5 : undefined,
+      fontColor: choicesObj.contrast ? '000000' : undefined,
+      backgroundColor: choicesObj.contrast ? 'FFFFFF' : undefined,
+      characterSpacing: choicesObj.interSpacing ? 2.5 : undefined,
+      removeItalics: choicesObj.italics ? true : undefined,
+      alignment: choicesObj.alignment ? 'LEFT' : undefined,
+    };
+
     axiosInit
       .get('/modifyFile', {
         params: {
           filename: doc_key,
           docID: doc_id,
+          ...docModParams,
         },
       })
       .then((res) => {
@@ -130,6 +143,12 @@ export default function IdentifiedFixes() {
                 <p>Contrast increased</p>
               </InfoTooltip>
               <MyToggle checked={choicesObj.contrast} />
+            </div>
+            <div className='flex items-center justify-between py-5'>
+              <InfoTooltip infoTip="We've aligned the text to the left without justification. This alignment helps in maintaining a consistent visual flow, making it easier to find the start and finish of each line. It also ensures even spacing between words.">
+                <p>Alignment changed</p>
+              </InfoTooltip>
+              <MyToggle checked={choicesObj.alignment} />
             </div>
           </div>
         </div>
