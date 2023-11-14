@@ -13,10 +13,11 @@ type PrimaryFix =
   | 'interSpacing'
   | 'lineSpacing'
   | 'contrast'
-  | 'italics';
+  | 'italics'
+  | 'alignment';
 
 export default function AccessibilityReview() {
-  const [showMessage, setShowMessage] = useState(false);
+  // const [showMessage, setShowMessage] = useState(false);
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function AccessibilityReview() {
     lineSpacing: true,
     contrast: true,
     italics: true,
+    alignment: true,
   });
 
   const setChoiceHandler = (choice: PrimaryFix) => {
@@ -41,13 +43,15 @@ export default function AccessibilityReview() {
   const onReviewConfirm = () => {
     setIsModifyLoading(true);
 
-    const docModParams: DocModifyParams = {
+    const docModParams: Partial<DocModifyParams> = {
+      fontType: choicesObj.fontStyle ? 'openSans' : undefined,
       fontSize: choicesObj.fontSize ? 12 : undefined,
       lineSpacing: choicesObj.lineSpacing ? 1.5 : undefined,
       fontColor: choicesObj.contrast ? '000000' : undefined,
       backgroundColor: choicesObj.contrast ? 'FFFFFF' : undefined,
       characterSpacing: choicesObj.interSpacing ? 2.5 : undefined,
-      alignment: 'LEFT',
+      removeItalics: choicesObj.italics ? true : undefined,
+      alignment: choicesObj.alignment ? 'LEFT' : undefined,
     };
 
     axiosInit
@@ -55,6 +59,7 @@ export default function AccessibilityReview() {
         params: {
           filename: doc_key,
           docID: doc_id,
+          ...docModParams,
         },
       })
       .then((res) => {
@@ -138,6 +143,12 @@ export default function AccessibilityReview() {
                 <p>Contrast increased</p>
               </InfoTooltip>
               <MyToggle checked={choicesObj.contrast} />
+            </div>
+            <div className='flex items-center justify-between py-5'>
+              <InfoTooltip infoTip="We've aligned the text to the left without justification. This alignment helps in maintaining a consistent visual flow, making it easier to find the start and finish of each line. It also ensures even spacing between words.">
+                <p>Alignment changed</p>
+              </InfoTooltip>
+              <MyToggle checked={choicesObj.alignment} />
             </div>
           </div>
         </div>
