@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -95,7 +94,7 @@ public class DocumentParser {
             CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
             if (ctpPr.isSetSpacing()) {
                 ctpPr.getSpacing().setLineRule(STLineSpacingRule.AUTO);
-                ctpPr.getSpacing().setLine(new BigInteger(lineSpacing));
+                ctpPr.getSpacing().setLine(ParsingUtils.mapStringToLineSpacingValueInBigInt(lineSpacing));
 
             } else {
                 ctpPr.addNewSpacing().setLineRule(STLineSpacingRule.AUTO);
