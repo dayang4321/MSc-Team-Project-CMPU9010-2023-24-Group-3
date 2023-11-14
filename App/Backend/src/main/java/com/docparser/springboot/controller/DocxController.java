@@ -39,9 +39,11 @@ public class DocxController {
                                                         @RequestParam(required = false) String lineSpacing,
                                                         @RequestParam(required = false) String characterSpacing,
                                                         @RequestParam(required = false) String backgroundColor,
-                                                        @RequestParam(required = false) String alignment) throws IOException {
+                                                        @RequestParam(required = false) String alignment,
+                                                        @RequestParam(required = false) Boolean generateTOC,
+                                                        @RequestParam(required = false) Boolean removeItalics) throws IOException {
         // Code to save the file to a database or disk
-        S3StorageInfo storageInfo = documentParser.modifyFile(fileName, docID, new FormattingConfig(fontType, fontSize, fontColor, lineSpacing, characterSpacing, backgroundColor, alignment));
+        S3StorageInfo storageInfo = documentParser.modifyFile(fileName, docID, new FormattingConfig(fontType, fontSize, fontColor, lineSpacing, characterSpacing, backgroundColor, alignment, generateTOC,removeItalics));
         return ResponseEntity.ok(storageInfo);
     }
 

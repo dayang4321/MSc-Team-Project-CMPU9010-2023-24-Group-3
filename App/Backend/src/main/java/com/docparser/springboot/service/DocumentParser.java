@@ -14,12 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -40,32 +38,58 @@ public class DocumentParser {
 
     }
 
-
     Function<String, Boolean> checkForFontParameterChange = fontParmeter -> fontParmeter != null && !fontParmeter.isEmpty();
+    Function<Boolean, Boolean> checkForBooleanFontParameterChange = fontParmeter -> fontParmeter != null && fontParmeter;
 
 
-    private final BiConsumer<XWPFRun, FormattingConfig> modifyRun =
-            (run, formattingConfig) -> {
-                if (checkForFontParameterChange.apply(formattingConfig.getFontSize()))
-                    modifyLineFontSize(run, formattingConfig.getFontSize());
-                if (checkForFontParameterChange.apply(formattingConfig.getFontColor()))
-                    modifyLineFontColor(run, formattingConfig.getFontColor());
-                if (checkForFontParameterChange.apply(formattingConfig.getFontType()))
-                    modifyFontFamily(run, formattingConfig.getFontType());
-                if (checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
-                    modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
-            };
+    private final BiConsumer<XWPFRun, FormattingConfig> modifyRun = (run, formattingConfig) -> {
+        if (checkForFontParameterChange.apply(formattingConfig.getFontSize()))
+            modifyLineFontSize(run, formattingConfig.getFontSize());
+        if (checkForFontParameterChange.apply(formattingConfig.getFontColor()))
+            modifyLineFontColor(run, formattingConfig.getFontColor());
+        if (checkForFontParameterChange.apply(formattingConfig.getFontType()))
+            modifyFontFamily(run, formattingConfig.getFontType());
+        if (checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
+            modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
+        if (checkForBooleanFontParameterChange.apply(formattingConfig.getRemoveItalics()))
+            modifyToRemoveItalics(run);
+    };
+    private final BiConsumer<XWPFRun, FormattingConfig> modifyHeadingRun = (run, formattingConfig) -> {
+        run.setBold(true);
+        if (checkForFontParameterChange.apply(formattingConfig.getFontSize()))
+            modifyHeadingFontSize(run, formattingConfig.getFontSize());
+        if (checkForFontParameterChange.apply(formattingConfig.getFontColor()))
+            modifyLineFontColor(run, formattingConfig.getFontColor());
+        if (checkForFontParameterChange.apply(formattingConfig.getFontType()))
+            modifyFontFamily(run, formattingConfig.getFontType());
+        if (checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
+            modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
+    };
+
 
     private void modifyLineFontSize(XWPFRun run, String fontSize) {
         run.setFontSize(Integer.parseInt(fontSize));
     }
+
+    private void modifyHeadingFontSize(XWPFRun run, String fontSize) {
+        run.setFontSize(ParsingUtils.getHeadingSize(Integer.parseInt(fontSize)));
+    }
+
+    private void modifyToRemoveItalics(XWPFRun run) {
+        run.setItalic(false);
+    }
+
 
     private void modifyLineFontColor(XWPFRun run, String fontColor) {
         run.setColor(fontColor);
     }
 
     private void modifyFontFamily(XWPFRun run, String fontType) {
-        run.setFontFamily(fontType);
+        run.setFontFamily(ParsingUtils.mapStringToFontStyle(fontType));
+    }
+
+    private void modifyAlignment(XWPFParagraph paragraph, String alignment) {
+        paragraph.setAlignment(ParsingUtils.mapStringToAlignment(alignment));
     }
 
     private void modifyCharSpacing(XWPFRun run, String charSpacing) {
@@ -74,20 +98,57 @@ public class DocumentParser {
         charSpacingNew.setVal(ParsingUtils.mapStringToCharacterSpacingValueInBigInt(charSpacing));
     }
 
-    private final BiConsumer<XWPFParagraph, FormattingConfig> modifyParagraph =
-            (paragraph, formattingConfig) -> {
-                if (checkForFontParameterChange.apply(formattingConfig.getAlignment()))
-                    modifyAlignment(paragraph, formattingConfig.getAlignment());
-                if (checkForFontParameterChange.apply(formattingConfig.getLineSpacing()))
-                    modifyLineSpacing(paragraph, formattingConfig.getLineSpacing());
-                if (checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
-                    modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
-                paragraph.getRuns().stream().forEach(run -> modifyRun.accept(run, formattingConfig));
-            };
+    private final BiConsumer<XWPFParagraph, FormattingConfig> modifyParagraph = (paragraph, formattingConfig) -> {
+        boolean headingFontSizeModified = false;
+        if (checkForFontParameterChange.apply(formattingConfig.getAlignment()))
+            modifyAlignment(paragraph, formattingConfig.getAlignment());
+        if (checkForFontParameterChange.apply(formattingConfig.getLineSpacing()))
+            modifyLineSpacing(paragraph, formattingConfig.getLineSpacing());
+        if (checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
+            modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
+        if (checkForFontParameterChange.apply(formattingConfig.getFontSize()) && checkIfHeadingStylePresent(paragraph)) {
+            modifyAlignment(paragraph, "CENTER");
+            paragraph.getRuns().stream().findFirst().ifPresent(run -> modifyHeadingRun.accept(run, formattingConfig));
+            headingFontSizeModified = true;
+        }
+        if (!headingFontSizeModified)
+            paragraph.getRuns().stream().forEach(run -> modifyRun.accept(run, formattingConfig));
+    };
 
 
-    private void modifyAlignment(XWPFParagraph paragraph, String alignment) {
-        paragraph.setAlignment(ParsingUtils.mapStringToAlignment(alignment));
+    private boolean checkIfHeadingStylePresent(XWPFParagraph paragraph) {
+        return paragraph.getStyleID() != null && paragraph.getStyleID().startsWith("Heading");
+    }
+
+    private void modifyHeading(String heading, XWPFParagraph paragraph) {
+        XWPFRun run = ParsingUtils.createNewRun(paragraph);
+        run.setText(heading);
+        run.setFontFamily("Open Sans");
+        run.setFontSize(16);
+        run.setBold(true);
+        run.addCarriageReturn();
+    }
+
+    private Optional<List<String>> extractHeadings(XWPFDocument document) {
+        List<String> headings = new ArrayList<>();
+        List<XWPFParagraph> paragraphs = document.getParagraphs();
+        paragraphs.stream().filter(this::checkIfHeadingStylePresent).forEach(paragraph -> headings.add(paragraph.getText()));
+        return Optional.of(headings);
+    }
+
+    private XWPFParagraph createTableOfContents(List<String> headings, XWPFDocument document) {
+        XWPFParagraph tocParagraph = ParsingUtils.createNewParagraph(document);
+        tocParagraph.setPageBreak(true);
+        tocParagraph.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun tocRun = tocParagraph.createRun();
+        tocRun.setText("Table of Contents");
+        tocRun.setFontFamily("Open Sans");
+        tocRun.addBreak();
+        tocRun.setFontSize(24);
+        tocRun.setBold(true);
+        headings.stream().forEach(heading -> modifyHeading(heading, tocParagraph));
+
+        return tocParagraph;
     }
 
     private void modifyLineSpacing(XWPFParagraph paragraph, String lineSpacing) {
@@ -95,7 +156,7 @@ public class DocumentParser {
             CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
             if (ctpPr.isSetSpacing()) {
                 ctpPr.getSpacing().setLineRule(STLineSpacingRule.AUTO);
-                ctpPr.getSpacing().setLine(new BigInteger(lineSpacing));
+                ctpPr.getSpacing().setLine(ParsingUtils.mapStringToLineSpacingValueInBigInt(lineSpacing));
 
             } else {
                 ctpPr.addNewSpacing().setLineRule(STLineSpacingRule.AUTO);
@@ -106,10 +167,7 @@ public class DocumentParser {
 
     private void modifyColorShading(XWPFParagraph paragraph, String colorShading) {
         CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
-        Optional.ofNullable(ctpPr.getShd()).ifPresentOrElse(
-                shd -> shd.setFill(colorShading),
-                () -> ctpPr.addNewShd().setFill(colorShading)
-        );
+        Optional.ofNullable(ctpPr.getShd()).ifPresentOrElse(shd -> shd.setFill(colorShading), () -> ctpPr.addNewShd().setFill(colorShading));
     }
 
     private void checkIfDBdocumentKeyExists(String documentKey, String docID) {
@@ -120,10 +178,15 @@ public class DocumentParser {
         });
     }
 
+
     private void modifyDocument(File tempFile, InputStream inputStream, FormattingConfig formattingConfig) {
-        try (XWPFDocument document = new XWPFDocument(inputStream)) {
+        try {
+            XWPFDocument document = new XWPFDocument(inputStream);
             logger.info("modifying document " + tempFile.getName() + " with paragraphs : " + document.getParagraphs().size());
             ParsingUtils.getParagraphsInTheDocument(document).stream().forEach(paragraph -> modifyParagraph.accept(paragraph, formattingConfig));
+            if (checkForBooleanFontParameterChange.apply(formattingConfig.getGenerateTOC())) {
+                modifyDocumentToc(document);
+            }
             FileOutputStream out = new FileOutputStream(tempFile);
             document.write(out);
             out.close();
@@ -131,6 +194,23 @@ public class DocumentParser {
             logger.error("Error while modifying document" + e.getMessage());
             throw new FileParsingException("Error while modifying document::" + e.getMessage()); // Handle or log the exception appropriately
         }
+    }
+
+    private void modifyDocumentToc(XWPFDocument oldDocument) {
+        Optional<List<String>> headings = extractHeadings(oldDocument);
+        if (headings.isPresent()) {
+            XWPFParagraph newParagraph = createTableOfContents(headings.get(), oldDocument);
+            // Move this paragraph to the beginning of the document
+            CTBody body = oldDocument.getDocument().getBody();
+            CTP newParagraphCtp = newParagraph.getCTP();
+            body.insertNewP(0);
+            CTP firstParagraph = body.getPArray(0);
+            firstParagraph.set(newParagraphCtp);
+
+// Remove the duplicate (the original new paragraph at the end)
+            body.removeP(body.sizeOfPArray() - 1);
+        }
+
     }
 
     public S3StorageInfo modifyFile(String key, String docID, FormattingConfig formattingConfig) throws IOException {
@@ -144,28 +224,6 @@ public class DocumentParser {
         return uploadFileAfterModification(tempFile, docID);
     }
 
-    public List<ParagraphStyleInfo> fetchDocumentMetaData(File file) {
-        List<ParagraphStyleInfo> paragraphStyleInfoList = new ArrayList<>();
-        try (XWPFDocument document = new XWPFDocument(new FileInputStream(file))) {
-            paragraphStyleInfoList = ParsingUtils.getParagraphsInTheDocument(document).stream()
-                    .map(paragraph -> {
-                        ParagraphStyleInfo paragraphStyleInfo = new ParagraphStyleInfo();
-                        paragraphStyleInfo.setParagraphAlignment(paragraph.getAlignment().toString());
-                        Optional<List<XWPFRun>> runs = Optional.ofNullable(paragraph.getRuns());
-                        runs.ifPresent(r -> {
-                            Optional<XWPFRun> run = r.stream().findFirst();
-                            paragraphStyleInfo.setFontStyle(run.map(XWPFRun::getFontFamily).orElse(null));
-                            paragraphStyleInfo.setFontSize(run.map(run1 -> String.valueOf(run1.getFontSize())).orElse(null));
-                            paragraphStyleInfo.setFontColor(run.map(XWPFRun::getColor).orElse(null));
-                        });
-                        return paragraphStyleInfo;
-                    })
-                    .collect(Collectors.toList());
-        } catch (IOException | RuntimeException e) {
-            throw new FileParsingException("Error while fetching document metadata" + e.getMessage());
-        }
-        return paragraphStyleInfoList;
-    }
 
     private List<VersionInfo> setDocumentVersions(PutObjectResponse s3response, String fileName) {
         VersionInfo versionInfo = new VersionInfo();
@@ -174,7 +232,6 @@ public class DocumentParser {
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
         versionInfo.setUrl(fileUrl);
         versionInfo.setVersionID(s3response.versionId());
-        versionInfo.setCreatedDate(Instant.now());
         documentVersions.add(versionInfo);
         return documentVersions;
     }
