@@ -39,6 +39,7 @@ public class DocumentParser {
     }
 
     Function<String, Boolean> checkForFontParameterChange = fontParmeter -> fontParmeter != null && !fontParmeter.isEmpty();
+    Function<Boolean, Boolean> checkForBooleanFontParameterChange = fontParmeter -> fontParmeter != null && fontParmeter;
 
 
     private final BiConsumer<XWPFRun, FormattingConfig> modifyRun = (run, formattingConfig) -> {
@@ -50,7 +51,7 @@ public class DocumentParser {
             modifyFontFamily(run, formattingConfig.getFontType());
         if (checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
             modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
-        if (formattingConfig.getRemoveItalics())
+        if (checkForBooleanFontParameterChange.apply(formattingConfig.getRemoveItalics()))
             modifyToRemoveItalics(run);
     };
     private final BiConsumer<XWPFRun, FormattingConfig> modifyHeadingRun = (run, formattingConfig) -> {
@@ -183,7 +184,7 @@ public class DocumentParser {
             XWPFDocument document = new XWPFDocument(inputStream);
             logger.info("modifying document " + tempFile.getName() + " with paragraphs : " + document.getParagraphs().size());
             ParsingUtils.getParagraphsInTheDocument(document).stream().forEach(paragraph -> modifyParagraph.accept(paragraph, formattingConfig));
-            if (formattingConfig.getGenerateTOC()) {
+            if (checkForBooleanFontParameterChange.apply(formattingConfig.getGenerateTOC())) {
                 modifyDocumentToc(document);
             }
             FileOutputStream out = new FileOutputStream(tempFile);
