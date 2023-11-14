@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import React, { useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
-
 import Button from '../components/UI/Button';
 import MyToggle from '../components/UI/MyToggle';
 import { useRouter } from 'next/router';
@@ -16,7 +15,7 @@ type PrimaryFix =
   | 'contrast'
   | 'italics';
 
-export default function IdentifiedFixes() {
+export default function AccessibilityReview() {
   const [showMessage, setShowMessage] = useState(false);
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
@@ -28,7 +27,7 @@ export default function IdentifiedFixes() {
     fontSize: true,
     interSpacing: true,
     lineSpacing: true,
-    contrast: false,
+    contrast: true,
     italics: true,
   });
 
@@ -41,6 +40,15 @@ export default function IdentifiedFixes() {
 
   const onReviewConfirm = () => {
     setIsModifyLoading(true);
+
+    const docModParams: DocModifyParams = {
+      fontSize: choicesObj.fontSize ? 12 : undefined,
+      lineSpacing: choicesObj.lineSpacing ? 1.5 : undefined,
+      fontColor: choicesObj.contrast ? '000000' : undefined,
+      backgroundColor: choicesObj.contrast ? 'FFFFFF' : undefined,
+      characterSpacing: choicesObj.interSpacing ? 2.5 : undefined,
+      alignment: 'LEFT',
+    };
 
     axiosInit
       .get('/modifyFile', {

@@ -1,4 +1,4 @@
-import Axios, { AxiosResponse } from 'axios';
+import Axios, { AxiosError, isAxiosError } from 'axios';
 import { STORAGE_KEYS } from '../configs/constants';
 
 const axiosInit = Axios.create({
@@ -36,23 +36,28 @@ axiosInit.interceptors.response.use(
   (response) => {
     return response;
   },
-  async function (error) {
-    const originalRequest = error.config;
-    if (error.response.status === 403 && !originalRequest._retry) {
-      originalRequest._retry = true;
+  async function (error: Error | AxiosError) {
+    console.log({ genericError: error });
 
-      try {
-        const accessTokenRes = await getTokenApi();
-        Axios.defaults.headers.common[
-          'Authorization'
-        ] = `Bearer ${accessTokenRes.data}`;
-        localStorage.setItem(STORAGE_KEYS.TOKEN, `${accessTokenRes.data}`);
-      } catch (error) {
-        console.log(error);
-        //TODO: Toast error
+    if (isAxiosError(error)) {
+      const originalRequest = { ...error.config, _retry: undefined };
+      if (error?.response.status === 403 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const accessTokenRes = await getTokenApi();
+          Axios.defaults.headers.common[
+            'Authorization'
+          ] = `Bearer ${accessTokenRes.data}`;
+          localStorage.setItem(STORAGE_KEYS.TOKEN, `${accessTokenRes.data}`);
+          return axiosInit(originalRequest);
+        } catch (error) {
+          console.log(error);
+          //TODO: Toast error
+          Promise.reject(error);
+        }
       }
-      return axiosInit(originalRequest);
     }
+
     return Promise.reject(error);
   }
 );
