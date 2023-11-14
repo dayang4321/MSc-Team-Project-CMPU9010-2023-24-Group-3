@@ -7,10 +7,10 @@ public  class FormattingConfig {
     private final String backgroundColor;
     private final String lineSpacing;
     private final String characterSpacing;
-
     private final String alignment;
+    private final Boolean generateTOC;
 
-    public FormattingConfig(String fontType, String fontSize, String fontColor, String lineSpacing, String characterSpacing, String backgroundColor,String alignment) {
+    public FormattingConfig(String fontType, String fontSize, String fontColor, String lineSpacing, String characterSpacing, String backgroundColor,String alignment, Boolean generateTOC) {
         this.fontType = fontType;
         this.fontSize = fontSize;
         this.fontColor = fontColor;
@@ -18,6 +18,7 @@ public  class FormattingConfig {
         this.characterSpacing = characterSpacing;
         this.backgroundColor = backgroundColor;
         this.alignment = alignment;
+        this.generateTOC = generateTOC;
     }
 
     public String getFontType() {
@@ -42,9 +43,12 @@ public  class FormattingConfig {
     public String getBackgroundColor() {
         return backgroundColor;
     }
-
     public String getAlignment() {
         return alignment;
+    }
+
+    public Boolean getGenerateTOC() {
+        return generateTOC;
     }
 }
 
