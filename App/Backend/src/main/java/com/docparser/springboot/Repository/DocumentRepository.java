@@ -16,15 +16,6 @@ import java.time.Instant;
 public class DocumentRepository {
     @Autowired
     private DynamoDbEnhancedClient dynamoDbenhancedClient;
-    private  String fontType;
-    private  String fontSize;
-    private  String fontColor;
-    private  String backgroundColor;
-    private  String lineSpacing;
-    private  String characterSpacing;
-    private  String alignment;
-    private  Boolean generateTOC;
-    private  Boolean removeItalics;
 
     public static final TableSchema<DocumentConfig> DOCUMENT_CONFIG_PARAMS = TableSchema.builder(DocumentConfig.class)
             .newItemSupplier(DocumentConfig::new)
