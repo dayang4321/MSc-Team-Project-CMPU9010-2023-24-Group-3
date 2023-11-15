@@ -27,7 +27,7 @@ public class SessionService {
 
     public String generateToken(String sessionID) {
         Instant now = Instant.now();
-        Instant expirationTime = now.plusSeconds(3600);
+        Instant expirationTime = now.plusSeconds(24 * 60 * 60);
         return Jwts.builder().setId(sessionID)
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(expirationTime))
