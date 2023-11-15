@@ -1,5 +1,6 @@
 package com.docparser.springboot.Repository;
 
+import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.model.DocumentInfo;
 import com.docparser.springboot.model.ParagraphStyleInfo;
 import com.docparser.springboot.model.VersionInfo;
@@ -15,21 +16,45 @@ import java.time.Instant;
 public class DocumentRepository {
     @Autowired
     private DynamoDbEnhancedClient dynamoDbenhancedClient;
+    private  String fontType;
+    private  String fontSize;
+    private  String fontColor;
+    private  String backgroundColor;
+    private  String lineSpacing;
+    private  String characterSpacing;
+    private  String alignment;
+    private  Boolean generateTOC;
+    private  Boolean removeItalics;
 
-    public static final TableSchema<ParagraphStyleInfo> TABLE_SCHEMA_PARAGRAPH_STYLES = TableSchema.builder(ParagraphStyleInfo.class)
-            .newItemSupplier(ParagraphStyleInfo::new)
-            .addAttribute(String.class, a -> a.name("fontStyle")
-                    .getter(ParagraphStyleInfo::getFontStyle)
-                    .setter(ParagraphStyleInfo::setFontStyle))
+    public static final TableSchema<DocumentConfig> DOCUMENT_CONFIG_PARAMS = TableSchema.builder(DocumentConfig.class)
+            .newItemSupplier(DocumentConfig::new)
+            .addAttribute(String.class, a -> a.name("fontType")
+                    .getter(DocumentConfig::getFontType)
+                    .setter(DocumentConfig::setFontType))
             .addAttribute(String.class, a -> a.name("fontSize")
-                    .getter(ParagraphStyleInfo::getFontSize)
-                    .setter(ParagraphStyleInfo::setFontSize))
+                    .getter(DocumentConfig::getFontSize)
+                    .setter(DocumentConfig::setFontSize))
             .addAttribute(String.class, a -> a.name("fontColor")
-                    .getter(ParagraphStyleInfo::getFontColor)
-                    .setter(ParagraphStyleInfo::setFontColor))
-            .addAttribute(String.class, a -> a.name("paragraphAlignment")
-                    .getter(ParagraphStyleInfo::getParagraphAlignment)
-                    .setter(ParagraphStyleInfo::setParagraphAlignment))
+                    .getter(DocumentConfig::getFontColor)
+                    .setter(DocumentConfig::setFontColor))
+            .addAttribute(String.class, a -> a.name("backgroundColor")
+                    .getter(DocumentConfig::getBackgroundColor)
+                    .setter(DocumentConfig::setBackgroundColor))
+            .addAttribute(String.class, a -> a.name("lineSpacing")
+                    .getter(DocumentConfig::getLineSpacing)
+                    .setter(DocumentConfig::setLineSpacing))
+            .addAttribute(String.class, a -> a.name("characterSpacing")
+                    .getter(DocumentConfig::getCharacterSpacing)
+                    .setter(DocumentConfig::setCharacterSpacing))
+            .addAttribute(String.class, a -> a.name("alignment")
+                    .getter(DocumentConfig::getAlignment)
+                    .setter(DocumentConfig::setAlignment))
+            .addAttribute(Boolean.class, a -> a.name("generateTOC")
+                    .getter(DocumentConfig::getGenerateTOC)
+                    .setter(DocumentConfig::setGenerateTOC))
+            .addAttribute(Boolean.class, a -> a.name("removeItalics")
+                    .getter(DocumentConfig::getRemoveItalics)
+                    .setter(DocumentConfig::setRemoveItalics))
             .build();
     public static final TableSchema<VersionInfo> TABLE_SCHEMA_VERSIONS = TableSchema.builder(VersionInfo.class)
             .newItemSupplier(VersionInfo::new)
@@ -58,13 +83,12 @@ public class DocumentRepository {
                             .getter(DocumentInfo::getDocumentKey)
                             .setter(DocumentInfo::setDocumentKey))
                     .addAttribute(EnhancedType.listOf(
-                            EnhancedType.documentOf(ParagraphStyleInfo.class, TABLE_SCHEMA_PARAGRAPH_STYLES)), a -> a.name("paragraphInfo")
-                            .getter(DocumentInfo::getParagraphInfo)
-                            .setter(DocumentInfo::setParagraphInfo))
-                    .addAttribute(EnhancedType.listOf(
                             EnhancedType.documentOf(VersionInfo.class, TABLE_SCHEMA_VERSIONS)), a -> a.name("documentVersions")
                             .getter(DocumentInfo::getDocumentVersions)
                             .setter(DocumentInfo::setDocumentVersions))
+                    .addAttribute(EnhancedType.documentOf(DocumentConfig.class, DOCUMENT_CONFIG_PARAMS), a -> a.name("documentConfig")  // DocumentConfig.class
+                            .getter(DocumentInfo::getDocumentConfig)
+                            .setter(DocumentInfo::setDocumentConfig))
                     .build();
     private DynamoDbTable<DocumentInfo> getTable() {
         // Create a tablescheme to scan our bean class order

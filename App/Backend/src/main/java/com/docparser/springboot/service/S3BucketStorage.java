@@ -56,10 +56,11 @@ public class S3BucketStorage {
         return presignedGetObjectRequest.url().toString();
     }
 
-    public InputStream getFileStreamFromS3(String key) {
+    public InputStream getFileStreamFromS3(String key, String versionId) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
+                .versionId(versionId)
                 .build();
         ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
         byte[] data = objectBytes.asByteArray();
@@ -67,18 +68,4 @@ public class S3BucketStorage {
         return inputStream;
     }
 
-    public FileSystemResource download(String key) throws IOException {
-        InputStream inputStream = getFileStreamFromS3(key);
-        File tempFile = File.createTempFile("downloadedFile", ".docx");
-        tempFile.deleteOnExit();
-        try (XWPFDocument document = new XWPFDocument(inputStream)) {
-            FileOutputStream out = new FileOutputStream(tempFile);
-            document.write(out);
-            out.close();
-        } catch (IOException e) {
-            throw new IOException(e); // Handle the exception
-        }
-        // Write the data to a local file.
-        return new FileSystemResource(tempFile);
-    }
 }

@@ -1,6 +1,7 @@
 package com.docparser.springboot.controller;
 
-import com.docparser.springboot.model.FormattingConfig;
+import com.docparser.springboot.model.DocumentConfig;
+import com.docparser.springboot.model.DocumentInfo;
 import com.docparser.springboot.model.S3StorageInfo;
 import com.docparser.springboot.service.DocumentParser;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class DocxController {
 
 
     @GetMapping("/modifyFile")
-    public ResponseEntity<S3StorageInfo> modifyDocument(@RequestParam("filename") String fileName, @RequestParam("docID") String docID,
+    public ResponseEntity<S3StorageInfo> modifyDocument(@RequestParam("filename") String fileName, @RequestParam("docID") String docID, @RequestParam("versionID") String versionID,
                                                         @RequestParam(required = false) String fontType,
                                                         @RequestParam(required = false) String fontSize,
                                                         @RequestParam(required = false) String fontColor,
@@ -43,16 +44,22 @@ public class DocxController {
                                                         @RequestParam(required = false) Boolean generateTOC,
                                                         @RequestParam(required = false) Boolean removeItalics) throws IOException {
         // Code to save the file to a database or disk
-        S3StorageInfo storageInfo = documentParser.modifyFile(fileName, docID, new FormattingConfig(fontType, fontSize, fontColor, lineSpacing, characterSpacing, backgroundColor, alignment, generateTOC,removeItalics));
+        S3StorageInfo storageInfo = documentParser.modifyFile(fileName, docID, versionID, new DocumentConfig(fontType, fontSize, fontColor, backgroundColor, lineSpacing, characterSpacing,
+                alignment, generateTOC, removeItalics));
         return ResponseEntity.ok(storageInfo);
     }
 
 
     @GetMapping("/versions")
-    public ResponseEntity<Object> getDocumentVersions(@RequestParam("docID") String docID) throws IOException {
+    public ResponseEntity<Object> getDocumentVersions(@RequestParam("docID") String docID) {
         // Code to save the file to a database or disk
-        documentParser.getDocumentVersions(docID);
         return ResponseEntity.ok(documentParser.getDocumentVersions(docID));
+    }
+
+    @GetMapping("/document/{id}")
+    public ResponseEntity<DocumentInfo> getDocumentInfo(@PathVariable String id) {
+        // Code to save the file to a database or disk
+        return ResponseEntity.ok(documentParser.fetchDocument(id));
     }
 
 }
