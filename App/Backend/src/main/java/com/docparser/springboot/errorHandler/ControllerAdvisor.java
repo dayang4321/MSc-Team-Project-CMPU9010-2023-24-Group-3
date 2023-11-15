@@ -22,9 +22,6 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     @ExceptionHandler({IOException.class, NullPointerException.class, IllegalStateException.class,RuntimeException.class, FileParsingException.class})
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         logger.error("Exception occurred  : "+ex);
-        HttpHeaders headers = new HttpHeaders();
-        // Add CORS headers as needed
-        headers.add("Access-Control-Allow-Origin", "*");
         ErrorResponse errorResponse = new ErrorResponse(500, ex.getMessage(), ex.getStackTrace().toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header("Access-Control-Allow-Origin", "*") // or specify a specific origin
@@ -34,9 +31,6 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ServletException.class,SessionNotFoundException.class, AuthenticationException.class})
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(ServletException ex, WebRequest request) {
         logger.error("Exception occurred message : "+ex);
-        HttpHeaders headers = new HttpHeaders();
-        // Add CORS headers as needed
-        headers.add("Access-Control-Allow-Origin", "*");
         ErrorResponse errorResponse = new ErrorResponse(403, ex.getMessage(),ex.getStackTrace().toString());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .header("Access-Control-Allow-Origin", "*") // or specify a specific origin
