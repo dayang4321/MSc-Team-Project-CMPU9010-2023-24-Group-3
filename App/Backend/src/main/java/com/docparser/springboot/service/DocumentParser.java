@@ -42,7 +42,7 @@ public class DocumentParser {
     Function<Boolean, Boolean> checkForBooleanFontParameterChange = fontParmeter -> fontParmeter != null && fontParmeter;
 
 
-    private final BiConsumer<XWPFRun, FormattingConfig> modifyRun = (run, formattingConfig) -> {
+    private final BiConsumer<XWPFRun, DocumentConfig> modifyRun = (run, formattingConfig) -> {
         if (checkForFontParameterChange.apply(formattingConfig.getFontSize()))
             modifyLineFontSize(run, formattingConfig.getFontSize());
         if (checkForFontParameterChange.apply(formattingConfig.getFontColor()))
@@ -54,7 +54,7 @@ public class DocumentParser {
         if (checkForBooleanFontParameterChange.apply(formattingConfig.getRemoveItalics()))
             modifyToRemoveItalics(run);
     };
-    private final BiConsumer<XWPFRun, FormattingConfig> modifyHeadingRun = (run, formattingConfig) -> {
+    private final BiConsumer<XWPFRun, DocumentConfig> modifyHeadingRun = (run, formattingConfig) -> {
         run.setBold(true);
         if (checkForFontParameterChange.apply(formattingConfig.getFontSize()))
             modifyHeadingFontSize(run, formattingConfig.getFontSize());
@@ -65,8 +65,6 @@ public class DocumentParser {
         if (checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
             modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
     };
-
-
     private void modifyLineFontSize(XWPFRun run, String fontSize) {
         run.setFontSize(Integer.parseInt(fontSize));
     }
@@ -98,7 +96,7 @@ public class DocumentParser {
         charSpacingNew.setVal(ParsingUtils.mapStringToCharacterSpacingValueInBigInt(charSpacing));
     }
 
-    private final BiConsumer<XWPFParagraph, FormattingConfig> modifyParagraph = (paragraph, formattingConfig) -> {
+    private final BiConsumer<XWPFParagraph, DocumentConfig> modifyParagraph = (paragraph, formattingConfig) -> {
         boolean headingFontSizeModified = false;
         if (checkForFontParameterChange.apply(formattingConfig.getAlignment()))
             modifyAlignment(paragraph, formattingConfig.getAlignment());
@@ -120,9 +118,6 @@ public class DocumentParser {
         return paragraph.getStyleID() != null && paragraph.getStyleID().startsWith("Heading");
     }
 
-    private boolean checkIfTOCPresent(XWPFParagraph paragraph) {
-        return !paragraph.getRuns().isEmpty() && paragraph.getRuns().get(0).getText(0).equals("Table of Contents");
-    }
 
     private void modifyHeading(String heading, XWPFParagraph paragraph) {
         XWPFRun run = ParsingUtils.createNewRun(paragraph);
@@ -140,7 +135,7 @@ public class DocumentParser {
         return Optional.of(headings);
     }
 
-    private XWPFParagraph createTableOfContents(List<String> headings, XWPFDocument document,FormattingConfig formattingConfig) {
+    private XWPFParagraph createTableOfContents(List<String> headings, XWPFDocument document, DocumentConfig formattingConfig) {
         XWPFParagraph tocParagraph = ParsingUtils.createNewParagraph(document);
         tocParagraph.setPageBreak(true);
         tocParagraph.setAlignment(ParagraphAlignment.CENTER);
@@ -184,27 +179,27 @@ public class DocumentParser {
     }
 
 
-    private void modifyDocument(File tempFile, InputStream inputStream, FormattingConfig formattingConfig) {
+    private void modifyDocument(File tempFile, InputStream inputStream, DocumentConfig formattingConfig) {
         try {
             XWPFDocument document = new XWPFDocument(inputStream);
             logger.info("modifying document " + tempFile.getName() + " with paragraphs : " + document.getParagraphs().size());
             ParsingUtils.getParagraphsInTheDocument(document).stream().forEach(paragraph -> modifyParagraph.accept(paragraph, formattingConfig));
-            if (checkForBooleanFontParameterChange.apply(formattingConfig.getGenerateTOC()) && !checkIfTOCPresent(document.getParagraphs().get(0))) {
-                modifyDocumentToc(document,formattingConfig);
+            if (checkForBooleanFontParameterChange.apply(formattingConfig.getGenerateTOC())) {
+                modifyDocumentToc(document, formattingConfig);
             }
             FileOutputStream out = new FileOutputStream(tempFile);
             document.write(out);
             out.close();
         } catch (Exception e) {
             logger.error("Error while modifying document" + e.getMessage());
-           new FileParsingException("Error while modifying document" + e.getMessage());
+            throw new FileParsingException("Error while modifying document" + e.getMessage());
         }
     }
 
-    private void modifyDocumentToc(XWPFDocument oldDocument,FormattingConfig formattingConfig) {
+    private void modifyDocumentToc(XWPFDocument oldDocument, DocumentConfig formattingConfig) {
         Optional<List<String>> headings = extractHeadings(oldDocument);
         if (headings.isPresent()) {
-            XWPFParagraph newParagraph = createTableOfContents(headings.get(), oldDocument,formattingConfig);
+            XWPFParagraph newParagraph = createTableOfContents(headings.get(), oldDocument, formattingConfig);
             // Move this paragraph to the beginning of the document
             CTBody body = oldDocument.getDocument().getBody();
             CTP newParagraphCtp = newParagraph.getCTP();
@@ -218,15 +213,15 @@ public class DocumentParser {
 
     }
 
-    public S3StorageInfo modifyFile(String key, String docID, FormattingConfig formattingConfig) throws IOException {
+    public S3StorageInfo modifyFile(String key, String docID, String versionID, DocumentConfig formattingConfig) throws IOException {
         checkIfDBdocumentKeyExists(key, docID);
-        InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key);
+        InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key, versionID);
         File tempFile = new File(key);
         tempFile.deleteOnExit();
         logger.info("initiating file modification");
         modifyDocument(tempFile, inputStream, formattingConfig);
         logger.info("file modification completed");
-        return uploadFileAfterModification(tempFile, docID);
+        return uploadFileAfterModification(tempFile, docID, formattingConfig);
     }
 
 
@@ -247,8 +242,6 @@ public class DocumentParser {
         String fileName = fileUtils.generateFileName(multipartFile);
         DocumentInfo documentInfo = new DocumentInfo();
         //  List<ParagraphStyleInfo> paragraphStyleInfoList = fetchDocumentMetaData(file);
-        List<ParagraphStyleInfo> paragraphStyleInfoList = new ArrayList<>();
-        documentInfo.setParagraphInfo(paragraphStyleInfoList);
         documentInfo.setDocumentKey(fileName);
 
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
@@ -260,12 +253,13 @@ public class DocumentParser {
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
 
-    public S3StorageInfo uploadFileAfterModification(File file, String docID) throws IOException {
+    public S3StorageInfo uploadFileAfterModification(File file, String docID, DocumentConfig formattingConfig) throws IOException {
         String fileName = fileUtils.generateFileName(file);
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
 
         DocumentInfo documentInfo = documentRepository.getDocumentInfo(docID);
+        documentInfo.setDocumentConfig(formattingConfig);
         documentInfo.getDocumentVersions().add(new VersionInfo(fileUrl, s3response.versionId(), s3response.eTag(), Instant.now()));
         documentRepository.save(documentInfo);
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
@@ -280,6 +274,7 @@ public class DocumentParser {
         versions.put("latestVersion", versionInfoLatest.get().getUrl());
         return versions;
     }
+
 
 
 }
