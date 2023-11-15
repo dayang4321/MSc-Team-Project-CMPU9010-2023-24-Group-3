@@ -274,7 +274,9 @@ public class DocumentParser {
         versions.put("latestVersion", versionInfoLatest.get().getUrl());
         return versions;
     }
-
+    public DocumentInfo fetchDocument(String docID) {
+        return documentRepository.getDocumentInfo(docID);
+    }
 
 
 }
