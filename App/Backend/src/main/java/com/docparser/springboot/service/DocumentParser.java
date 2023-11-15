@@ -120,6 +120,10 @@ public class DocumentParser {
         return paragraph.getStyleID() != null && paragraph.getStyleID().startsWith("Heading");
     }
 
+    private boolean checkIfTOCPresent(XWPFParagraph paragraph) {
+        return !paragraph.getRuns().isEmpty() && paragraph.getRuns().get(0).getText(0).equals("Table of Contents");
+    }
+
     private void modifyHeading(String heading, XWPFParagraph paragraph) {
         XWPFRun run = ParsingUtils.createNewRun(paragraph);
         run.setText(heading);
@@ -136,18 +140,19 @@ public class DocumentParser {
         return Optional.of(headings);
     }
 
-    private XWPFParagraph createTableOfContents(List<String> headings, XWPFDocument document) {
+    private XWPFParagraph createTableOfContents(List<String> headings, XWPFDocument document,FormattingConfig formattingConfig) {
         XWPFParagraph tocParagraph = ParsingUtils.createNewParagraph(document);
         tocParagraph.setPageBreak(true);
         tocParagraph.setAlignment(ParagraphAlignment.CENTER);
+        tocParagraph.setStyle("Heading1");
         XWPFRun tocRun = tocParagraph.createRun();
         tocRun.setText("Table of Contents");
         tocRun.setFontFamily("Open Sans");
         tocRun.addBreak();
-        tocRun.setFontSize(24);
+        tocRun.setFontSize(18);
         tocRun.setBold(true);
         headings.stream().forEach(heading -> modifyHeading(heading, tocParagraph));
-
+        modifyParagraph.accept(tocParagraph, formattingConfig);
         return tocParagraph;
     }
 
@@ -184,22 +189,22 @@ public class DocumentParser {
             XWPFDocument document = new XWPFDocument(inputStream);
             logger.info("modifying document " + tempFile.getName() + " with paragraphs : " + document.getParagraphs().size());
             ParsingUtils.getParagraphsInTheDocument(document).stream().forEach(paragraph -> modifyParagraph.accept(paragraph, formattingConfig));
-            if (checkForBooleanFontParameterChange.apply(formattingConfig.getGenerateTOC())) {
-                modifyDocumentToc(document);
+            if (checkForBooleanFontParameterChange.apply(formattingConfig.getGenerateTOC()) && !checkIfTOCPresent(document.getParagraphs().get(0))) {
+                modifyDocumentToc(document,formattingConfig);
             }
             FileOutputStream out = new FileOutputStream(tempFile);
             document.write(out);
             out.close();
         } catch (Exception e) {
             logger.error("Error while modifying document" + e.getMessage());
-            throw new FileParsingException("Error while modifying document::" + e.getMessage()); // Handle or log the exception appropriately
+           new FileParsingException("Error while modifying document" + e.getMessage());
         }
     }
 
-    private void modifyDocumentToc(XWPFDocument oldDocument) {
+    private void modifyDocumentToc(XWPFDocument oldDocument,FormattingConfig formattingConfig) {
         Optional<List<String>> headings = extractHeadings(oldDocument);
         if (headings.isPresent()) {
-            XWPFParagraph newParagraph = createTableOfContents(headings.get(), oldDocument);
+            XWPFParagraph newParagraph = createTableOfContents(headings.get(), oldDocument,formattingConfig);
             // Move this paragraph to the beginning of the document
             CTBody body = oldDocument.getDocument().getBody();
             CTP newParagraphCtp = newParagraph.getCTP();
