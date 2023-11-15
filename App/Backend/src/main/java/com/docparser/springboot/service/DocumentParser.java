@@ -1,6 +1,7 @@
 package com.docparser.springboot.service;
 
 import com.docparser.springboot.Repository.DocumentRepository;
+import com.docparser.springboot.errorHandler.DocumentNotExist;
 import com.docparser.springboot.errorHandler.FileParsingException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.FileUtils;
@@ -173,7 +174,7 @@ public class DocumentParser {
     private void checkIfDBdocumentKeyExists(String documentKey, String docID) {
         Optional.of(documentRepository.getDocumentInfo(docID)).ifPresent(documentInfo -> {
             if (!documentInfo.getDocumentKey().equals(documentKey)) {
-                throw new FileParsingException("Document key does not match with the document ID");
+                throw new DocumentNotExist("Document key does not match with the document ID");
             }
         });
     }
