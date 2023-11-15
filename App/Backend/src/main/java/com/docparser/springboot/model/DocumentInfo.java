@@ -13,7 +13,7 @@ public class DocumentInfo {
 
     private String documentKey;
 
-    private List<ParagraphStyleInfo> paragraphInfo;
+    private DocumentConfig documentConfig;
 
     private List<VersionInfo> documentVersions;
     @DynamoDbAttribute("documentID")
@@ -25,13 +25,13 @@ public class DocumentInfo {
     public void setDocumentID(String documentID) {
         this.documentID = documentID;
     }
-    @DynamoDbAttribute("paragraphInfo")
-    public List<ParagraphStyleInfo> getParagraphInfo() {
-        return paragraphInfo;
+    @DynamoDbAttribute("documentConfig")
+    public DocumentConfig getDocumentConfig() {
+        return documentConfig;
     }
 
-    public void setParagraphInfo(List<ParagraphStyleInfo> paragraphInfo) {
-        this.paragraphInfo = paragraphInfo;
+    public void setDocumentConfig(DocumentConfig documentConfig) {
+        this.documentConfig = documentConfig;
     }
     @DynamoDbAttribute("documentVersions")
     public List<VersionInfo> getDocumentVersions() {
