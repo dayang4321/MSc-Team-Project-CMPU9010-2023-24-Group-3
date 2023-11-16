@@ -1,4 +1,6 @@
+import { ReactNode } from 'react';
 import {
+  RadioGroupProps,
   SelectProps,
   SliderProps,
   ValidationResult,
@@ -46,4 +48,8 @@ export interface MySliderProps<T> extends SliderProps<T> {
   label?: string;
   thumbLabels?: string[];
   outputValFormat?: (val: number) => string;
+}
+export interface MyRadioGroupProps extends RadioGroupProps {
+  label: string | ReactNode;
+  options: Array<{ name: string; content: ReactNode }>;
 }
