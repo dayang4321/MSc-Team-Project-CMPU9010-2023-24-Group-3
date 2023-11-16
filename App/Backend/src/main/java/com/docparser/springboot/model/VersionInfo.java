@@ -4,14 +4,12 @@ import java.time.Instant;
 
 public class VersionInfo {
 
-    private String url;
     private String versionID;
     private String eTag;
 
     private Instant createdDate;
 
-    public VersionInfo(String url, String versionID, String eTag, Instant createdDate) {
-        this.url = url;
+    public VersionInfo( String versionID, String eTag, Instant createdDate) {
         this.versionID = versionID;
         this.eTag = eTag;
         this.createdDate = createdDate;
@@ -22,13 +20,6 @@ public class VersionInfo {
 
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
 
     public String getVersionID() {
         return versionID;

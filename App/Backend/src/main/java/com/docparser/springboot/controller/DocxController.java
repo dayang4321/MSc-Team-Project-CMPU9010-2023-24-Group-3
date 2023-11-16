@@ -51,12 +51,6 @@ public class DocxController {
     }
 
 
-    @GetMapping("/versions")
-    public ResponseEntity<Object> getDocumentVersions(@RequestParam("docID") String docID) {
-        // Code to save the file to a database or disk
-        return ResponseEntity.ok(documentParser.getDocumentVersions(docID));
-    }
-
     @GetMapping("/document/{id}")
     public ResponseEntity<DocumentResponse> getDocumentInfo(@PathVariable String id) {
         // Code to save the file to a database or disk
