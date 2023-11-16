@@ -1,7 +1,9 @@
 package com.docparser.springboot.model;
 
 
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -13,7 +15,7 @@ public class DocumentResponse {
 
     private DocumentConfig documentConfig;
 
-    private  String documentOriginalVersion;
+    private HashMap<String, String> versions;
 
 
     public String getDocumentID() {
@@ -33,18 +35,19 @@ public class DocumentResponse {
     }
 
 
-    public String getDocumentOriginalVersion() {
-        return documentOriginalVersion;
+    public HashMap<String, String> getVersions() {
+        return versions;
     }
 
-    public void setDocumentOriginalVersion(String documentOriginalVersion) {
-        this.documentOriginalVersion = documentOriginalVersion;
+    public void setVersions(HashMap<String, String> versions) {
+        this.versions = versions;
     }
 
     public String getDocumentKey() {
         return documentKey;
     }
-    public  void setDocumentKey(String documentKey) {
+
+    public void setDocumentKey(String documentKey) {
         this.documentKey = documentKey;
     }
 }
