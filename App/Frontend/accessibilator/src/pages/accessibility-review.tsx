@@ -55,7 +55,7 @@ export default function AccessibilityReview() {
     };
 
     axiosInit
-      .get('/modifyFile', {
+      .get<DocumentData>('/modifyFile', {
         params: {
           filename: doc_key,
           docID: doc_id,
@@ -67,7 +67,9 @@ export default function AccessibilityReview() {
         //  console.log(res);
         router.push({
           pathname: '/reader',
-          query: { doc_url: res.data.url, doc_id: doc_id },
+          query: {
+            doc_id: res.data.documentID,
+          },
         });
       })
       .catch((err) => {

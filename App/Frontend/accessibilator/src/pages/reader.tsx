@@ -14,13 +14,16 @@ type Props = {};
 
 const Reader = (props: Props) => {
   const router = useRouter();
-  const { doc_url, doc_id } = router.query;
+  const { doc_id } = router.query;
 
   const [slideModalOpen, setSlideModalOpen] = useState(false);
+
+  const [isDocDataLoading, setIsDocDataLoading] = useState(false);
 
   const [currDocData, setCurrDocData] = useState<DocumentData | null>(null);
 
   const fetchDocument = async (id: string) => {
+    setIsDocDataLoading(true);
     try {
       const docRes = await axiosInit.get<DocumentData>(`/document/${id}`);
       return Promise.resolve(docRes.data);
@@ -28,6 +31,8 @@ const Reader = (props: Props) => {
       console.log(error);
       // TODO: Toast error
       return Promise.reject(error);
+    } finally {
+      setIsDocDataLoading(false);
     }
   };
 
@@ -43,7 +48,7 @@ const Reader = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const docUri = Array.isArray(doc_url) ? doc_url[0] : doc_url;
+  const docUri = currDocData?.versions.currentVersion.url;
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
 
@@ -62,7 +67,7 @@ const Reader = (props: Props) => {
     };
 
     axiosInit
-      .get('/modifyFile', {
+      .get<DocumentData>('/modifyFile', {
         params: {
           filename: currDocData.documentKey,
           docID: currDocData.documentID,
@@ -72,6 +77,8 @@ const Reader = (props: Props) => {
       })
       .then((res) => {
         //  console.log(res);
+        setCurrDocData(res.data);
+        setSlideModalOpen(false);
       })
       .catch((err) => {
         console.log(err);
@@ -147,7 +154,7 @@ const Reader = (props: Props) => {
       </nav>
       <main className='flex flex-1 bg-slate-50 py-16 pb-8 text-gray-900'>
         <div className='ml-24 flex flex-1 flex-col items-stretch border border-stone-800'>
-          {memoisedReader}
+          {!isDocDataLoading && memoisedReader}
         </div>
         <div className='flex flex-col self-stretch px-3'>
           <Button
@@ -161,7 +168,7 @@ const Reader = (props: Props) => {
         </div>
       </main>
       <SlideModal
-        open={true}
+        open={slideModalOpen}
         setOpen={setSlideModalOpen}
         title={'Customisation Panel'}
       >
