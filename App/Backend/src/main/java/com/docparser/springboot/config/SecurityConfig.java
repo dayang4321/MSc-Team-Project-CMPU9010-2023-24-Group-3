@@ -24,6 +24,9 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Autowired
+    @Qualifier("customAuthenticationEntryPoint")
+    AuthenticationEntryPoint authEntryPoint;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -49,7 +52,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e -> e.authenticationEntryPoint(authEntryPoint));
 
         return http.build();
     }
