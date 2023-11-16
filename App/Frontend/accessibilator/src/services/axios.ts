@@ -6,22 +6,31 @@ const axiosInit = Axios.create({
 });
 
 const getTokenApi = async () => {
-  const accessTokenRes = Axios.get(
-    'https://hn6noz98uf.execute-api.eu-north-1.amazonaws.com/getToken'
-  );
+  const accessTokenRes = Axios.get<{
+    token: string;
+    expiry: string;
+  }>('https://hn6noz98uf.execute-api.eu-north-1.amazonaws.com/getToken');
   return accessTokenRes;
 };
 
 // Set the AUTH token for any request
 axiosInit.interceptors.request.use(async function (config) {
   const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-  if (token) {
+  const expiry = localStorage.getItem(STORAGE_KEYS.EXPIRY) || '0';
+
+  const isTokenValid = Number(expiry) > Date.now();
+
+  if (!!token && isTokenValid) {
     config.headers.Authorization = `Bearer ${token}`;
   } else {
     try {
       const accessTokenRes = await getTokenApi();
-      localStorage.setItem(STORAGE_KEYS.TOKEN, `${accessTokenRes.data}`);
-      config.headers.Authorization = `Bearer ${accessTokenRes.data}`;
+      localStorage.setItem(STORAGE_KEYS.TOKEN, `${accessTokenRes.data.token}`);
+      localStorage.setItem(
+        STORAGE_KEYS.EXPIRY,
+        `${Date.parse(accessTokenRes.data.expiry)}`
+      );
+      config.headers.Authorization = `Bearer ${accessTokenRes.data.token}`;
     } catch (error) {
       console.log(error);
       //TODO: Toast error
@@ -34,31 +43,50 @@ axiosInit.interceptors.request.use(async function (config) {
 // Response interceptor for API calls
 axiosInit.interceptors.response.use(
   (response) => {
+    console.log({ genResponse: response });
     return response;
   },
-  async function (error: Error | AxiosError) {
-    console.log({ genericError: error });
-
+  function (error: Error | AxiosError) {
+    console.log({ genError: error });
     if (isAxiosError(error)) {
-      const originalRequest = { ...error.config, _retry: undefined };
+      const originalRequest = { ...error.config, _retry: false };
       if (error?.response.status === 403 && !originalRequest._retry) {
         originalRequest._retry = true;
-        try {
-          const accessTokenRes = await getTokenApi();
-          Axios.defaults.headers.common[
-            'Authorization'
-          ] = `Bearer ${accessTokenRes.data}`;
-          localStorage.setItem(STORAGE_KEYS.TOKEN, `${accessTokenRes.data}`);
-          return axiosInit(originalRequest);
-        } catch (error) {
-          console.log(error);
-          //TODO: Toast error
-          Promise.reject(error);
-        }
-      }
-    }
 
-    return Promise.reject(error);
+        getTokenApi()
+          .then((accessTokenRes) => {
+            Axios.defaults.headers.common[
+              'Authorization'
+            ] = `Bearer ${accessTokenRes.data.token}`;
+            localStorage.setItem(
+              STORAGE_KEYS.TOKEN,
+              `${accessTokenRes.data.token}`
+            );
+            localStorage.setItem(
+              STORAGE_KEYS.EXPIRY,
+              `${Date.parse(accessTokenRes.data.expiry)}`
+            );
+            const delayRetryRequest = new Promise<void>((resolve) => {
+              setTimeout(() => {
+                resolve();
+              }, 500);
+            });
+
+            return delayRetryRequest.then(() =>
+              axiosInit.request(originalRequest)
+            );
+          })
+          .catch((err) => {
+            console.log(err, 'get token err');
+            //TODO: Toast error
+            Promise.reject(err);
+          });
+      } else {
+        return Promise.reject(error);
+      }
+    } else {
+      return Promise.reject(error);
+    }
   }
 );
 
