@@ -5,6 +5,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
 
 @layer base {
+  :root {
+    font-size: calc(8.8px + 0.5vw);
+  }
   html,
   body {
     font-family: Lexend, Verdana, 'Segoe UI', Tahoma, sans-serif;
@@ -29,7 +32,7 @@
   }
 
   .btn-link {
-    @apply bg-transparent text-yellow-950;
+    @apply bg-transparent font-medium text-yellow-950;
   }
 
   .form-control-input {
