@@ -252,6 +252,7 @@ public class DocumentParser {
 
         documentInfo.setDocumentVersions(setDocumentVersions(s3response, fileName));
         documentRepository.save(documentInfo);
+        file.delete();
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
 
@@ -264,6 +265,7 @@ public class DocumentParser {
         documentInfo.setDocumentConfig(formattingConfig);
         documentInfo.getDocumentVersions().add(new VersionInfo(fileUrl, s3response.versionId(), s3response.eTag(), Instant.now()));
         documentRepository.save(documentInfo);
+        file.delete();
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
 
