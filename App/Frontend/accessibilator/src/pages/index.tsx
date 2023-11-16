@@ -54,16 +54,15 @@ export default function Home() {
           }>
         ) => {
           console.log(res);
-          setIsUploadRes(res.data);
           setIsUploading(false);
 
           delay(() => {
             router.push({
               pathname: '/accessibility-review',
               query: {
-                doc_key: isUploadRes.key,
-                doc_id: isUploadRes.documentID,
-                version_id: isUploadRes.versionID,
+                doc_key: res.data.key,
+                doc_id: res.data.documentID,
+                version_id: res.data.versionID,
               },
             });
           }, 1000);
