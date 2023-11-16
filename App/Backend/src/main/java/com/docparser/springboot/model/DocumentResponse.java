@@ -15,7 +15,7 @@ public class DocumentResponse {
 
     private DocumentConfig documentConfig;
 
-    private HashMap<String, String> versions;
+    private HashMap<String, Object> versions;
 
 
     public String getDocumentID() {
@@ -35,11 +35,11 @@ public class DocumentResponse {
     }
 
 
-    public HashMap<String, String> getVersions() {
+    public HashMap<String, Object> getVersions() {
         return versions;
     }
 
-    public void setVersions(HashMap<String, String> versions) {
+    public void setVersions(HashMap<String, Object> versions) {
         this.versions = versions;
     }
 
