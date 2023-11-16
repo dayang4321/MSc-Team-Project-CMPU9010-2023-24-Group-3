@@ -23,7 +23,7 @@ const fontStyleOptions: Array<{
   { id: 'helvetica', name: 'Helvetica' },
   { id: 'lexend', name: 'Lexend' },
   { id: 'openSans', name: 'Open Sans' },
-] as const;
+];
 
 type CustomisationPanelProps = {
   docConfigData: DocumentData['documentConfig'];
