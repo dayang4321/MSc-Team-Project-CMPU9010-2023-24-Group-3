@@ -214,7 +214,7 @@ public class DocumentParser {
 
     }
 
-    public S3StorageInfo modifyFile(String key, String docID, String versionID, DocumentConfig formattingConfig) throws IOException {
+    public DocumentResponse modifyFile(String key, String docID, String versionID, DocumentConfig formattingConfig) throws IOException {
         checkIfDBdocumentKeyExists(key, docID);
         InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key, versionID);
         File tempFile = new File(key);
@@ -222,7 +222,9 @@ public class DocumentParser {
         logger.info("initiating file modification");
         modifyDocument(tempFile, inputStream, formattingConfig);
         logger.info("file modification completed");
-        return uploadFileAfterModification(tempFile, docID, formattingConfig);
+        S3StorageInfo storageInfo=uploadFileAfterModification(tempFile, docID, formattingConfig) ;
+        DocumentResponse documentResponse = fetchDocument(docID);
+        return documentResponse;
     }
 
 
@@ -267,14 +269,25 @@ public class DocumentParser {
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
 
-    public HashMap<String, String> getDocumentVersions(DocumentInfo documentInfo) {
+    public HashMap<String, Object> getDocumentVersions(DocumentInfo documentInfo) {
         Optional<VersionInfo> versionInfoOriginal = documentInfo.getDocumentVersions().stream().min(Comparator.comparing(VersionInfo::getCreatedDate));
         Optional<VersionInfo> versionInfoLatest = documentInfo.getDocumentVersions().stream().max(Comparator.comparing(VersionInfo::getCreatedDate));
-        HashMap<String, String> versions = new HashMap<>();
-        String originalUrl= s3FileUploadService.getUploadedObjectUrl(documentInfo.getDocumentKey(), versionInfoOriginal.get().getVersionID());
-        String latestUrl= s3FileUploadService.getUploadedObjectUrl(documentInfo.getDocumentKey(), versionInfoLatest.get().getVersionID());
-        versions.put("originalVersion", originalUrl);
-        versions.put("currentVersion", latestUrl);
+        HashMap<String, Object> versions = new HashMap<>();
+        HashMap<String, String> originalVersion = new HashMap<>();
+        HashMap<String, String> currentVersion = new HashMap<>();
+
+        // Assuming s3FileUploadService.getUploadedObjectUrl returns the URL for the given version ID
+        String originalUrl = s3FileUploadService.getUploadedObjectUrl(documentInfo.getDocumentKey(), versionInfoOriginal.get().getVersionID());
+        String latestUrl = s3FileUploadService.getUploadedObjectUrl(documentInfo.getDocumentKey(), versionInfoLatest.get().getVersionID());
+
+        originalVersion.put("url", originalUrl);
+        originalVersion.put("versionID", versionInfoOriginal.get().getVersionID());
+
+        currentVersion.put("url", latestUrl);
+        currentVersion.put("versionID", versionInfoLatest.get().getVersionID());
+
+        versions.put("originalVersion", originalVersion);
+        versions.put("currentVersion", currentVersion);
         return versions;
     }
     public DocumentResponse fetchDocument(String docID) {
