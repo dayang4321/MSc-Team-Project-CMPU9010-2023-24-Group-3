@@ -25,12 +25,11 @@ public class SessionService {
     SessionRepository sessionRepository;
     private static final String SECRET_KEY = "ana7263nsnakka838";
 
-    public String generateToken(String sessionID) {
+    public String generateToken(String sessionID,Date issuedAt,Date expirationTime) {
         Instant now = Instant.now();
-        Instant expirationTime = now.plusSeconds(24 * 60 * 60);
         return Jwts.builder().setId(sessionID)
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(expirationTime))
+                .setIssuedAt(issuedAt)
+                .setExpiration(expirationTime)
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
                 .compact();
 
@@ -52,12 +51,17 @@ public class SessionService {
     }
 
 
-    public String generateAndSaveUserInfo() {
+    public HashMap<String, Object> generateAndSaveUserInfo() {
         String sessionID = UUID.randomUUID().toString();
-        String token = generateToken(sessionID);
+        Instant expirationTime = Instant.now().plusSeconds(24 * 60 * 60);
+        Instant issuedAt = Instant.now();
+        String token = generateToken(sessionID, Date.from(issuedAt),Date.from(expirationTime));
         sessionRepository.save(new SessionInfo(sessionID, "", token, Instant.now()));
         logger.info("token generated  and saved in DB" + token);
-        return token;
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("expiry", expirationTime.toString());
+        return response;
     }
 
     public void saveFeedbackInfo(String token, FeedBackForm feedBackForm) {

@@ -233,6 +233,7 @@ public class DocumentParser {
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
         versionInfo.setUrl(fileUrl);
         versionInfo.setVersionID(s3response.versionId());
+        versionInfo.setCreatedDate(Instant.now());
         documentVersions.add(versionInfo);
         return documentVersions;
     }
