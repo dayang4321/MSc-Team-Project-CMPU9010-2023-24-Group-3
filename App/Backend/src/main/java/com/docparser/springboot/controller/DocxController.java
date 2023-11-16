@@ -2,6 +2,7 @@ package com.docparser.springboot.controller;
 
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.model.DocumentInfo;
+import com.docparser.springboot.model.DocumentResponse;
 import com.docparser.springboot.model.S3StorageInfo;
 import com.docparser.springboot.service.DocumentParser;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class DocxController {
     }
 
     @GetMapping("/document/{id}")
-    public ResponseEntity<DocumentInfo> getDocumentInfo(@PathVariable String id) {
+    public ResponseEntity<DocumentResponse> getDocumentInfo(@PathVariable String id) {
         // Code to save the file to a database or disk
         return ResponseEntity.ok(documentParser.fetchDocument(id));
     }
