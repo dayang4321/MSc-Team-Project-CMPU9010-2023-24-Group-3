@@ -5,6 +5,7 @@ import Button from '../components/UI/Button';
 import axiosInit from '../services/axios';
 import { useRouter } from 'next/router';
 import { AxiosResponse } from 'axios';
+import delay from 'lodash/delay';
 
 export default function Home() {
   const router = useRouter();
@@ -53,10 +54,18 @@ export default function Home() {
           }>
         ) => {
           console.log(res);
-          router.push({
-            pathname: '/accessibility-review',
-            query: { doc_key: res.data.key, doc_id: res.data.documentID },
-          });
+          setIsUploading(false);
+
+          delay(() => {
+            router.push({
+              pathname: '/accessibility-review',
+              query: {
+                doc_key: res.data.key,
+                doc_id: res.data.documentID,
+                version_id: res.data.versionID,
+              },
+            });
+          }, 1000);
         }
       )
       .catch((err) => {
@@ -66,8 +75,6 @@ export default function Home() {
             err?.message ? `(Message: ${err?.message})` : ''
           }`
         );
-      })
-      .finally(() => {
         setIsUploading(false);
       });
   };
@@ -153,20 +160,19 @@ export default function Home() {
           Reading documents made more accessible😁
         </h1>
 
-        <div className='relative max-w-4xl overflow-hidden rounded-2xl bg-zinc-900 px-8 pb-28 pt-12 text-white'>
+        <div className='relative w-[40rem] max-w-full overflow-hidden rounded-2xl bg-zinc-900 px-8 pb-28 pt-12 text-white'>
           <h2 className='mb-4 max-w-4xl text-4xl font-semibold'>
             Upload a document
           </h2>
-          <p className='mb-5'>
-            Supported documents include Word(docx), Powerpoint(ppt), Excel
-            (xlsx).
-          </p>
+          <p className='mb-5'>Supported documents include Word(docx)</p>
 
           {uploadedFiles.length ? (
             <div className='mt-14 rounded-md bg-zinc-700 px-12 py-3 text-left text-base text-zinc-100'>
-              {isUploading ? (
+              {isUploading || uploadProgress === 100 ? (
                 <p className='text-2xl font-semibold'>
-                  Uploading Document... {uploadProgress} %
+                  {isUploading
+                    ? `Uploading Document... ${uploadProgress}%`
+                    : 'Upload Complete'}
                 </p>
               ) : !!docUploadError ? (
                 <div className='flex justify-between'>
