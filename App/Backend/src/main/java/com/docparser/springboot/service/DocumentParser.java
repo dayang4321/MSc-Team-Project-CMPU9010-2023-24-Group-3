@@ -278,8 +278,14 @@ public class DocumentParser {
         versions.put("latestVersion", versionInfoLatest.get().getUrl());
         return versions;
     }
-    public DocumentInfo fetchDocument(String docID) {
-        return documentRepository.getDocumentInfo(docID);
+    public DocumentResponse fetchDocument(String docID) {
+        DocumentInfo documentInfo= documentRepository.getDocumentInfo(docID);
+        DocumentResponse documentResponse = new DocumentResponse();
+        documentResponse.setDocumentKey(documentInfo.getDocumentKey());
+        documentResponse.setDocumentID(documentInfo.getDocumentID());
+        documentResponse.setDocumentConfig(documentInfo.getDocumentConfig());
+        documentResponse.setDocumentOriginalVersion(documentInfo.getDocumentVersions().stream().min(Comparator.comparing(VersionInfo::getCreatedDate)).get().getVersionID());
+        return documentResponse;
     }
 
 
