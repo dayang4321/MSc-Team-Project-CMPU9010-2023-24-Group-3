@@ -1,4 +1,8 @@
-import { SelectProps, ValidationResult } from 'react-aria-components';
+import {
+  SelectProps,
+  SliderProps,
+  ValidationResult,
+} from 'react-aria-components';
 import {
   DeepMap,
   FieldError,
@@ -36,4 +40,10 @@ export interface MySelectProps<T extends object>
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
   items: Iterable<T>;
+}
+
+export interface MySliderProps<T> extends SliderProps<T> {
+  label?: string;
+  thumbLabels?: string[];
+  outputValFormat?: (val: number) => string;
 }
