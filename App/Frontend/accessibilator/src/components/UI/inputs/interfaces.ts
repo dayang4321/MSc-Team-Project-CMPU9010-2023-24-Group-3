@@ -1,3 +1,4 @@
+import { SelectProps, ValidationResult } from 'react-aria-components';
 import {
   DeepMap,
   FieldError,
@@ -27,4 +28,12 @@ export interface MyTextAreaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
     RHFInputProps {
   id: string | `${string}.${string}` | `${string}.${number}`;
+}
+
+export interface MySelectProps<T extends object>
+  extends Omit<SelectProps<T>, 'children'> {
+  label?: string;
+  description?: string;
+  errorMessage?: string | ((validation: ValidationResult) => string);
+  items: Iterable<T>;
 }
