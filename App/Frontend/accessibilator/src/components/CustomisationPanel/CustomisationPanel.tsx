@@ -71,7 +71,7 @@ const CustomisationPanel = ({
         >
           <MyTab id='text'>Text</MyTab>
           <MyTab id='colour'>Colour</MyTab>
-          <MyTab id='extra'>Extra</MyTab>
+          <MyTab id='special'>Special</MyTab>
         </TabList>
         <MyTabPanel id='text'>
           <div className='flex flex-col space-y-4 divide-y divide-gray-300 '>
@@ -169,15 +169,28 @@ const CustomisationPanel = ({
         <MyTabPanel id='colour'>
           <div className='flex flex-col'></div>
         </MyTabPanel>
-        <MyTabPanel id='extra'>
-          <div className='flex flex-col'></div>
+        <MyTabPanel id='special'>
+          <div className='flex flex-col space-y-4 divide-y divide-gray-300'>
+            <div className='px-16 py-6'>
+              <div className='flex items-center justify-between'>
+                <InfoTooltip infoTip="The Table of Contents makes reading easier by organizing the document's structure visually. This helps them find information more easily, making the overall reading experience smoother.">
+                  <p>Generate Table of Contents</p>
+                </InfoTooltip>
+                <MyToggle
+                  ariaLabel='Generate Table of Contents'
+                  checked={modificationsObj.generateTOC}
+                  onChange={(checked) => modObjHandler('generateTOC', checked)}
+                />
+              </div>
+            </div>
+          </div>
         </MyTabPanel>
       </Tabs>
-      <div className='border px-16 py-8 '>
+      <div className='border px-16 py-5 text-right'>
         <Button
           className=' px-6 py-2 text-base'
           loading={configSaveLoading}
-          text={'Save'}
+          text={'Save Changes'}
           onClick={() => {
             onConfigSave(modificationsObj);
           }}
