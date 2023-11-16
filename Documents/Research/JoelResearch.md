@@ -44,3 +44,16 @@ https://github.com/NVIDIA/nvidia-container-toolkit
 Docker for Running Colab Notebook on your local GPU
 https://docs.docker.com/desktop/install/windows-install/
 
+LSTM for Title Generation
+https://www.quora.com/How-do-I-predict-the-title-of-news-articles-using-deep-learning-model-in-supervised-way?ch=18&oid=8539685&share=b1969dc9&srid=3GVPr&target_type=question
+
+Another approch Topic Modelling for Title Generation
+https://towardsdatascience.com/end-to-end-topic-modeling-in-python-latent-dirichlet-allocation-lda-35ce4ed6b3e0
+
+
+ Similar work
+ https://www.kaggle.com/code/antmarakis/headline-generation-million-headlines-dataset/notebook
+ https://www.kaggle.com/code/mksaad/paper-s-title-generation-from-abstracts
+ https://www.kaggle.com/code/cihankrdgn/title-generation/notebook
+ 
+
