@@ -21,7 +21,7 @@ export default function AccessibilityReview() {
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
   const router = useRouter();
-  const { doc_id, doc_key } = router.query;
+  const { doc_id, doc_key, version_id } = router.query;
 
   const [choicesObj, setChoicesObj] = useState<Record<PrimaryFix, boolean>>({
     fontStyle: true,
@@ -59,6 +59,7 @@ export default function AccessibilityReview() {
         params: {
           filename: doc_key,
           docID: doc_id,
+          versionID: version_id,
           ...docModParams,
         },
       })
@@ -66,7 +67,7 @@ export default function AccessibilityReview() {
         //  console.log(res);
         router.push({
           pathname: '/reader',
-          query: { doc_url: res.data.url },
+          query: { doc_url: res.data.url, doc_id: doc_id },
         });
       })
       .catch((err) => {
@@ -101,6 +102,7 @@ export default function AccessibilityReview() {
               </InfoTooltip>
 
               <MyToggle
+                ariaLabel='Font style changed'
                 checked={choicesObj.fontStyle}
                 onChange={() => setChoiceHandler('fontStyle')}
               />
@@ -110,6 +112,7 @@ export default function AccessibilityReview() {
                 <p>Font size increased</p>
               </InfoTooltip>
               <MyToggle
+                ariaLabel='Font size increased'
                 checked={choicesObj.fontSize}
                 onChange={() => setChoiceHandler('fontSize')}
               />
@@ -119,6 +122,7 @@ export default function AccessibilityReview() {
                 <p>Inter-letter spacing increased</p>
               </InfoTooltip>
               <MyToggle
+                ariaLabel='Inter-letter spacing increased'
                 checked={choicesObj.interSpacing}
                 onChange={() => setChoiceHandler('interSpacing')}
               />
@@ -128,6 +132,7 @@ export default function AccessibilityReview() {
                 <p>Line spacing increased</p>
               </InfoTooltip>
               <MyToggle
+                ariaLabel='Line spacing increased'
                 checked={choicesObj.lineSpacing}
                 onChange={() => setChoiceHandler('lineSpacing')}
               />
@@ -136,19 +141,31 @@ export default function AccessibilityReview() {
               <InfoTooltip infoTip='We try to avoid italics as much as possible, as they can cause letters to appear connected and crowded, which can be challenging for readers with dyslexia. Bold text will used for emphasis instead'>
                 <p>Italics removed</p>
               </InfoTooltip>
-              <MyToggle checked={choicesObj.italics} />
+              <MyToggle
+                ariaLabel='Italics removed'
+                checked={choicesObj.italics}
+                onChange={() => setChoiceHandler('italics')}
+              />
             </div>
             <div className='flex items-center justify-between py-5'>
               <InfoTooltip infoTip='High contrast between text and background minimizes visual strain and enhances visibility of characters, particularly important for individuals with reading and/or visual difficulties'>
                 <p>Contrast increased</p>
               </InfoTooltip>
-              <MyToggle checked={choicesObj.contrast} />
+              <MyToggle
+                ariaLabel='Contrast increased'
+                checked={choicesObj.contrast}
+                onChange={() => setChoiceHandler('contrast')}
+              />
             </div>
             <div className='flex items-center justify-between py-5'>
               <InfoTooltip infoTip="We've aligned the text to the left without justification. This alignment helps in maintaining a consistent visual flow, making it easier to find the start and finish of each line. It also ensures even spacing between words.">
                 <p>Alignment changed</p>
               </InfoTooltip>
-              <MyToggle checked={choicesObj.alignment} />
+              <MyToggle
+                ariaLabel='Alignment changed'
+                checked={choicesObj.alignment}
+                onChange={() => setChoiceHandler('alignment')}
+              />
             </div>
           </div>
         </div>
@@ -156,14 +173,14 @@ export default function AccessibilityReview() {
         <div className='mt-8 w-full max-w-4xl text-right '>
           <Button
             variant='link'
-            className=' mr-10 border border-stone-700 px-6 py-2 text-base font-medium text-stone-700'
+            className=' mr-10 border border-yellow-900 px-6 py-2 text-base font-medium'
             text={'Back'}
             onClick={() => {
               router.back();
             }}
           />
           <Button
-            className='bg-stone-700 px-6 py-2 text-base font-medium text-zinc-50'
+            className=' px-6 py-2 text-base'
             loading={isModifyLoading}
             text={'Continue'}
             onClick={() => {
