@@ -298,7 +298,7 @@ public class DocumentParser {
         documentResponse.setDocumentKey(documentInfo.getDocumentKey());
         documentResponse.setDocumentID(documentInfo.getDocumentID());
         if (documentInfo.getDocumentConfig() == null) {
-            documentInfo.setDocumentConfig(new DocumentConfig(null, null, null, null, null, null, null, null, null));
+            documentResponse.setDocumentConfig(new DocumentConfig(null, null, null, null, null, null, null, null, null));
 
         } else {
             documentResponse.setDocumentConfig(documentInfo.getDocumentConfig());
