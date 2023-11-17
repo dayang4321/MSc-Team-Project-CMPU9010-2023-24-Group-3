@@ -28,7 +28,7 @@
   }
 
   .btn-primary {
-    @apply inline-block rounded-md bg-yellow-950 px-7 py-3 text-sm font-medium  leading-snug text-white shadow-md transition duration-150 ease-in-out  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-900 active:shadow-lg;
+    @apply inline-flex rounded-md bg-yellow-950 px-7 py-3 text-sm font-medium  leading-snug text-white shadow-md transition duration-150 ease-in-out  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-900 active:shadow-lg;
   }
 
   .btn-link {
