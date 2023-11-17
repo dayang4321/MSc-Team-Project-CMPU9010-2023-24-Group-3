@@ -11,6 +11,9 @@ export const theme = {
     fontFamily: {
       sans: ['var(--font-lexend)'],
     },
+    boxShadow: {
+      bttm: '0px 4px 14px 0px rgba(0, 0, 0, 0.04)',
+    },
   },
 };
 
@@ -23,5 +26,6 @@ export const daisyui = {
 export const plugins = [
   require('@tailwindcss/forms'),
   require('@headlessui/tailwindcss'),
+  require('tailwindcss-react-aria-components'),
   require('daisyui'),
 ];

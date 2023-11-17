@@ -7,30 +7,29 @@ import FeedbackForm from '../components/FeedbackForm/FeedbackForm';
 interface LayoutProps {
   children: React.ReactNode;
   variant?: 'light' | 'dark';
+  title?: React.ReactNode;
 }
 
-const DefaultLayout: FC<LayoutProps> = ({ children, variant }) => {
-  const router = useRouter();
-
+const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
   const [isShowingFeedback, setIsShowingFeedback] = useState(false);
 
   return (
     <>
       <div className='flex min-h-screen flex-col'>
         <nav
-          className={`flex px-8  ${
+          className={`relative flex px-8 ${
             variant === 'dark' ? 'bg-stone-900 py-2 text-stone-100' : 'py-5'
           } `}
         >
-          <Link
-            className='text-2xl font-extrabold uppercase'
-            href='/'
-            // onClick={() => {
-            //   router.push('/');
-            // }}
-          >
+          <Link className='text-2xl font-extrabold uppercase' href='/'>
             Accessibilator
           </Link>
+          {title && (
+            <p className='absolute left-1/2 top-1/2 inline-block -translate-x-1/2 -translate-y-1/2 text-lg font-medium'>
+              {title}
+            </p>
+          )}
+
           <Button
             role='navigation'
             variant='link'

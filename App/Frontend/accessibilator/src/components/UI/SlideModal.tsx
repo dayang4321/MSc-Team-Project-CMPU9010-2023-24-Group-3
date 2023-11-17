@@ -63,7 +63,7 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
                   leaveFrom='opacity-100'
                   leaveTo='opacity-0'
                 >
-                  <div className='absolute right-8 top-4 z-10  flex pr-2 pt-4 sm:-ml-10 sm:pr-4'>
+                  <div className='absolute right-8 top-2 z-10  flex pr-2 pt-4 sm:-ml-10 sm:pr-4'>
                     <button
                       className='text-primary focus:ring-primary rounded-full bg-primary-50 p-1 focus:outline-none focus:ring-2 focus:ring-opacity-50'
                       onClick={() => setOpen(false)}
@@ -74,19 +74,19 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
                   </div>
                 </Transition.Child>
                 <div
-                  className={`relative flex min-h-screen flex-1 flex-col bg-white p-14 shadow-xl sm:p-16 ${
+                  className={`relative flex max-h-screen min-h-screen flex-1 flex-col overflow-hidden bg-white py-8 shadow-xl ${
                     modalContentClasses || ''
                   }`}
                 >
                   <div className=''>
                     <Dialog.Title
                       as='h2'
-                      className='px-1 font-sans text-2xl font-semibold'
+                      className='px-16 font-sans text-2xl font-medium'
                     >
                       {title}
                     </Dialog.Title>
                   </div>
-                  <div className='flex flex-1 flex-col overflow-y-hidden px-1 pt-8 font-sans text-base sm:text-sm'>
+                  <div className='sm:text-md flex flex-1 flex-col overflow-y-hidden pt-8 font-sans text-base'>
                     {children}
                   </div>
                 </div>
