@@ -295,7 +295,11 @@ public class DocumentParser {
         DocumentResponse documentResponse = new DocumentResponse();
         documentResponse.setDocumentKey(documentInfo.getDocumentKey());
         documentResponse.setDocumentID(documentInfo.getDocumentID());
-        documentResponse.setDocumentConfig(documentInfo.getDocumentConfig());
+        if(documentInfo.getDocumentConfig()==null){
+            documentResponse.setDocumentConfig(new DocumentConfig(null, null, null, null, null, null, null, null, null));
+        }else {
+            documentResponse.setDocumentConfig(documentInfo.getDocumentConfig());
+        }
        documentResponse.setVersions(getDocumentVersions(documentInfo));
         return documentResponse;
     }
