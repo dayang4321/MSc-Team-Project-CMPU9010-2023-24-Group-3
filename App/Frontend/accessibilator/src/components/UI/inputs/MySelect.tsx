@@ -13,13 +13,12 @@ import type { ListBoxItemProps } from 'react-aria-components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { MySelectProps } from './interfaces';
 
-function MySelect<T extends object>({
-  label,
-  description,
-  errorMessage,
-  items,
-  ...props
-}: MySelectProps<T>) {
+function MySelect<
+  T extends {
+    id: string;
+    name: string;
+  },
+>({ label, description, errorMessage, items, ...props }: MySelectProps<T>) {
   return (
     <Select className='flex flex-col gap-2' {...props}>
       <Label className='cursor-default'>{label}</Label>
