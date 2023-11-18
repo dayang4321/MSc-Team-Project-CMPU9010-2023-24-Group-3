@@ -58,26 +58,31 @@ const Reader = (props: Props) => {
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
 
-  const onSaveConfig = (data: DocModifyParams) => {
+  const onSaveConfig = (
+    docParamData: DocModifyParams,
+    docData: Pick<DocumentData, 'documentKey' | 'documentID' | 'versions'>
+  ) => {
     setIsModifyLoading(true);
     const docModParams: DocModifyParams = {
-      fontType: data.fontType,
-      fontSize: data.fontSize,
-      lineSpacing: data.lineSpacing,
-      fontColor: data.fontColor,
-      backgroundColor: data.backgroundColor,
-      characterSpacing: data.characterSpacing * 10,
-      removeItalics: data.removeItalics,
-      alignment: data.alignment,
-      generateTOC: data.generateTOC,
+      fontType: docParamData.fontType,
+      fontSize: docParamData.fontSize,
+      lineSpacing: docParamData.lineSpacing,
+      fontColor: docParamData.fontColor,
+      backgroundColor: docParamData.backgroundColor,
+      characterSpacing: !!docParamData.characterSpacing
+        ? docParamData.characterSpacing * 10
+        : docParamData.characterSpacing,
+      removeItalics: docParamData.removeItalics,
+      alignment: docParamData.alignment,
+      generateTOC: docParamData.generateTOC,
     };
 
     axiosInit
       .get<DocumentData>('/modifyFile', {
         params: {
-          filename: currDocData.documentKey,
-          docID: currDocData.documentID,
-          versionID: currDocData.versions.originalVersion.versionID,
+          filename: docData.documentKey,
+          docID: docData.documentID,
+          versionID: docData.versions.originalVersion.versionID,
           ...docModParams,
         },
       })
@@ -254,7 +259,7 @@ const Reader = (props: Props) => {
           <CustomisationPanel
             onConfigSave={onSaveConfig}
             configSaveLoading={isModifyLoading}
-            docConfigData={currDocData.documentConfig}
+            docData={currDocData}
           />
         )}
       </SlideModal>

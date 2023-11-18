@@ -121,7 +121,7 @@ export default function AccessibilityReview() {
             </div>
             <div className='flex items-center justify-between py-5'>
               <InfoTooltip infoTip='Increasing the space between letters (around 35% of the average letter width) leads to a more readable text by reducing visual crowding, a common issue for those with dyslexia.'>
-                <p>Inter-letter spacing increased</p>
+                <p>Letter spacing increased</p>
               </InfoTooltip>
               <MyToggle
                 ariaLabel='Inter-letter spacing increased'

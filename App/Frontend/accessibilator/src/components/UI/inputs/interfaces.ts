@@ -38,18 +38,18 @@ export interface MyTextAreaProps
 
 export interface MySelectProps<T extends object>
   extends Omit<SelectProps<T>, 'children'> {
-  label?: string;
+  label?: ReactNode;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
   items: Iterable<T>;
 }
 
 export interface MySliderProps<T> extends SliderProps<T> {
-  label?: string;
+  label?: ReactNode;
   thumbLabels?: string[];
   outputValFormat?: (val: number) => string;
 }
 export interface MyRadioGroupProps extends RadioGroupProps {
-  label: string | ReactNode;
+  label: ReactNode;
   options: Array<{ name: string; content: ReactNode }>;
 }
