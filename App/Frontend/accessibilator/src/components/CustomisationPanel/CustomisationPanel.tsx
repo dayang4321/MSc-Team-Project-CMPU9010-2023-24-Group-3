@@ -88,7 +88,7 @@ const CustomisationPanel = ({
                     position='bottom'
                     infoTip='Use sans serif fonts like Arial or Comic Sans as they appear less crowded, making each letter more distinct and easier to read for people living with dyslexia.'
                   >
-                    <p>Font style changed</p>
+                    <p>Font style</p>
                   </InfoTooltip>
                 }
                 items={fontStyleOptions}
@@ -110,9 +110,9 @@ const CustomisationPanel = ({
                 label={
                   <InfoTooltip
                     position='bottom'
-                    infoTip='Larger font sizes (12-14 pt.) aid in readability, especially for readers who may find smaller text challenging to follow'
+                    infoTip='Larger font sizes (12-14 pt.) make for easier reading, especially for readers who may find smaller text challenging to follow'
                   >
-                    <p>Font size increased</p>
+                    <p>Font size</p>
                   </InfoTooltip>
                 }
               />
@@ -130,7 +130,7 @@ const CustomisationPanel = ({
                     position='bottom'
                     infoTip='The recommended line spacing (1.5) improves text clarity and reduces visual stress, making it easier for readers to follow lines of text.'
                   >
-                    <p>Line spacing increased</p>
+                    <p>Line spacing</p>
                   </InfoTooltip>
                 }
               />
@@ -151,7 +151,7 @@ const CustomisationPanel = ({
                     position='bottom'
                     infoTip='Increase the space between letters (around 35% of the average letter width) leads to a more readable text by reducing visual crowding, a common issue for those with dyslexia.'
                   >
-                    <p>Letter spacing increased</p>
+                    <p>Letter spacing</p>
                   </InfoTooltip>
                 }
               />
