@@ -22,8 +22,8 @@ function MySelect<
   return (
     <Select className='flex flex-col gap-2' {...props}>
       <Label className='cursor-default'>{label}</Label>
-      <Button className='pressed:bg-opacity-100 flex cursor-default items-center rounded-md border border-slate-400 bg-white bg-opacity-90 py-2 pl-4 pr-2 text-left text-base leading-normal text-gray-700 shadow ring-yellow-600 ring-offset-2 ring-offset-slate-200 transition focus:outline-none focus-visible:ring-2'>
-        <SelectValue className='flex-1 truncate placeholder-shown:text-slate-500' />
+      <Button className='flex cursor-default items-center rounded-md border border-slate-400 bg-white bg-opacity-90 py-2 pl-4 pr-2 text-left text-base leading-normal text-gray-700 shadow ring-yellow-600 ring-offset-2 ring-offset-slate-200 transition focus:outline-none focus-visible:ring-2 pressed:bg-opacity-100 disabled:bg-gray-400/60'>
+        <SelectValue className='flex-1 truncate  placeholder-shown:text-slate-500' />
         <ChevronDownIcon
           className='h-5 w-5 text-slate-500'
           aria-hidden='true'
