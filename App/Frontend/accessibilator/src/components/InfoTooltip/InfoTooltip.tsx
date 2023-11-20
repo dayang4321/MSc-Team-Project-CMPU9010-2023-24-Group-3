@@ -7,7 +7,26 @@ type InfoTooltipProps = PropsWithChildren<{
 }>;
 
 const InfoTooltip: FC<InfoTooltipProps> = ({ children, infoTip, position }) => {
-  const positionClass = `daisy-tooltip-${position || 'right'}`;
+  let positionClass = `daisy-tooltip-${position || 'right'}`;
+
+  switch (position) {
+    case 'left':
+      positionClass = 'daisy-tooltip-left';
+      break;
+    case 'right':
+      positionClass = 'daisy-tooltip-right';
+      break;
+    case 'top':
+      positionClass = 'daisy-tooltip-top';
+      break;
+    case 'bottom':
+      positionClass = 'daisy-tooltip-bottom';
+      break;
+
+    default:
+      positionClass = 'daisy-tooltip-right';
+      break;
+  }
 
   return (
     <div className='relative inline-block'>
