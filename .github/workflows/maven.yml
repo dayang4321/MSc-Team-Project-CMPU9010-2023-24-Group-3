@@ -11,9 +11,9 @@ name: Java CI with Maven
 on:
   push:
     branches: [ "docparsing" ]
-    paths:
-      - 'App/Backend/**'
-      - '!App/Backend/.gitignore'
+    #paths:
+    #  - 'App/Backend/**'
+    #  - '!App/Backend/.gitignore'
 
 
 jobs:
