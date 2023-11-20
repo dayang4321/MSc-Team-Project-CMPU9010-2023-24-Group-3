@@ -27,18 +27,26 @@ function MySlider<T extends number | number[]>({
         )}
       </div>
       <SliderTrack className='relative h-7 w-full'>
-        {({ state }) => (
-          <>
-            {/* track */}
-            <div className='absolute top-[50%] h-1 w-full translate-y-[-50%] rounded-full bg-slate-400/70' />
-            {/* fill */}
-            <div
-              className='absolute top-[50%] h-1 translate-y-[-50%] rounded-full bg-yellow-600'
-              style={{ width: state.getThumbPercent(0) * 100 + '%' }}
-            />
-            <SliderThumb className='dragging:bg-yellow-950 top-[50%] h-5 w-5 rounded-full border border-solid border-yellow-700/75 bg-yellow-700 outline-none ring-yellow-700 ring-offset-1  ring-offset-slate-200 transition focus-visible:ring-2' />
-          </>
-        )}
+        {({ state, isDisabled }) => {
+          return (
+            <>
+              {/* track */}
+              <div
+                className={`absolute top-[50%] h-1 w-full translate-y-[-50%] rounded-full ${
+                  isDisabled ? 'bg-gray-300/80' : ''
+                } bg-slate-400/70 `}
+              />
+              {/* fill */}
+              <div
+                className={`absolute top-[50%] h-1 translate-y-[-50%] rounded-full bg-yellow-600 ${
+                  isDisabled ? 'bg-gray-300/80' : ''
+                }`}
+                style={{ width: state.getThumbPercent(0) * 100 + '%' }}
+              />
+              <SliderThumb className='top-[50%] h-5 w-5 rounded-full border border-solid border-yellow-700/75 bg-yellow-700 outline-none ring-yellow-700 ring-offset-1 ring-offset-slate-200 transition  focus-visible:ring-2 disabled:border-gray-500 disabled:bg-gray-500 dragging:bg-yellow-950' />
+            </>
+          );
+        }}
       </SliderTrack>
     </Slider>
   );
