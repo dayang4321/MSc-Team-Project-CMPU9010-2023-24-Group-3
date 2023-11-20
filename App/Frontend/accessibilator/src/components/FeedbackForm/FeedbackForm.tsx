@@ -137,7 +137,7 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
             />
             <MyTextArea
               id='whatUserDisliked'
-              label={'What can we do better? (*)'}
+              label={"What did'nt you like? (*)"}
               className=''
               groupClasses='mb-4'
               placeholder='Share your experience...'
