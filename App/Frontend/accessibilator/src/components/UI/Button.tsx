@@ -52,7 +52,7 @@ const Button = React.forwardRef<Ref, BtnProps>(function Button(props, ref) {
         (loading || isDisabled) && 'pointer-events-none bg-opacity-60'
       } ${
         className || ''
-      } transition-all duration-200 hover:scale-105 active:scale-95`}
+      } transition-transform duration-150 hover:scale-105 active:scale-95`}
       ref={ref}
       {...btnProps}
     >

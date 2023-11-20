@@ -5,15 +5,16 @@ interface DocModifyParams {
     | 'openDyslexic'
     | 'lexend'
     | 'arial'
-    | 'helvetica';
-  fontSize: number;
-  lineSpacing: number;
-  fontColor: string;
-  characterSpacing: number;
-  backgroundColor: string;
-  alignment: 'LEFT' | 'RIGHT' | 'CENTRE';
-  removeItalics: boolean;
-  generateTOC: boolean;
+    | 'helvetica'
+    | null;
+  fontSize: number | null;
+  lineSpacing: number | null;
+  fontColor: string | null;
+  characterSpacing: number | null;
+  backgroundColor: string | null;
+  alignment: 'LEFT' | 'RIGHT' | 'CENTRE' | null;
+  removeItalics: boolean | null;
+  generateTOC: boolean | null;
 }
 interface DocumentData {
   documentID: string;
