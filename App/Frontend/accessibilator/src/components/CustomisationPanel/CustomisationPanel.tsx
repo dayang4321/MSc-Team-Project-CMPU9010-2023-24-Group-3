@@ -176,7 +176,6 @@ const CustomisationPanel = ({
             <div className='relative px-16 pb-3 pt-12'>
               <div className='absolute right-14 top-4'>
                 <MyToggle
-                  isDisabled={!modificationsObj?.characterSpacing}
                   ariaLabel='Toggle letter spacing modification'
                   checked={!!modificationsObj?.characterSpacing}
                   onChange={(checked) => {
@@ -188,6 +187,7 @@ const CustomisationPanel = ({
               </div>
               <MySlider
                 minValue={0}
+                isDisabled={!modificationsObj?.characterSpacing}
                 maxValue={1}
                 formatOptions={{
                   style: 'percent',
@@ -209,7 +209,6 @@ const CustomisationPanel = ({
             <div className='relative px-16 py-6 pb-0'>
               <div className='absolute right-14 top-4'>
                 <MyToggle
-                  isDisabled={!modificationsObj?.alignment}
                   ariaLabel='Toggle letter spacing modification'
                   checked={!!modificationsObj?.alignment}
                   onChange={(checked) => {
@@ -222,6 +221,7 @@ const CustomisationPanel = ({
               <div className='flex flex-col items-center justify-between'>
                 <MyRadioGroup
                   value={modificationsObj?.alignment || 'LEFT'}
+                  isDisabled={!modificationsObj?.alignment}
                   onChange={(
                     val: NonNullable<typeof modificationsObj.alignment>
                   ) => {
