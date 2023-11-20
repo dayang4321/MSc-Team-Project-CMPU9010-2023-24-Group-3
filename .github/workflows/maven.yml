@@ -33,9 +33,9 @@ jobs:
         working-directory: /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend
         run: mvn -B -DskipTests package --file pom.xml
       - name: Make deploy script executable
-        run: chmod +x /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend/scripts/deploy_app.sh
+        run: chmod +x /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend/Scripts/deploy_app.sh
       - name: Deploy jar file
-        run: /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend/scripts/deploy_app.sh
+        run: /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend/Scripts/deploy_app.sh
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
       #- name: Update dependency graph
