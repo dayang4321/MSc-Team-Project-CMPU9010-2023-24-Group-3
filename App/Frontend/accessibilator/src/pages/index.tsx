@@ -30,53 +30,57 @@ export default function Home() {
     setIsUploading(true);
     const formData = new FormData();
 
-    formData.append('file', uploadedFiles[0].file);
+    if (!!uploadedFiles[0].file) {
+      formData.append('file', uploadedFiles[0].file);
+      axiosInit
+        .post('/uploadFile', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: function (progressEvent) {
+            let percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 100)
+            );
+            setUploadProgress(percentCompleted);
+          },
+        })
+        .then(
+          (
+            res: AxiosResponse<{
+              documentID: string;
+              url: string;
+              key: string;
+              versionID: string;
+            }>
+          ) => {
+            console.log(res);
+            setIsUploading(false);
 
-    axiosInit
-      .post('/uploadFile', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: function (progressEvent) {
-          let percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
+            delay(() => {
+              router.push({
+                pathname: '/accessibility-review',
+                query: {
+                  doc_key: res.data.key,
+                  doc_id: res.data.documentID,
+                  version_id: res.data.versionID,
+                },
+              });
+            }, 1000);
+          }
+        )
+        .catch((err) => {
+          console.log(err);
+          setDocUploadError(
+            `An Error Occurred, Please try again ${
+              err?.message ? `(Message: ${err?.message})` : ''
+            }`
           );
-          setUploadProgress(percentCompleted);
-        },
-      })
-      .then(
-        (
-          res: AxiosResponse<{
-            documentID: string;
-            url: string;
-            key: string;
-            versionID: string;
-          }>
-        ) => {
-          console.log(res);
           setIsUploading(false);
-
-          delay(() => {
-            router.push({
-              pathname: '/accessibility-review',
-              query: {
-                doc_key: res.data.key,
-                doc_id: res.data.documentID,
-                version_id: res.data.versionID,
-              },
-            });
-          }, 1000);
-        }
-      )
-      .catch((err) => {
-        console.log(err);
-        setDocUploadError(
-          `An Error Occurred, Please try again ${
-            err?.message ? `(Message: ${err?.message})` : ''
-          }`
-        );
-        setIsUploading(false);
-      });
+        });
+    } else {
+      // Handle No File Selected
+      console.log('No File Selected');
+    }
   };
 
   const onDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
@@ -93,7 +97,7 @@ export default function Home() {
     e.preventDefault();
     setDragActive(false);
 
-    const allowedTypes = new Set(inputRef.current.accept.split(','));
+    const allowedTypes = new Set(inputRef?.current?.accept.split(','));
 
     const isFileTypeAllowed = allowedTypes.has(e.dataTransfer.files[0].type);
 
@@ -180,8 +184,8 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  <p className='mb-1'>{uploadedFiles?.[0]?.file.name}</p>
-                  <p>{niceBytes(uploadedFiles?.[0]?.file.size)}</p>
+                  <p className='mb-1'>{uploadedFiles?.[0]?.file?.name}</p>
+                  <p>{niceBytes(uploadedFiles?.[0]?.file?.size)}</p>
                 </>
               )}
             </div>
@@ -205,7 +209,7 @@ export default function Home() {
                 <div className='flex text-sm text-gray-600'>
                   <label
                     htmlFor='file-upload'
-                    className='relative cursor-pointer rounded-md bg-white font-medium text-primary-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2 hover:text-primary-500'
+                    className='relative cursor-pointer rounded-md bg-white font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2'
                   >
                     <span className='btn inline-block border-[1px] border-white bg-gray-700 px-4 text-white '>
                       Select Document
