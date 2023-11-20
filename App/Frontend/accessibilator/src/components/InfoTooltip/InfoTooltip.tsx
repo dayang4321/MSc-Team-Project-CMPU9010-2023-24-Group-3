@@ -3,13 +3,16 @@ import InformationCircleIcon from '@heroicons/react/24/outline/InformationCircle
 
 type InfoTooltipProps = PropsWithChildren<{
   infoTip: string;
+  position?: string;
 }>;
 
-const InfoTooltip: FC<InfoTooltipProps> = ({ children, infoTip }) => {
+const InfoTooltip: FC<InfoTooltipProps> = ({ children, infoTip, position }) => {
+  const positionClass = `daisy-tooltip-${position || 'right'}`;
+
   return (
     <div className='relative inline-block'>
       <div
-        className='daisy-tooltip daisy-tooltip-right absolute -right-6 -top-2 inline-flex'
+        className={`daisy-tooltip ${positionClass} absolute -right-6 -top-2 z-40 inline-flex`}
         data-tip={infoTip}
       >
         <span className='inline-flex items-center justify-center'>
