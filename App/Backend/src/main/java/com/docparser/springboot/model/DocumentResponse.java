@@ -1,10 +1,5 @@
 package com.docparser.springboot.model;
-
-
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
-
 import java.util.HashMap;
-import java.util.List;
 
 
 public class DocumentResponse {

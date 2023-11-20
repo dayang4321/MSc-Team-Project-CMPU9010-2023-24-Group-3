@@ -2,7 +2,6 @@ package com.docparser.springboot.Repository;
 
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.model.DocumentInfo;
-import com.docparser.springboot.model.ParagraphStyleInfo;
 import com.docparser.springboot.model.VersionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

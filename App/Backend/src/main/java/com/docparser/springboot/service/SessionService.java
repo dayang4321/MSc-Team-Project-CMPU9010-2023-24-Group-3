@@ -26,7 +26,6 @@ public class SessionService {
     private static final String SECRET_KEY = "ana7263nsnakka838";
 
     public String generateToken(String sessionID,Date issuedAt,Date expirationTime) {
-        Instant now = Instant.now();
         return Jwts.builder().setId(sessionID)
                 .setIssuedAt(issuedAt)
                 .setExpiration(expirationTime)

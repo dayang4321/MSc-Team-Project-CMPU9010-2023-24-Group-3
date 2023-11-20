@@ -1,7 +1,6 @@
 package com.docparser.springboot.controller;
 
 import com.docparser.springboot.model.DocumentConfig;
-import com.docparser.springboot.model.DocumentInfo;
 import com.docparser.springboot.model.DocumentResponse;
 import com.docparser.springboot.model.S3StorageInfo;
 import com.docparser.springboot.service.DocumentParser;
