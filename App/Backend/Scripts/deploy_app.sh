@@ -16,6 +16,6 @@ sleep 2
 
 # Deploying the application
 echo "Deploying the Java application..."
-nohup java -jar /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend/target/backend_application_01.jar --spring.config.location=/home/ec2-user/config/> output.log 2>&1 &
+nohup java -jar /home/ec2-user/actions-runner/_work/MSc-Team-Project-CMPU9010-2023-24-Group-3/MSc-Team-Project-CMPU9010-2023-24-Group-3/App/Backend/target/backend_application_01.jar --spring.config.location=/home/ec2-user/config/ > /home/ec2-user/output.log 2>&1 &
 
 echo "Java application deployment initiated."
