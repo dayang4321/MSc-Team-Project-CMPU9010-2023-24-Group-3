@@ -110,7 +110,7 @@ export default function AccessibilityReview() {
               />
             </div>
             <div className='flex items-center justify-between py-5'>
-              <InfoTooltip infoTip='Larger font sizes (12-14 pt.) aid in readability, especially for readers who may find smaller text challenging to follow'>
+              <InfoTooltip infoTip='Larger font sizes (12-14 pt.) makes reading easier, especially for readers who may find smaller text challenging to follow'>
                 <p>Font size increased</p>
               </InfoTooltip>
               <MyToggle

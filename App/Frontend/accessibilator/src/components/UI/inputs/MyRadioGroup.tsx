@@ -34,7 +34,7 @@ function RadioOption({
   return (
     <Radio
       value={name}
-      className={({ isFocusVisible, isSelected, isPressed }) => `
+      className={({ isFocusVisible, isSelected, isPressed, isDisabled }) => `
       group relative flex cursor-default rounded-[0.25rem] border border-solid bg-clip-padding px-2 py-2 
       ${
         isFocusVisible
@@ -42,15 +42,16 @@ function RadioOption({
           : ''
       }
       ${
-        isSelected
+        isSelected && !isDisabled
           ? 'border-yellow-800/80 bg-yellow-600/30 text-yellow-800'
           : 'border-transparent'
       }
       ${isPressed && !isSelected ? 'bg-yellow-600/10' : ''}
       ${!isSelected && !isPressed ? 'bg-transparent' : ''}
+      ${isDisabled ? 'bg-gray-200 text-gray-600' : ''}
     `}
     >
-      <div className='group-selected:text-yellow-800 flex items-center text-slate-600'>
+      <div className='flex items-center text-slate-600 group-disabled:text-gray-500 group-selected:text-yellow-800 '>
         {children}
       </div>
     </Radio>
