@@ -66,6 +66,7 @@ public class DocumentParser {
         if (checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
             modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
     };
+
     private void modifyLineFontSize(XWPFRun run, String fontSize) {
         run.setFontSize(Integer.parseInt(fontSize));
     }
@@ -222,7 +223,7 @@ public class DocumentParser {
         logger.info("initiating file modification");
         modifyDocument(tempFile, inputStream, formattingConfig);
         logger.info("file modification completed");
-        S3StorageInfo storageInfo=uploadFileAfterModification(tempFile, docID, formattingConfig) ;
+        S3StorageInfo storageInfo = uploadFileAfterModification(tempFile, docID, formattingConfig);
         DocumentResponse documentResponse = fetchDocument(docID);
         return documentResponse;
     }
@@ -263,7 +264,7 @@ public class DocumentParser {
 
         DocumentInfo documentInfo = documentRepository.getDocumentInfo(docID);
         documentInfo.setDocumentConfig(formattingConfig);
-        documentInfo.getDocumentVersions().add(new VersionInfo( s3response.versionId(), s3response.eTag(), Instant.now()));
+        documentInfo.getDocumentVersions().add(new VersionInfo(s3response.versionId(), s3response.eTag(), Instant.now()));
         documentRepository.save(documentInfo);
         file.delete();
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
@@ -290,13 +291,19 @@ public class DocumentParser {
         versions.put("currentVersion", currentVersion);
         return versions;
     }
+
     public DocumentResponse fetchDocument(String docID) {
-        DocumentInfo documentInfo= documentRepository.getDocumentInfo(docID);
+        DocumentInfo documentInfo = documentRepository.getDocumentInfo(docID);
         DocumentResponse documentResponse = new DocumentResponse();
         documentResponse.setDocumentKey(documentInfo.getDocumentKey());
         documentResponse.setDocumentID(documentInfo.getDocumentID());
-        documentResponse.setDocumentConfig(documentInfo.getDocumentConfig());
-       documentResponse.setVersions(getDocumentVersions(documentInfo));
+        if (documentInfo.getDocumentConfig() == null) {
+            documentResponse.setDocumentConfig(new DocumentConfig(null, null, null, null, null, null, null, null, null));
+
+        } else {
+            documentResponse.setDocumentConfig(documentInfo.getDocumentConfig());
+        }
+        documentResponse.setVersions(getDocumentVersions(documentInfo));
         return documentResponse;
     }
 
