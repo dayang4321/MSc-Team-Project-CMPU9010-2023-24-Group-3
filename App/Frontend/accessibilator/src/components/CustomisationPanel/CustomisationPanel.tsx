@@ -1,29 +1,19 @@
 import React, { useState } from 'react';
-import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components';
-import type { TabPanelProps, TabProps } from 'react-aria-components';
+import { TabList, Tabs } from 'react-aria-components';
 import MySlider from '../UI/inputs/MySlider';
 import MySelect from '../UI/inputs/MySelect';
 import InfoTooltip from '../InfoTooltip/InfoTooltip';
 import MyToggle from '../UI/MyToggle';
 import MyRadioGroup from '../UI/inputs/MyRadioGroup';
-import {
-  MdFormatAlignLeft,
-  MdFormatAlignRight,
-  MdFormatAlignCenter,
-} from 'react-icons/md';
 import Button from '../UI/Button';
-
-const fontStyleOptions: Array<{
-  id: NonNullable<DocModifyParams['fontType']>;
-  name: string;
-}> = [
-  { id: 'arial', name: 'Arial' },
-  { id: 'comicSans', name: 'Comic Sans' },
-  { id: 'openDyslexic', name: 'Open Dyslexic' },
-  { id: 'helvetica', name: 'Helvetica' },
-  { id: 'lexend', name: 'Lexend' },
-  { id: 'openSans', name: 'Open Sans' },
-];
+import {
+  ALIGNMENT_OPTIONS,
+  FONT_STYLE_OPTIONS,
+  THEME_MAP,
+} from '../../configs/selectOptions';
+import { MyTab, MyTabPanel } from '../UI/tabs';
+import MyTagGroup from '../UI/inputs/MyTagGroup';
+import { findKey } from 'lodash';
 
 type CustomisationPanelProps = {
   docData: DocumentData;
@@ -53,6 +43,27 @@ const CustomisationPanel = ({
     fontColor: docConfigData?.fontColor,
   });
 
+  const [isCustomisingTheme, setIsCustomisingTheme] = useState(false);
+
+  const initialCustomTheme =
+    docConfigData?.backgroundColor &&
+    docConfigData?.fontColor &&
+    getSelectedKey(
+      docConfigData.backgroundColor,
+      docConfigData.fontColor
+    )[0] === 'custom'
+      ? {
+          bgColor: docConfigData?.backgroundColor,
+          textColor: docConfigData.fontColor,
+        }
+      : {
+          bgColor: null,
+          textColor: null,
+        };
+
+  const [customThemeColors, setCustomThemeColors] =
+    useState(initialCustomTheme);
+
   const changeConfigHandler = <T extends keyof DocModifyParams>(
     key: T,
     value: DocModifyParams[T]
@@ -65,11 +76,79 @@ const CustomisationPanel = ({
     });
   };
 
+  const changeThemeHandler = (key: keyof typeof THEME_MAP | 'custom') => {
+    if (key === 'custom') {
+      setModificationsObj((s) => {
+        return {
+          ...s,
+          backgroundColor: customThemeColors.bgColor,
+          fontColor: customThemeColors.textColor,
+        };
+      });
+    } else {
+      setModificationsObj((s) => {
+        return {
+          ...s,
+          backgroundColor: THEME_MAP[key]?.bgColor || 'FFFFFF',
+          fontColor: THEME_MAP[key]?.textColor || '000000',
+        };
+      });
+    }
+  };
+
+  const resetThemeHandler = () => {
+    setModificationsObj((s) => {
+      return {
+        ...s,
+        backgroundColor: null,
+        fontColor: null,
+      };
+    });
+  };
+
   const valInPixels = (val: number) => `${val}px`;
+
+  function getSelectedKey(currBgColor: string, currTextColor: string) {
+    const themeKey = findKey(THEME_MAP, {
+      bgColor: currBgColor,
+      textColor: currTextColor,
+    });
+
+    const selectedKey = themeKey ? [themeKey] : ['custom'];
+
+    return selectedKey;
+  }
+
+  const themeTagOptions = Object.entries({
+    ...THEME_MAP,
+    ...(customThemeColors.bgColor &&
+      customThemeColors.textColor && {
+        custom: customThemeColors,
+      }),
+  }).map(([id, { bgColor, textColor }], idx) => {
+    return {
+      id,
+      content: (
+        <span
+          key={idx}
+          style={{
+            backgroundColor: `#${bgColor}`,
+            color: `#${textColor}`,
+          }}
+          className='inline-block flex-1 self-stretch  border border-gray-400 px-4 py-7 text-center  font-medium shadow-md'
+        >
+          Aa
+        </span>
+      ),
+    };
+  });
 
   return (
     <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
-      <Tabs className='flex  min-h-0 w-full flex-1 flex-col overflow-x-hidden overflow-y-hidden'>
+      <Tabs
+        className='flex  min-h-0 w-full flex-1 flex-col overflow-x-hidden overflow-y-hidden'
+        // selectedKey={'colour'}
+      >
         <TabList
           aria-label='Customisation Panel'
           className='flex space-x-8 bg-clip-padding shadow-bttm'
@@ -103,7 +182,7 @@ const CustomisationPanel = ({
                     <p>Font style</p>
                   </InfoTooltip>
                 }
-                items={fontStyleOptions}
+                items={FONT_STYLE_OPTIONS}
                 isDisabled={!modificationsObj?.fontType}
                 onSelectionChange={(
                   key: NonNullable<DocModifyParams['fontType']>
@@ -145,7 +224,6 @@ const CustomisationPanel = ({
             <div className='relative px-16 pb-3 pt-12'>
               <div className='absolute right-14 top-4'>
                 <MyToggle
-                  isDisabled={!modificationsObj?.lineSpacing}
                   ariaLabel='Toggle line spacing modification'
                   checked={!!modificationsObj?.lineSpacing}
                   onChange={(checked) => {
@@ -186,15 +264,15 @@ const CustomisationPanel = ({
                 />
               </div>
               <MySlider
-                minValue={0}
+                minValue={0.05}
                 isDisabled={!modificationsObj?.characterSpacing}
                 maxValue={1}
                 formatOptions={{
                   style: 'percent',
                 }}
-                step={0.25}
+                step={0.05}
                 defaultValue={0.25}
-                value={modificationsObj.characterSpacing || 0.25}
+                value={modificationsObj.characterSpacing ?? 0.25}
                 onChange={(val) => changeConfigHandler('characterSpacing', val)}
                 label={
                   <InfoTooltip
@@ -235,20 +313,7 @@ const CustomisationPanel = ({
                       <p>Adjust Alignment</p>
                     </InfoTooltip>
                   }
-                  options={[
-                    {
-                      name: 'LEFT',
-                      content: <MdFormatAlignLeft className='h-6 w-6' />,
-                    },
-                    {
-                      name: 'CENTRE',
-                      content: <MdFormatAlignCenter className='h-6 w-6' />,
-                    },
-                    {
-                      name: 'RIGHT',
-                      content: <MdFormatAlignRight className='h-6 w-6' />,
-                    },
-                  ]}
+                  options={ALIGNMENT_OPTIONS}
                 />
               </div>
             </div>
@@ -272,13 +337,148 @@ const CustomisationPanel = ({
           </div>
         </MyTabPanel>
         <MyTabPanel id='colour'>
-          <div className='flex flex-col'></div>
+          <div className='flex flex-col space-y-4 divide-y divide-gray-300'>
+            <div className='relative px-16 pb-3 pt-12'>
+              <div className='absolute right-14 top-4'>
+                <MyToggle
+                  ariaLabel='Toggle Text and Background Colour Setting'
+                  checked={!!modificationsObj?.backgroundColor}
+                  onChange={(checked) => {
+                    if (checked) {
+                      changeThemeHandler('black_on_white');
+                    } else {
+                      resetThemeHandler();
+                    }
+                  }}
+                />
+              </div>
+              <div>
+                <MyTagGroup
+                  label={
+                    <InfoTooltip
+                      position='bottom'
+                      infoTip='High contrast between text and background minimizes visual strain and enhances visibility of characters, particularly important for individuals with reading and/or visual difficulties'
+                    >
+                      <p>Theme & Contrast</p>
+                    </InfoTooltip>
+                  }
+                  disallowEmptySelection={true}
+                  selectedKeys={getSelectedKey(
+                    modificationsObj?.backgroundColor || 'FFFFFF',
+                    modificationsObj?.fontColor || '000000'
+                  )}
+                  selectionMode='single'
+                  onSelectionChange={(keys: Set<keyof typeof THEME_MAP>) => {
+                    const selectedKey = Array.from(keys)[0];
+                    changeThemeHandler(selectedKey);
+                  }}
+                  items={themeTagOptions}
+                />
+
+                <div className='mt-8'>
+                  <div className='flex gap-8'>
+                    {!isCustomisingTheme && (
+                      <Button
+                        variant='link'
+                        text='Create Theme'
+                        className='underline'
+                        onClick={() => {
+                          setIsCustomisingTheme(true);
+                        }}
+                      />
+                    )}
+                  </div>
+                  {isCustomisingTheme && (
+                    <>
+                      <div className='my-5 mb-12 flex gap-8'>
+                        <div className='flex flex-row-reverse items-center gap-3'>
+                          <label
+                            aria-description='Custom Text Color'
+                            htmlFor='custom_text'
+                          >
+                            Text
+                          </label>
+                          <div className='rounded border border-gray-400 p-1 pb-0'>
+                            <input
+                              type='color'
+                              id='custom_text'
+                              value={`#${
+                                customThemeColors?.textColor || '000000'
+                              }`}
+                              onChange={(e) => {
+                                const hexColor = e.target.value;
+                                setCustomThemeColors((s) => ({
+                                  bgColor: s?.bgColor || 'FFFFFF',
+                                  textColor: hexColor.substring(1),
+                                }));
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className='flex flex-row-reverse items-center gap-3'>
+                          <label
+                            aria-description='Custom Background Color'
+                            htmlFor='custom_bg'
+                          >
+                            Background
+                          </label>
+                          <div className='rounded border border-gray-400 p-1 pb-0'>
+                            <input
+                              type='color'
+                              className='m-0 inline-block'
+                              id='custom_bg'
+                              value={`#${
+                                customThemeColors?.bgColor || 'ffffff'
+                              }`}
+                              onChange={(e) => {
+                                const hexColor = e.target.value;
+                                setCustomThemeColors((s) => ({
+                                  textColor: s?.textColor || '000000',
+                                  bgColor: hexColor.substring(1),
+                                }));
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className='flex gap-8'>
+                        <>
+                          <Button
+                            variant='primary'
+                            text='Set Theme'
+                            className='px-4 py-2'
+                            onClick={() => {
+                              //Save
+                              changeThemeHandler('custom');
+                              setIsCustomisingTheme(false);
+                            }}
+                          />
+                          <Button
+                            variant='link'
+                            text='Cancel'
+                            className='text-red-600'
+                            onClick={() => {
+                              //Save
+                              setIsCustomisingTheme(false);
+                            }}
+                          />
+                        </>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </MyTabPanel>
         <MyTabPanel id='special'>
           <div className='flex flex-col space-y-4 divide-y divide-gray-300'>
             <div className='px-16 py-6'>
               <div className='flex items-center justify-between'>
-                <InfoTooltip infoTip="The Table of Contents makes reading easier by organizing the document's structure visually. This helps them find information more easily, making the overall reading experience smoother.">
+                <InfoTooltip
+                  position='bottom'
+                  infoTip="The Table of Contents makes reading easier by organizing the document's structure visually. This helps them find information more easily, making the overall reading experience smoother."
+                >
                   <p>Generate Table of Contents</p>
                 </InfoTooltip>
                 <MyToggle
@@ -312,28 +512,3 @@ const CustomisationPanel = ({
 };
 
 export default CustomisationPanel;
-
-function MyTab(props: TabProps) {
-  return (
-    <Tab
-      {...props}
-      className={({ isSelected }) => `
-        w-full cursor-pointer py-2.5 text-center text-lg font-medium outline-none ring-yellow-700 transition-colors focus-visible:ring-2
-        ${
-          isSelected
-            ? 'border-b-2 border-b-yellow-800 bg-white text-yellow-800'
-            : 'hover:bg-yellow-600/10 pressed:bg-yellow-600/10'
-        }
-      `}
-    />
-  );
-}
-
-function MyTabPanel(props: TabPanelProps) {
-  return (
-    <TabPanel
-      className='mt-2 min-h-0 flex-1 overflow-auto p-0 pb-8 outline-none ring-yellow-700 focus-visible:ring-2'
-      {...props}
-    />
-  );
-}
