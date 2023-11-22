@@ -1,70 +1,103 @@
 package com.docparser.springboot.service;
 
 import com.docparser.springboot.Repository.SessionRepository;
+import com.docparser.springboot.Repository.UserRepository;
+import com.docparser.springboot.errorHandler.GoogleSecurityException;
 import com.docparser.springboot.errorHandler.SessionNotFoundException;
-import com.docparser.springboot.model.FeedBackForm;
-import com.docparser.springboot.model.SessionInfo;
+import com.docparser.springboot.model.*;
+import com.docparser.springboot.utils.SessionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import io.jsonwebtoken.*;
+import org.apache.catalina.User;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.*;
 
 @Service
 public class SessionService {
     Logger logger = LoggerFactory.getLogger(SessionService.class);
+    @Value("${google.clientId}")
+    private String clientId;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    SessionRepository sessionRepository;
-    private static final String SECRET_KEY = "ana7263nsnakka838";
+    private  final ObjectMapper objectMapper;
 
-    public String generateToken(String sessionID,Date issuedAt,Date expirationTime) {
-        return Jwts.builder().setId(sessionID)
-                .setIssuedAt(issuedAt)
-                .setExpiration(expirationTime)
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
-                .compact();
+    private final SessionRepository sessionRepository;
+    private final UserRepository userRepository;
+    private final  GoogleIdTokenVerifier verifier;
 
-
+    public SessionService(ObjectMapper objectMapper, SessionRepository sessionRepository,UserRepository userRepository) {
+        this.objectMapper = objectMapper;
+        this.userRepository= userRepository;
+        this.sessionRepository = sessionRepository;
+        NetHttpTransport transport = new NetHttpTransport();
+        JsonFactory jsonFactory =  GsonFactory.getDefaultInstance();
+        verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                .setAudience(Collections.singletonList(clientId))
+                .build();
     }
 
-    public boolean validateToken(String token) {
+public TokenResponse saveSessionInfo(String id) {
+    Instant expirationTime = Instant.now().plusSeconds(24 * 60 * 60);
+    Instant issuedAt = Instant.now();
+    String token = SessionUtils.generateToken(id, Date.from(issuedAt),Date.from(expirationTime));
+    sessionRepository.save(new SessionInfo(id, token, Instant.now()));
+    logger.info("token generated  and saved in DB" + token);
+    return new TokenResponse(token, expirationTime.toString());
+}
+    public TokenResponse generateAndSaveSessionInfo() {
+        String sessionID = UUID.randomUUID().toString();
+       return saveSessionInfo(sessionID);
+    }
+    public UserAccount createOrUpdateUser(UserAccount account) {
+        UserAccount existingAccount = userRepository.getUserInfobyEmail(account.getEmail());
+        if (existingAccount == null) {
+            userRepository.saveUser(account);
+            return account;
+        }
+        existingAccount.setFirstName(account.getFirstName());
+        existingAccount.setLastName(account.getLastName());
+        userRepository.saveUser(existingAccount);
+        return existingAccount;
+    }
+    public TokenResponse verifyAndSaveGoogleUsers(AccessTokenRequest accessTokenRequest) throws GeneralSecurityException {
         try {
-            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
-            return true;
-        } catch (SignatureException | IllegalArgumentException | MalformedJwtException | ExpiredJwtException |
-                 UnsupportedJwtException ex) {
-            throw new RuntimeException(ex.getMessage());
+            GoogleIdToken idTokenObj = GoogleIdToken.parse(verifier.getJsonFactory(), accessTokenRequest.getIdToken());
+            if (idTokenObj == null) {
+               throw new GoogleSecurityException("Invalid token");
+            }
+            JSONObject obj =SessionUtils.getUserInfoFromGoogleOauthApi(accessTokenRequest.getAccessToken());
+            String firstName = obj.getString("given_name");
+            String lastName = obj.getString("given_name");
+            String userId =  UUID.randomUUID().toString();
+            String email = obj.getString("email");
+            UserAccount account=createOrUpdateUser(new UserAccount(userId,  email,  firstName,  lastName));
+            return saveSessionInfo(userId);
+        } catch (Exception e) {
+            throw new GoogleSecurityException(e.getMessage());
         }
     }
 
-    public String getSessionIdFromToken(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getId();
-    }
-
-
-    public HashMap<String, Object> generateAndSaveUserInfo() {
-        String sessionID = UUID.randomUUID().toString();
-        Instant expirationTime = Instant.now().plusSeconds(24 * 60 * 60);
-        Instant issuedAt = Instant.now();
-        String token = generateToken(sessionID, Date.from(issuedAt),Date.from(expirationTime));
-        sessionRepository.save(new SessionInfo(sessionID, "", token, Instant.now()));
-        logger.info("token generated  and saved in DB" + token);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("token", token);
-        response.put("expiry", expirationTime.toString());
-        return response;
-    }
-
     public void saveFeedbackInfo(String token, FeedBackForm feedBackForm) {
-        String sessionID = getSessionIdFromToken(token);
+        String sessionID = SessionUtils.getSessionIdFromToken(token);
         SessionInfo sessionInfo = Optional.of(sessionRepository.getSessionInfo(sessionID))
                 .orElseThrow(() -> {
                     logger.info("Session not found in DB" + sessionID);
@@ -86,10 +119,12 @@ public class SessionService {
     }
 
     public List<FeedBackForm> getFeedBackForm(String token) {
-        String sessionID = getSessionIdFromToken(token);
+        String sessionID = SessionUtils.getSessionIdFromToken(token);
         SessionInfo sessionInfo = sessionRepository.getSessionInfo(sessionID);
         return sessionInfo.getFeedBackForms();
     }
+
+
 }
 
 

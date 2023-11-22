@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 @Component
 public class FileUtils {
-    public File convertMultiPartToFile(MultipartFile file) throws IOException {
+    public  static File convertMultiPartToFile(MultipartFile file) throws IOException {
         File convFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
         FileOutputStream fos = new FileOutputStream(convFile);
         fos.write(file.getBytes());
@@ -20,10 +20,10 @@ public class FileUtils {
         return convFile;
     }
 
-    public String generateFileName(MultipartFile multiPart) {
+    public  static String generateFileName(MultipartFile multiPart) {
         return  removeSpecialCharacters(multiPart.getOriginalFilename());
     }
-    public String generateFileName(File file) {
+    public static String generateFileName(File file) {
         return  file.getName();
     }
 
