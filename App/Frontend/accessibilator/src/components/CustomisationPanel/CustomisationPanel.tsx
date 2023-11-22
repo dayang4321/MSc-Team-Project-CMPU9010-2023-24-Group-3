@@ -53,7 +53,7 @@ const CustomisationPanel = ({
     fontColor: docConfigData?.fontColor,
   });
 
-  const modObjHandler = <T extends keyof DocModifyParams>(
+  const changeConfigHandler = <T extends keyof DocModifyParams>(
     key: T,
     value: DocModifyParams[T]
   ) => {
@@ -80,7 +80,19 @@ const CustomisationPanel = ({
         </TabList>
         <MyTabPanel id='text'>
           <div className='flex flex-col space-y-4 divide-y divide-gray-300 '>
-            <div className='px-16 py-4 pt-8'>
+            <div className='relative px-16 pb-3 pt-8'>
+              <div className='absolute right-14 top-3'>
+                <MyToggle
+                  ariaLabel='Toggle font style modification'
+                  checked={!!modificationsObj?.fontType}
+                  onChange={(checked) => {
+                    checked
+                      ? changeConfigHandler('fontType', 'arial')
+                      : changeConfigHandler('fontType', null);
+                  }}
+                />
+              </div>
+
               <MySelect
                 selectedKey={modificationsObj?.fontType || 'arial'}
                 label={
@@ -88,56 +100,94 @@ const CustomisationPanel = ({
                     position='bottom'
                     infoTip='Use sans serif fonts like Arial or Comic Sans as they appear less crowded, making each letter more distinct and easier to read for people living with dyslexia.'
                   >
-                    <p>Font style changed</p>
+                    <p>Font style</p>
                   </InfoTooltip>
                 }
                 items={fontStyleOptions}
+                isDisabled={!modificationsObj?.fontType}
                 onSelectionChange={(
                   key: NonNullable<DocModifyParams['fontType']>
                 ) => {
-                  modObjHandler('fontType', key || 'arial');
+                  changeConfigHandler('fontType', key || 'arial');
                 }}
               />
             </div>
-            <div className='px-16 py-4 pt-6'>
+            <div className='relative px-16 pb-3 pt-12'>
+              <div className='absolute right-14 top-4'>
+                <MyToggle
+                  ariaLabel='Toggle font size modification'
+                  checked={!!modificationsObj?.fontSize}
+                  onChange={(checked) => {
+                    checked
+                      ? changeConfigHandler('fontSize', 12)
+                      : changeConfigHandler('fontSize', null);
+                  }}
+                />
+              </div>
               <MySlider<number>
                 minValue={11}
                 maxValue={21}
+                isDisabled={!modificationsObj?.fontSize}
                 step={1}
-                value={modificationsObj?.fontSize || 11}
-                onChange={(val) => modObjHandler('fontSize', val)}
+                value={modificationsObj?.fontSize || 12}
+                onChange={(val) => changeConfigHandler('fontSize', val)}
                 outputValFormat={valInPixels}
                 label={
                   <InfoTooltip
                     position='bottom'
-                    infoTip='Larger font sizes (12-14 pt.) aid in readability, especially for readers who may find smaller text challenging to follow'
+                    infoTip='Larger font sizes (12-14 pt.) make for easier reading, especially for readers who may find smaller text challenging to follow'
                   >
-                    <p>Font size increased</p>
+                    <p>Font size</p>
                   </InfoTooltip>
                 }
               />
             </div>
-            <div className='px-16 py-4 pt-6'>
+            <div className='relative px-16 pb-3 pt-12'>
+              <div className='absolute right-14 top-4'>
+                <MyToggle
+                  isDisabled={!modificationsObj?.lineSpacing}
+                  ariaLabel='Toggle line spacing modification'
+                  checked={!!modificationsObj?.lineSpacing}
+                  onChange={(checked) => {
+                    checked
+                      ? changeConfigHandler('lineSpacing', 1.5)
+                      : changeConfigHandler('lineSpacing', null);
+                  }}
+                />
+              </div>
               <MySlider
                 minValue={1}
                 defaultValue={1.5}
                 maxValue={3}
                 step={0.25}
+                isDisabled={!modificationsObj?.lineSpacing}
                 value={modificationsObj.lineSpacing || 1.5}
-                onChange={(val) => modObjHandler('lineSpacing', val)}
+                onChange={(val) => changeConfigHandler('lineSpacing', val)}
                 label={
                   <InfoTooltip
                     position='bottom'
                     infoTip='The recommended line spacing (1.5) improves text clarity and reduces visual stress, making it easier for readers to follow lines of text.'
                   >
-                    <p>Line spacing increased</p>
+                    <p>Line spacing</p>
                   </InfoTooltip>
                 }
               />
             </div>
-            <div className='px-16 py-4 pt-6'>
+            <div className='relative px-16 pb-3 pt-12'>
+              <div className='absolute right-14 top-4'>
+                <MyToggle
+                  ariaLabel='Toggle letter spacing modification'
+                  checked={!!modificationsObj?.characterSpacing}
+                  onChange={(checked) => {
+                    checked
+                      ? changeConfigHandler('characterSpacing', 0.25)
+                      : changeConfigHandler('characterSpacing', null);
+                  }}
+                />
+              </div>
               <MySlider
                 minValue={0}
+                isDisabled={!modificationsObj?.characterSpacing}
                 maxValue={1}
                 formatOptions={{
                   style: 'percent',
@@ -145,25 +195,37 @@ const CustomisationPanel = ({
                 step={0.25}
                 defaultValue={0.25}
                 value={modificationsObj.characterSpacing || 0.25}
-                onChange={(val) => modObjHandler('characterSpacing', val)}
+                onChange={(val) => changeConfigHandler('characterSpacing', val)}
                 label={
                   <InfoTooltip
                     position='bottom'
                     infoTip='Increase the space between letters (around 35% of the average letter width) leads to a more readable text by reducing visual crowding, a common issue for those with dyslexia.'
                   >
-                    <p>Letter spacing increased</p>
+                    <p>Letter spacing</p>
                   </InfoTooltip>
                 }
               />
             </div>
-            <div className='px-16 py-6 pb-0'>
+            <div className='relative px-16 py-6 pb-0'>
+              <div className='absolute right-14 top-4'>
+                <MyToggle
+                  ariaLabel='Toggle letter spacing modification'
+                  checked={!!modificationsObj?.alignment}
+                  onChange={(checked) => {
+                    checked
+                      ? changeConfigHandler('alignment', 'LEFT')
+                      : changeConfigHandler('alignment', null);
+                  }}
+                />
+              </div>
               <div className='flex flex-col items-center justify-between'>
                 <MyRadioGroup
                   value={modificationsObj?.alignment || 'LEFT'}
+                  isDisabled={!modificationsObj?.alignment}
                   onChange={(
                     val: NonNullable<typeof modificationsObj.alignment>
                   ) => {
-                    modObjHandler('alignment', val);
+                    changeConfigHandler('alignment', val);
                   }}
                   label={
                     <InfoTooltip
@@ -202,7 +264,7 @@ const CustomisationPanel = ({
                   ariaLabel='Remove Italics'
                   checked={!!modificationsObj?.removeItalics}
                   onChange={(checked) =>
-                    modObjHandler('removeItalics', checked)
+                    changeConfigHandler('removeItalics', checked)
                   }
                 />
               </div>
@@ -222,7 +284,9 @@ const CustomisationPanel = ({
                 <MyToggle
                   ariaLabel='Generate Table of Contents'
                   checked={!!modificationsObj?.generateTOC}
-                  onChange={(checked) => modObjHandler('generateTOC', checked)}
+                  onChange={(checked) =>
+                    changeConfigHandler('generateTOC', checked)
+                  }
                 />
               </div>
             </div>
