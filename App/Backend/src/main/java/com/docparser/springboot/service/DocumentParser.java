@@ -79,6 +79,11 @@ public class DocumentParser {
         run.setItalic(false);
     }
 
+    private void addNewText(XWPFRun run, String para) {
+        run.setText(para);
+        run.addCarriageReturn();
+    }
+
 
     private void modifyLineFontColor(XWPFRun run, String fontColor) {
         run.setColor(fontColor);
@@ -107,9 +112,12 @@ public class DocumentParser {
         if (checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
             modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
         if (checkForFontParameterChange.apply(formattingConfig.getFontSize()) && checkIfHeadingStylePresent(paragraph)) {
-            modifyAlignment(paragraph, "CENTER");
+            modifyAlignment(paragraph, "CENTRE");
             paragraph.getRuns().stream().findFirst().ifPresent(run -> modifyHeadingRun.accept(run, formattingConfig));
             headingFontSizeModified = true;
+        }
+        if (formattingConfig.getGenerateTOC() == null || !formattingConfig.getGenerateTOC()) {
+            modifyText(paragraph);
         }
         if (!headingFontSizeModified)
             paragraph.getRuns().stream().forEach(run -> modifyRun.accept(run, formattingConfig));
@@ -170,6 +178,17 @@ public class DocumentParser {
     private void modifyColorShading(XWPFParagraph paragraph, String colorShading) {
         CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
         Optional.ofNullable(ctpPr.getShd()).ifPresentOrElse(shd -> shd.setFill(colorShading), () -> ctpPr.addNewShd().setFill(colorShading));
+    }
+
+    private void modifyText(XWPFParagraph paragraph) {
+        String text = paragraph.getParagraphText();
+        if (ParsingUtils.countLines(text).length >= 10) {
+            String[] paras = ParsingUtils.divideParagraph(text, 5);
+            ParsingUtils.removeRuns(paragraph);
+            for (String para : paras) {
+                addNewText(paragraph.createRun(), para);
+            }
+        }
     }
 
     private void checkIfDBdocumentKeyExists(String documentKey, String docID) {

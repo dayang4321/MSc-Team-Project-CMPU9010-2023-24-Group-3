@@ -7,7 +7,9 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Component
 public class ParsingUtils {
@@ -24,7 +26,7 @@ public class ParsingUtils {
     public static ParagraphAlignment mapStringToAlignment(String alignmentString) {
         return switch (alignmentString.toUpperCase()) {
             case "LEFT" -> ParagraphAlignment.LEFT;
-            case "CENTER" -> ParagraphAlignment.CENTER;
+            case "CENTRE" -> ParagraphAlignment.CENTER;
             case "RIGHT" -> ParagraphAlignment.RIGHT;
             case "JUSTIFY" -> ParagraphAlignment.BOTH;
             case "DISTRIBUTE" -> ParagraphAlignment.DISTRIBUTE;
@@ -102,6 +104,7 @@ public class ParsingUtils {
         return switch (fontStyle) {
             case "openSans" -> "Open Sans";
             case "comicSans" -> "Comic Sans MS";
+            case "dyslexie"-> "Dyslexie";
             case "openDyslexic" ->  "OpenDyslexic";
             case "lexend" -> "Lexend";
             case "arial" -> "Arial";
@@ -110,6 +113,33 @@ public class ParsingUtils {
                 // Default to LEFT if the input string is not recognized
                     "Open Sans";
         };
+    }
+
+    public static String[] countLines(String text) {
+        Pattern re = Pattern.compile("(?<=[.!?])\\s+(?=[a-zA-Z0-9])", Pattern.MULTILINE | Pattern.COMMENTS);
+        return re.split(text);
+    }
+
+    public static void removeRuns(XWPFParagraph paragraph) {
+        while (!paragraph.getRuns().isEmpty()) {
+            paragraph.removeRun(0);
+        }
+    }
+    public static String[] divideParagraph(String largeParagraph, int linesPerParagraph) {
+        String[] lines = countLines(largeParagraph);
+        int totalLines = lines.length;
+
+        int paragraphsCount = (int) Math.ceil((double) totalLines / linesPerParagraph);
+        String[] smallerParagraphs = new String[paragraphsCount];
+
+        int start = 0;
+        for (int i = 0; i < paragraphsCount; i++) {
+            int end = Math.min(start + linesPerParagraph, totalLines);
+            smallerParagraphs[i] = String.join(" ", Arrays.copyOfRange(lines, start, end));
+            start = end;
+        }
+
+        return smallerParagraphs;
     }
 
 }
