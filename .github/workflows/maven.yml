@@ -12,8 +12,8 @@ on:
   push:
     branches: [ "dev" ]
     paths:
-    - 'App/Backend/**'
-    - '!App/Backend/.gitignore'
+      - 'App/Backend/**'
+      - 'App/Backend/.gitignore'
 
 
 jobs:
