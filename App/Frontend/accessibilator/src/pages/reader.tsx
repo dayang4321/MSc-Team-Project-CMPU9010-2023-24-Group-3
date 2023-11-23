@@ -222,7 +222,7 @@ const Reader = (props: Props) => {
         }`}
       >
         {isComparingDocs && (
-          <div className='flex flex-1 flex-col items-stretch border border-stone-800 transition transition-all'>
+          <div className='flex flex-1 flex-col items-stretch border border-stone-800  transition-all'>
             <h2 className='my-3 text-center text-lg font-semibold'>Original</h2>
             {!isDocDataLoading && originalDocReader}
           </div>
