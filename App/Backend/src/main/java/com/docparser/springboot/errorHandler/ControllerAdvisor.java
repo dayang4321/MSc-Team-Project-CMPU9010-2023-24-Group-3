@@ -4,7 +4,6 @@ import jakarta.servlet.ServletException;
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -28,7 +27,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler({ServletException.class,SessionNotFoundException.class, AuthenticationException.class})
+    @ExceptionHandler({ServletException.class,SessionNotFoundException.class, AuthenticationException.class,GoogleSecurityException.class})
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(ServletException ex, WebRequest request) {
         logger.error("Exception occurred message : "+ex);
         ErrorResponse errorResponse = new ErrorResponse(403, ex.getMessage(),ex.getStackTrace().toString());
