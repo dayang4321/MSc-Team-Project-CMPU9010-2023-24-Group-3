@@ -1,12 +1,15 @@
 package com.docparser.springboot.model;
-
-
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashMap;
-import java.util.List;
 
-
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DocumentResponse {
 
     private String documentID;
@@ -15,39 +18,8 @@ public class DocumentResponse {
 
     private DocumentConfig documentConfig;
 
-    private HashMap<String, Object> versions;
+    private HashMap<String, DocumentVersion> versions;
 
 
-    public String getDocumentID() {
-        return documentID;
-    }
 
-    public void setDocumentID(String documentID) {
-        this.documentID = documentID;
-    }
-
-    public DocumentConfig getDocumentConfig() {
-        return documentConfig;
-    }
-
-    public void setDocumentConfig(DocumentConfig documentConfig) {
-        this.documentConfig = documentConfig;
-    }
-
-
-    public HashMap<String, Object> getVersions() {
-        return versions;
-    }
-
-    public void setVersions(HashMap<String, Object> versions) {
-        this.versions = versions;
-    }
-
-    public String getDocumentKey() {
-        return documentKey;
-    }
-
-    public void setDocumentKey(String documentKey) {
-        this.documentKey = documentKey;
-    }
 }

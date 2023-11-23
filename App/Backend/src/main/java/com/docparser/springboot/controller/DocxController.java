@@ -1,7 +1,6 @@
 package com.docparser.springboot.controller;
 
 import com.docparser.springboot.model.DocumentConfig;
-import com.docparser.springboot.model.DocumentInfo;
 import com.docparser.springboot.model.DocumentResponse;
 import com.docparser.springboot.model.S3StorageInfo;
 import com.docparser.springboot.service.DocumentParser;
@@ -35,18 +34,19 @@ public class DocxController {
 
     @GetMapping("/modifyFile")
     public ResponseEntity<DocumentResponse> modifyDocument(@RequestParam("filename") String fileName, @RequestParam("docID") String docID, @RequestParam("versionID") String versionID,
-                                                        @RequestParam(required = false) String fontType,
-                                                        @RequestParam(required = false) String fontSize,
-                                                        @RequestParam(required = false) String fontColor,
-                                                        @RequestParam(required = false) String lineSpacing,
-                                                        @RequestParam(required = false) String characterSpacing,
-                                                        @RequestParam(required = false) String backgroundColor,
-                                                        @RequestParam(required = false) String alignment,
-                                                        @RequestParam(required = false) Boolean generateTOC,
-                                                        @RequestParam(required = false) Boolean removeItalics) throws IOException {
+                                                           @RequestParam(required = false) String fontType,
+                                                           @RequestParam(required = false) String fontSize,
+                                                           @RequestParam(required = false) String fontColor,
+                                                           @RequestParam(required = false) String lineSpacing,
+                                                           @RequestParam(required = false) String characterSpacing,
+                                                           @RequestParam(required = false) String backgroundColor,
+                                                           @RequestParam(required = false) String alignment,
+                                                           @RequestParam(required = false) Boolean generateTOC,
+                                                           @RequestParam(required = false) Boolean removeItalics) throws IOException {
         // Code to save the file to a database or disk
-        DocumentResponse storageInfo = documentParser.modifyFile(fileName, docID, versionID, new DocumentConfig(fontType, fontSize, fontColor, backgroundColor, lineSpacing, characterSpacing,
-                alignment, generateTOC, removeItalics));
+        DocumentResponse storageInfo = documentParser.modifyFile(fileName, docID, versionID,
+                new DocumentConfig(fontType, fontSize, fontColor, backgroundColor, lineSpacing, characterSpacing,
+                        alignment, generateTOC, removeItalics));
         return ResponseEntity.ok(storageInfo);
     }
 

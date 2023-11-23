@@ -11,20 +11,15 @@ import java.util.List;
 public class SessionInfo {
 
     private String sessionID;
-    private String ipAddress;
     private String tokenID;
     private Instant createdDate;
 
     private List<FeedBackForm> feedBackForms;
 
 
-    @DynamoDbAttribute("ipAddress")
-    public String getIpAddress() {
-        return ipAddress;
-    }
 
-    public SessionInfo(String sessionID, String ipAddress, String tokenID, Instant createdDate) {
-        this.ipAddress = ipAddress;
+
+    public SessionInfo(String sessionID, String tokenID, Instant createdDate) {
         this.tokenID = tokenID;
         this.createdDate = createdDate;
         this.sessionID = sessionID;
@@ -32,10 +27,6 @@ public class SessionInfo {
 
     public SessionInfo() {
         // Initialization code if needed
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
     }
 
     @DynamoDbAttribute("token")
