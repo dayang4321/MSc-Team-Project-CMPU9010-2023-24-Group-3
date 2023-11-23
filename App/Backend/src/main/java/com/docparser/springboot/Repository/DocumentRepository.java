@@ -9,6 +9,7 @@ import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags;
 
 import java.time.Instant;
+import java.util.Optional;
 
 
 @Repository
@@ -88,10 +89,10 @@ public class DocumentRepository {
 
     }
 
-    public DocumentInfo getDocumentInfo(String documentID) {
+    public Optional<DocumentInfo> getDocumentInfo(String documentID) {
         DynamoDbTable<DocumentInfo> documentInfoTable = getTable();
         // Construct the key with partition and sort key
         Key key = Key.builder().partitionValue(documentID).build();
-        return documentInfoTable.getItem(key);
+        return Optional.of(documentInfoTable.getItem(key));
     }
 }

@@ -37,7 +37,6 @@ public class SessionUtils {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getId();
     }
     public static JSONObject getUserInfoFromGoogleOauthApi(String token) {
-
         HttpHeaders headers = new HttpHeaders();
         String url="https://www.googleapis.com/oauth2/v1/userinfo?alt=json";
         headers.add("Authorization", "Bearer " + token);
