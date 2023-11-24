@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import type { AppProps } from 'next/app';
 import { Lexend } from 'next/font/google';
+import { defaultTheme, Provider } from '@adobe/react-spectrum';
+import { ToastContainer } from '@react-spectrum/toast';
 
 const lexend = Lexend({
   subsets: ['latin'],
@@ -10,8 +12,11 @@ const lexend = Lexend({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <div className={`${lexend.variable} font-sans`}>
-      <Component {...pageProps} />
-    </div>
+    <Provider theme={defaultTheme}>
+      <div className={`${lexend.variable} font-sans`}>
+        <ToastContainer />
+        <Component {...pageProps} />
+      </div>
+    </Provider>
   );
 }
