@@ -6,6 +6,8 @@ import MyToggle from '../components/UI/MyToggle';
 import { useRouter } from 'next/router';
 import axiosInit from '../services/axios';
 import InfoTooltip from '../components/InfoTooltip/InfoTooltip';
+import { reportException } from '../services/errorReporting';
+import { ToastQueue } from '@react-spectrum/toast';
 
 type PrimaryFix =
   | 'fontStyle'
@@ -44,7 +46,7 @@ export default function AccessibilityReview() {
     setIsModifyLoading(true);
 
     const docModParams: Partial<DocModifyParams> = {
-      fontType: choicesObj.fontStyle ? 'openSans' : undefined,
+      fontType: choicesObj.fontStyle ? 'arial' : undefined,
       fontSize: choicesObj.fontSize ? 12 : undefined,
       lineSpacing: choicesObj.lineSpacing ? 1.5 : undefined,
       fontColor: choicesObj.contrast ? '000000' : undefined,
@@ -73,7 +75,22 @@ export default function AccessibilityReview() {
         });
       })
       .catch((err) => {
-        console.log(err);
+        //  console.log(err);
+        ToastQueue.negative(
+          `An error occurred! ${
+            err?.response?.data.detail || err?.message || ''
+          }`,
+          {
+            timeout: 5000,
+          }
+        );
+        reportException(err, {
+          category: 'modify',
+          message: 'Failed to modify document',
+          data: {
+            origin: 'Review Screen',
+          },
+        });
       })
       .finally(() => {
         setIsModifyLoading(false);
