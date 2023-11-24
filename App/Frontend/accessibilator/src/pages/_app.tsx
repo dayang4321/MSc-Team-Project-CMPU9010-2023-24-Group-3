@@ -12,7 +12,7 @@ const lexend = Lexend({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <Provider theme={defaultTheme}>
+    <Provider theme={defaultTheme} colorScheme='light'>
       <div className={`${lexend.variable} font-sans`}>
         <ToastContainer />
         <Component {...pageProps} />
