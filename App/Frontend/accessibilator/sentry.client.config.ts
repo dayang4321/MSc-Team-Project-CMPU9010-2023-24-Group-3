@@ -1,17 +1,15 @@
-// This file configures the initialization of Sentry on the client.
-// The config you add here will be used whenever a users loads a page in their browser.
-// https://docs.sentry.io/platforms/javascript/guides/nextjs/
-
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from '@sentry/nextjs';
+import { IS_DEV_MODE } from './src/configs/configs';
+import { isAxiosError } from 'axios';
 
 Sentry.init({
-  dsn: "https://8087ab730cec649fc6344eb2a569ec0e@o4506276416520192.ingest.sentry.io/4506276426547200",
+  dsn: 'https://8087ab730cec649fc6344eb2a569ec0e@o4506276416520192.ingest.sentry.io/4506276426547200',
 
   // Adjust this value in production, or use tracesSampler for greater control
   tracesSampleRate: 1,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
+  debug: IS_DEV_MODE ? true : false,
 
   replaysOnErrorSampleRate: 1.0,
 
@@ -27,4 +25,19 @@ Sentry.init({
       blockAllMedia: true,
     }),
   ],
+
+  environment: IS_DEV_MODE ? 'development' : 'production',
+  beforeSend: function (event, hint) {
+    const exception = hint.originalException;
+
+    if (!!exception && isAxiosError(exception)) {
+      event.fingerprint = [
+        '{{ default }}',
+        String(exception?.response?.status),
+        String(exception?.config?.url),
+      ];
+    }
+
+    return event;
+  },
 });
