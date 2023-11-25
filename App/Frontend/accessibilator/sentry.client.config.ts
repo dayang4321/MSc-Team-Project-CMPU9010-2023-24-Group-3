@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 import { IS_DEV_MODE } from './src/configs/configs';
 import { isAxiosError } from 'axios';
+import { ExtraErrorData } from '@sentry/integrations';
 
 Sentry.init({
   dsn: 'https://8087ab730cec649fc6344eb2a569ec0e@o4506276416520192.ingest.sentry.io/4506276426547200',
@@ -24,6 +25,7 @@ Sentry.init({
       maskAllText: true,
       blockAllMedia: true,
     }),
+    new ExtraErrorData({ depth: 10 }),
   ],
 
   environment: IS_DEV_MODE ? 'development' : 'production',
@@ -34,6 +36,7 @@ Sentry.init({
       event.fingerprint = [
         '{{ default }}',
         String(exception?.response?.status),
+        String(exception?.response?.data?.detail || exception.message),
         String(exception?.config?.url),
       ];
     }
