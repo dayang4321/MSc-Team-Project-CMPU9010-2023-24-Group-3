@@ -1,4 +1,4 @@
-package com.docparser.springboot;
+package com.docparser.springboot.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
