@@ -4,11 +4,12 @@ import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -111,7 +112,7 @@ public class ParsingUtils {
             case "openSans" -> "Open Sans";
             case "comicSans" -> "Comic Sans MS";
             case "dyslexie" -> "Dyslexie";
-            case "openDyslexic" -> "OpenDyslexic";
+            case "openDyslexic" -> "OpenDyslexic Bold";
             case "lexend" -> "Lexend";
             case "arial" -> "Arial";
             case "helvetica" -> "Helvetica";
@@ -166,6 +167,17 @@ public class ParsingUtils {
     public static CTPPr getCTPPr(XWPFParagraph paragraph) {
         CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
         return ctpPr;
+    }
+
+    public static void loadCustomFonts() throws IOException, FontFormatException {
+        /*
+        String dyslexieFontPath = "src/main/resources/fonts/OpenDyslexic-Bold.otf";
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(dyslexieFontPath)));
+        Optional<Font> b = Arrays.stream(ge.getAllFonts()).filter(font -> font.getName().equals("OpenDyslexic")).findFirst();
+        Font[] f = ge.getAllFonts();
+         */
+
     }
 
 }
