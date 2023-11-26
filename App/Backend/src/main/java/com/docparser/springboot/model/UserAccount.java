@@ -1,25 +1,23 @@
 package com.docparser.springboot.model;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
+import java.util.List;
+
 @DynamoDbBean
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserAccount {
     String userId;
     String email;
-    String firstName;
-    String lastName;
+    String username;
+    String provider;
+    private List<FeedBackForm> feedBackForms;
 
-    public UserAccount(String userId, String email, String firstName, String lastName) {
-        this.userId = userId;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
-
-    public UserAccount() {
-    }
 
     @DynamoDbAttribute("userId")
     @DynamoDbPartitionKey
@@ -41,20 +39,30 @@ public class UserAccount {
     }
 
     @DynamoDbAttribute("firstName")
-    public String getFirstName() {
-        return firstName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setUsername(String firstName) {
+        this.username = firstName;
     }
 
-    @DynamoDbAttribute("lastName")
-    public String getLastName() {
-        return lastName;
+    @DynamoDbAttribute("feedbackForms")
+    public List<FeedBackForm> getFeedBackForms() {
+        return feedBackForms;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setFeedBackForms(List<FeedBackForm> feedBackForms) {
+        this.feedBackForms = feedBackForms;
     }
+
+    @DynamoDbAttribute("provider")
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
 }

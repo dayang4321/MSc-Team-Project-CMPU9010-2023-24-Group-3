@@ -1,5 +1,6 @@
 package com.docparser.springboot.Repository;
 
+import com.docparser.springboot.errorHandler.UserNotFoundException;
 import com.docparser.springboot.model.FeedBackForm;
 import com.docparser.springboot.model.SessionInfo;
 import com.docparser.springboot.model.UserAccount;
@@ -12,9 +13,9 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -24,6 +25,21 @@ public class UserRepository {
     @Autowired
     private DynamoDbClient dynamoDbClient;
 
+    public static final TableSchema<FeedBackForm> TABLE_SCHEMA_FEEDBACKFORM = TableSchema.builder(FeedBackForm.class)
+            .newItemSupplier(FeedBackForm::new)
+            .addAttribute(String.class, a -> a.name("email")
+                    .getter(FeedBackForm::getEmail)
+                    .setter(FeedBackForm::setEmail))
+            .addAttribute(String.class, a -> a.name("whatUserLiked")
+                    .getter(FeedBackForm::getWhatUserLiked)
+                    .setter(FeedBackForm::setWhatUserLiked))
+            .addAttribute(String.class, a -> a.name("whatUserDisliked")
+                    .getter(FeedBackForm::getWhatUserDisliked)
+                    .setter(FeedBackForm::setWhatUserDisliked))
+            .addAttribute(String.class, a -> a.name("newFeatures")
+                    .getter(FeedBackForm::getNewFeatures)
+                    .setter(FeedBackForm::setNewFeatures))
+            .build();
     public static final TableSchema<UserAccount> TABLE_SCHEMA_USER = TableSchema.builder(UserAccount.class)
             .newItemSupplier(UserAccount::new)
             .addAttribute(String.class, a -> a.name("userId")
@@ -33,12 +49,16 @@ public class UserRepository {
             .addAttribute(String.class, a -> a.name("email")
                     .getter(UserAccount::getEmail)
                     .setter(UserAccount::setEmail))
-            .addAttribute(String.class, a -> a.name("firstName")
-                    .getter(UserAccount::getFirstName)
-                    .setter(UserAccount::setFirstName))
-            .addAttribute(String.class, a -> a.name("lastName")
-                    .getter(UserAccount::getLastName)
-                    .setter(UserAccount::setLastName))
+            .addAttribute(String.class, a -> a.name("username")
+                    .getter(UserAccount::getUsername)
+                    .setter(UserAccount::setUsername))
+            .addAttribute(String.class, a -> a.name("provider")
+                    .getter(UserAccount::getProvider)
+                    .setter(UserAccount::setProvider))
+            .addAttribute(EnhancedType.listOf(
+                    EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)), a -> a.name("feedBackForms")
+                    .getter(UserAccount::getFeedBackForms)
+                    .setter(UserAccount::setFeedBackForms))
             .build();
 
 
@@ -52,30 +72,30 @@ public class UserRepository {
         sessionTable.putItem(userAccount);
     }
 
-    public UserAccount getUserInfo(String id) {
-        DynamoDbTable<UserAccount> userAccountDynamoDbTable = getTable();
-        // Construct the key with partition and sort key
-        Key key = Key.builder().partitionValue(id).build();
-        return userAccountDynamoDbTable.getItem(key);
+    public Optional<UserAccount> getUserInfo(String id) {
+        try{
+            DynamoDbTable<UserAccount> userAccountDynamoDbTable = getTable();
+            // Construct the key with partition and sort key
+            Key key = Key.builder().partitionValue(id).build();
+            return Optional.ofNullable(userAccountDynamoDbTable.getItem(key));
+        }catch (Exception e){
+            throw new UserNotFoundException("User not found"+e.getMessage());
+        }
     }
 
-    public UserAccount getUserInfobyEmail(String email) {
+    public Optional<UserAccount> getUserInfobyEmail(String email) {
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
+        DynamoDbTable<UserAccount> userAccountDynamoDbTable = getTable();
         expressionAttributeValues.put(":val", AttributeValue.builder().s(email).build());
-        UserAccount userAccount = null;
         ScanRequest scanRequest = ScanRequest.builder()
                 .tableName("Users")
                 .filterExpression("email = :val")
                 .expressionAttributeValues(expressionAttributeValues)
                 .build();
         ScanResponse response = dynamoDbClient.scan(scanRequest);
-        for (Map<String, AttributeValue> item : response.items()) {
-            Set<String> keys = item.keySet();
-            for (String key : keys) {
-                userAccount=  new UserAccount(item.get("userId").s(),item.get("email").s(),item.get("firstName").s(),item.get("lastName").s());
-            }
+        Map<String, AttributeValue> item = response.items().stream().findFirst().orElse(null);
+        Optional<UserAccount> userAccount = Optional.ofNullable(userAccountDynamoDbTable.getItem(Key.builder().partitionValue(item.get("userId").s()).build()));
 
-        }
         return userAccount;
     }
 

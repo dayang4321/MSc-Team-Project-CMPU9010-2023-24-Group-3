@@ -36,7 +36,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler({ DocumentNotExist.class})
+    @ExceptionHandler({ DocumentNotExist.class,UserNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleSpecificExceptions(Exception ex) {
         logger.error("Exception occurred message : "+ex);
         ErrorResponse errorResponse = new ErrorResponse(400, ex.getMessage(),ex.getStackTrace().toString());
