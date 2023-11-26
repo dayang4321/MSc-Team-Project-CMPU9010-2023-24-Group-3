@@ -16,6 +16,7 @@ import java.io.IOException;
 
 @CrossOrigin
 @RestController
+@RequestMapping("/api/file")
 public class DocxController {
     Logger logger = LoggerFactory.getLogger(DocxController.class);
 
@@ -51,7 +52,7 @@ public class DocxController {
     }
 
 
-    @GetMapping("/document/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<DocumentResponse> getDocumentInfo(@PathVariable String id) {
         // Code to save the file to a database or disk
         return ResponseEntity.ok(documentParser.fetchDocument(id));

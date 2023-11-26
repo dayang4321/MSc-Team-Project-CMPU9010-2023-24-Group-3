@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.GeneralSecurityException;
 
 
 @CrossOrigin
@@ -19,12 +18,8 @@ public class AuthController {
     @Autowired
     private SessionService jwtTokenService;
 
-    @GetMapping("/getToken")
+    @GetMapping("/auth/token")
     public ResponseEntity<TokenResponse> authenticate() {
         return ResponseEntity.ok(jwtTokenService.generateAndSaveSessionInfo());
-    }
-    @PostMapping("/google/token/verify")
-    public ResponseEntity<Object> verifyGoogleAccessToken(@RequestBody AccessTokenRequest accessTokenRequest) throws GeneralSecurityException {
-        return ResponseEntity.ok(jwtTokenService.verifyAndSaveGoogleUsers(accessTokenRequest));
     }
 }
