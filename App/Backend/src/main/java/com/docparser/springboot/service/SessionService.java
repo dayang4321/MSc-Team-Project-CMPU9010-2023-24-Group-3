@@ -1,90 +1,43 @@
 package com.docparser.springboot.service;
 
 import com.docparser.springboot.Repository.SessionRepository;
-import com.docparser.springboot.Repository.UserRepository;
-import com.docparser.springboot.errorHandler.GoogleSecurityException;
 import com.docparser.springboot.errorHandler.SessionNotFoundException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.SessionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import org.json.JSONObject;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class SessionService {
     Logger logger = LoggerFactory.getLogger(SessionService.class);
-    @Value("${google.clientId}")
-    private String clientId;
 
-    private  final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     private final SessionRepository sessionRepository;
-    private final UserRepository userRepository;
-    private final  GoogleIdTokenVerifier verifier;
 
-    public SessionService(ObjectMapper objectMapper, SessionRepository sessionRepository,UserRepository userRepository) {
-        this.objectMapper = objectMapper;
-        this.userRepository= userRepository;
-        this.sessionRepository = sessionRepository;
-        NetHttpTransport transport = new NetHttpTransport();
-        JsonFactory jsonFactory =  GsonFactory.getDefaultInstance();
-        verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-                .setAudience(Collections.singletonList(clientId))
-                .build();
+
+
+    public TokenResponse saveSessionInfo(String id) {
+        Date expirationTime = SessionUtils.getExpirationTime();
+        Date issuedAt = SessionUtils.getTime();
+        String token = SessionUtils.generateToken(id, issuedAt, expirationTime);
+        sessionRepository.save(new SessionInfo(id, token, Instant.now()));
+        logger.info("token generated  and saved in DB" + token);
+        return new TokenResponse(token, Instant.now().toString());
     }
 
-public TokenResponse saveSessionInfo(String id) {
-    Instant expirationTime = Instant.now().plusSeconds(24 * 60 * 60);
-    Instant issuedAt = Instant.now();
-    String token = SessionUtils.generateToken(id, Date.from(issuedAt),Date.from(expirationTime));
-    sessionRepository.save(new SessionInfo(id, token, Instant.now()));
-    logger.info("token generated  and saved in DB" + token);
-    return new TokenResponse(token, expirationTime.toString());
-}
     public TokenResponse generateAndSaveSessionInfo() {
         String sessionID = UUID.randomUUID().toString();
-       return saveSessionInfo(sessionID);
-    }
-    public UserAccount createOrUpdateUser(UserAccount account) {
-        UserAccount existingAccount = userRepository.getUserInfobyEmail(account.getEmail());
-        if (existingAccount == null) {
-            userRepository.saveUser(account);
-            return account;
-        }
-        existingAccount.setFirstName(account.getFirstName());
-        existingAccount.setLastName(account.getLastName());
-        userRepository.saveUser(existingAccount);
-        return existingAccount;
-    }
-    public TokenResponse verifyAndSaveGoogleUsers(AccessTokenRequest accessTokenRequest) throws GeneralSecurityException {
-        try {
-            GoogleIdToken idTokenObj = GoogleIdToken.parse(verifier.getJsonFactory(), accessTokenRequest.getIdToken());
-            if (idTokenObj == null) {
-               throw new GoogleSecurityException("Invalid token");
-            }
-            JSONObject obj =SessionUtils.getUserInfoFromGoogleOauthApi(accessTokenRequest.getAccessToken());
-            String firstName = obj.getString("given_name");
-            String lastName = obj.getString("given_name");
-            String userId =  UUID.randomUUID().toString();
-            String email = obj.getString("email");
-            UserAccount account=createOrUpdateUser(new UserAccount(userId,  email,  firstName,  lastName));
-            return saveSessionInfo(userId);
-        } catch (Exception e) {
-            throw new GoogleSecurityException(e.getMessage());
-        }
+        return saveSessionInfo(sessionID);
     }
 
     public void saveFeedbackInfo(String token, FeedBackForm feedBackForm) {
@@ -105,7 +58,6 @@ public TokenResponse saveSessionInfo(String id) {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-
         sessionRepository.save(sessionInfo);
     }
 
