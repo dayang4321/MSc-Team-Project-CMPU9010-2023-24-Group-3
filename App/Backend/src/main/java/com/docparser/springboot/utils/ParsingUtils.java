@@ -5,7 +5,6 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;

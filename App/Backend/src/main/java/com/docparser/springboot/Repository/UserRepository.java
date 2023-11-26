@@ -2,7 +2,6 @@ package com.docparser.springboot.Repository;
 
 import com.docparser.springboot.errorHandler.UserNotFoundException;
 import com.docparser.springboot.model.FeedBackForm;
-import com.docparser.springboot.model.SessionInfo;
 import com.docparser.springboot.model.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -16,7 +15,6 @@ import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public class UserRepository {

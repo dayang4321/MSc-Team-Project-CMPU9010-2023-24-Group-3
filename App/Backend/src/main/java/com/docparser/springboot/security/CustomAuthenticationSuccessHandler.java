@@ -1,6 +1,6 @@
 package com.docparser.springboot.security;
 
-import com.docparser.springboot.service.UserService;
+
 import com.docparser.springboot.utils.SessionUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +21,6 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Value("${app.oauth2.redirectUri}")
     private String redirectUri;
-    private final UserService userService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {

@@ -1,6 +1,5 @@
 package com.docparser.springboot.controller;
 
-import com.docparser.springboot.model.AccessTokenRequest;
 import com.docparser.springboot.model.TokenResponse;
 import com.docparser.springboot.service.SessionService;
 import org.slf4j.Logger;
