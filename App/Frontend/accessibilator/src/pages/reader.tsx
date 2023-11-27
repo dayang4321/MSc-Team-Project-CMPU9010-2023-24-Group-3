@@ -188,15 +188,24 @@ const Reader = (props: Props) => {
       </Head>
       <nav className='flex items-center justify-between border-b border-stone-800 px-16 py-3'>
         <div>
-          <Link
-            href='/'
-            className='btn-link inline-flex items-center px-2 py-2 text-base font-medium text-stone-700'
-          >
-            <span aria-hidden='true'>
-              <HiArrowNarrowLeft className='mr-3 mt-[0.125rem] h-6 w-6' />
-            </span>
-            Back to homepage
-          </Link>
+          {!!currDocData && !isComparingDocs && (
+            <Link
+              href={{
+                pathname: '/accessibility-review',
+                query: {
+                  doc_key: currDocData?.documentKey,
+                  doc_id: currDocData?.documentID,
+                  version_id: currDocData?.versions.originalVersion.versionID,
+                },
+              }}
+              className='btn-link inline-flex items-center px-2 py-2 text-base font-medium text-stone-700'
+            >
+              <span aria-hidden='true'>
+                <HiArrowNarrowLeft className='mr-3 mt-[0.125rem] h-6 w-6' />
+              </span>
+              Back to review
+            </Link>
+          )}
         </div>
 
         <div className='flex items-center'>
