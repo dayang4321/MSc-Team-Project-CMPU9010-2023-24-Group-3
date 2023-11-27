@@ -69,7 +69,7 @@ module.exports = withSentryConfig(
     // Suppresses source map uploading logs during build
     silent: true,
     org: 'bytethebarrier',
-    project: 'javascript-nextjs',
+    project: 'accessibilator',
   },
   {
     // For all available options, see:
