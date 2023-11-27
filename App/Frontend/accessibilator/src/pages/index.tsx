@@ -6,6 +6,8 @@ import axiosInit from '../services/axios';
 import { useRouter } from 'next/router';
 import { AxiosResponse } from 'axios';
 import delay from 'lodash/delay';
+import { ToastQueue } from '@react-spectrum/toast';
+import { reportException } from '../services/errorReporting';
 
 export default function Home() {
   const router = useRouter();
@@ -69,17 +71,31 @@ export default function Home() {
           }
         )
         .catch((err) => {
-          console.log(err);
+          ToastQueue.negative(
+            `An error occured! ${err?.response?.message || err?.message || ''}`,
+            {
+              timeout: 5000,
+            }
+          );
           setDocUploadError(
             `An Error Occurred, Please try again ${
               err?.message ? `(Message: ${err?.message})` : ''
             }`
           );
+          reportException(err, {
+            category: 'general',
+            message: 'Failed to upload file to server',
+            data: {
+              origin: 'File Upload Screen',
+            },
+          });
           setIsUploading(false);
         });
     } else {
       // Handle No File Selected
-      console.log('No File Selected');
+      ToastQueue.neutral('No File Selected', {
+        timeout: 5000,
+      });
     }
   };
 
@@ -108,10 +124,14 @@ export default function Home() {
       return;
     } else if (e.dataTransfer.files.length > 1) {
       // Handle too many files error
-      //TODO: Toast message (One file at a time)
+      ToastQueue.negative('Only one file at a time allowed', {
+        timeout: 5000,
+      });
     } else if (!isFileTypeAllowed) {
       // Handle Unsupported file format
-      //TODO: Toast message (Document format not supported)
+      ToastQueue.negative('Document format not supported', {
+        timeout: 5000,
+      });
     }
   };
 

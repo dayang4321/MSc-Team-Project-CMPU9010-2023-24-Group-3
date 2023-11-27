@@ -48,11 +48,9 @@ axiosInit.interceptors.request.use(async function (config) {
 // Response interceptor for API calls
 axiosInit.interceptors.response.use(
   (response) => {
-    console.log({ genResponse: response });
     return response;
   },
   async function (error: Error | AxiosError) {
-    console.log({ genError: error });
     if (isAxiosError(error)) {
       const originalRequest = { ...error.config, _retry: false };
       if (error?.response?.status === 403 && !originalRequest._retry) {
@@ -75,7 +73,6 @@ axiosInit.interceptors.response.use(
           ] = `Bearer ${accessTokenRes.data.token}`;
           return axiosInit.request(originalRequest);
         } catch (err) {
-          console.log(err, 'get token err');
           //TODO: Toast error
           return Promise.reject(err);
         }

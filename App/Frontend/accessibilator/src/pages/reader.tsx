@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
 import Head from 'next/head';
 import Button from '../components/UI/Button';
@@ -11,6 +11,8 @@ import axiosInit from '../services/axios';
 import { FaWandMagicSparkles } from 'react-icons/fa6';
 import { HiArrowNarrowLeft } from 'react-icons/hi';
 import { MdOutlineCompare } from 'react-icons/md';
+import { reportException } from '../services/errorReporting';
+import { ToastQueue } from '@react-spectrum/toast';
 
 type Props = {};
 
@@ -22,7 +24,7 @@ const Reader = (props: Props) => {
 
   const [isComparingDocs, setIsComparingDocs] = useState(false);
 
-  const [isDocDataLoading, setIsDocDataLoading] = useState(false);
+  const [isDocDataLoading, setIsDocDataLoading] = useState(true);
 
   const [currDocData, setCurrDocData] = useState<DocumentData | null>(null);
 
@@ -36,19 +38,35 @@ const Reader = (props: Props) => {
       // TODO: Toast error
       return Promise.reject(error);
     } finally {
-      setIsDocDataLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDocument(`${doc_id}`)
-      .then((docRes) => {
-        console.log(docRes);
-        setCurrDocData(docRes);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    setIsDocDataLoading(true);
+    !!doc_id &&
+      fetchDocument(`${doc_id}`)
+        .then((docRes) => {
+          setCurrDocData(docRes);
+          setIsDocDataLoading(false);
+        })
+        .catch((err) => {
+          setIsDocDataLoading(false);
+          ToastQueue.negative(
+            `An error occurred! ${
+              err?.response?.data.detail || err?.message || ''
+            }`,
+            {
+              timeout: 5000,
+            }
+          );
+          reportException(err, {
+            category: 'document_loading',
+            message: 'Failed to load document',
+            data: {
+              origin: 'Reader Screen',
+            },
+          });
+        });
 
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,7 +110,22 @@ const Reader = (props: Props) => {
         setSlideModalOpen(false);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
+        ToastQueue.negative(
+          `An error occurred! ${
+            err?.response?.data.detail || err?.message || ''
+          }`,
+          {
+            timeout: 5000,
+          }
+        );
+        reportException(err, {
+          category: 'modify',
+          message: 'Failed to modify document',
+          data: {
+            origin: 'Reader Screen',
+          },
+        });
       })
       .finally(() => {
         setIsModifyLoading(false);
