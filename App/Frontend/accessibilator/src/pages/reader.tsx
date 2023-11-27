@@ -265,9 +265,9 @@ const Reader = (props: Props) => {
             isComparingDocs ? 'ml-12' : 'ml-24'
           } flex flex-1 flex-col items-stretch border border-stone-800`}
         >
-          {isComparingDocs && (
-            <h2 className='my-3 text-center text-lg font-semibold'>Modified</h2>
-          )}
+          <h2 className='my-3 text-center text-lg font-semibold'>
+            Modified{!isComparingDocs && ' Document'}
+          </h2>
           {!isDocDataLoading && currentDocReader}
         </div>
         {!isComparingDocs && (
