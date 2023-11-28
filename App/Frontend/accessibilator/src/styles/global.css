@@ -28,7 +28,7 @@
   }
 
   .btn-primary {
-    @apply inline-flex rounded-md bg-yellow-950 px-7 py-3 text-sm font-medium  leading-snug text-white shadow-md transition duration-150 ease-in-out  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-900 active:shadow-lg;
+    @apply inline-flex rounded-md bg-yellow-950 px-7 py-3 text-sm font-medium  leading-snug text-white shadow-md transition duration-150 ease-in-out  active:bg-yellow-900 active:shadow-lg hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0;
   }
 
   .btn-link {
@@ -36,10 +36,10 @@
   }
 
   .form-control-input {
-    @apply flex h-[3rem] w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600 hover:border-yellow-600  focus:outline-none sm:h-11 sm:text-sm;
+    @apply flex h-[3rem] w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 hover:border-yellow-600 focus:outline-none focus-within:border-none focus-within:outline-none focus-within:ring-2  focus-within:ring-yellow-600 sm:h-11 sm:text-sm;
   }
   .form-control-textarea {
-    @apply flex w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 focus-within:border-none focus-within:outline-none focus-within:ring-2 focus-within:ring-yellow-600  hover:border-yellow-600  focus:outline-none sm:text-sm;
+    @apply flex w-full rounded-lg border  border-gray-400 p-3 pl-3 text-[1rem] font-normal shadow-sm outline-none transition-shadow duration-200 hover:border-yellow-600 focus:outline-none focus-within:border-none focus-within:outline-none  focus-within:ring-2  focus-within:ring-yellow-600 sm:text-sm;
   }
 
   .form-control-prepend {
@@ -60,5 +60,27 @@
 
   .input-group {
     @apply relative mb-6 flex-1 p-1;
+  }
+
+  /* Works on Firefox */
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: #431407 lightgray;
+  }
+
+  /* Works on Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 0.2rem;
+    height: 0.2rem;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: white;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #431407;
+    border-radius: 1rem;
+    border: 0.2rem solid #431407;
   }
 }

@@ -493,7 +493,7 @@ const CustomisationPanel = ({
           </div>
         </MyTabPanel>
       </Tabs>
-      <div className='border px-16 py-5 text-right'>
+      <div className='border bg-stone-50 px-16 py-5 text-right shadow-2xl shadow-black'>
         <Button
           className=' px-6 py-2 text-base'
           loading={configSaveLoading}
