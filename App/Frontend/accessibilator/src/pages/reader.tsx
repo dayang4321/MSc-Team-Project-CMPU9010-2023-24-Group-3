@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
 import Head from 'next/head';
 import Button from '../components/UI/Button';
@@ -11,6 +11,8 @@ import axiosInit from '../services/axios';
 import { FaWandMagicSparkles } from 'react-icons/fa6';
 import { HiArrowNarrowLeft } from 'react-icons/hi';
 import { MdOutlineCompare } from 'react-icons/md';
+import { reportException } from '../services/errorReporting';
+import { ToastQueue } from '@react-spectrum/toast';
 
 type Props = {};
 
@@ -22,7 +24,7 @@ const Reader = (props: Props) => {
 
   const [isComparingDocs, setIsComparingDocs] = useState(false);
 
-  const [isDocDataLoading, setIsDocDataLoading] = useState(false);
+  const [isDocDataLoading, setIsDocDataLoading] = useState(true);
 
   const [currDocData, setCurrDocData] = useState<DocumentData | null>(null);
 
@@ -36,19 +38,35 @@ const Reader = (props: Props) => {
       // TODO: Toast error
       return Promise.reject(error);
     } finally {
-      setIsDocDataLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDocument(`${doc_id}`)
-      .then((docRes) => {
-        console.log(docRes);
-        setCurrDocData(docRes);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    setIsDocDataLoading(true);
+    !!doc_id &&
+      fetchDocument(`${doc_id}`)
+        .then((docRes) => {
+          setCurrDocData(docRes);
+          setIsDocDataLoading(false);
+        })
+        .catch((err) => {
+          setIsDocDataLoading(false);
+          ToastQueue.negative(
+            `An error occurred! ${
+              err?.response?.data.detail || err?.message || ''
+            }`,
+            {
+              timeout: 5000,
+            }
+          );
+          reportException(err, {
+            category: 'document_loading',
+            message: 'Failed to load document',
+            data: {
+              origin: 'Reader Screen',
+            },
+          });
+        });
 
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,7 +110,22 @@ const Reader = (props: Props) => {
         setSlideModalOpen(false);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
+        ToastQueue.negative(
+          `An error occurred! ${
+            err?.response?.data.detail || err?.message || ''
+          }`,
+          {
+            timeout: 5000,
+          }
+        );
+        reportException(err, {
+          category: 'modify',
+          message: 'Failed to modify document',
+          data: {
+            origin: 'Reader Screen',
+          },
+        });
       })
       .finally(() => {
         setIsModifyLoading(false);
@@ -155,15 +188,24 @@ const Reader = (props: Props) => {
       </Head>
       <nav className='flex items-center justify-between border-b border-stone-800 px-16 py-3'>
         <div>
-          <Link
-            href='/'
-            className='btn-link inline-flex items-center px-2 py-2 text-base font-medium text-stone-700'
-          >
-            <span aria-hidden='true'>
-              <HiArrowNarrowLeft className='mr-3 mt-[0.125rem] h-6 w-6' />
-            </span>
-            Back to homepage
-          </Link>
+          {!!currDocData && !isComparingDocs && (
+            <Link
+              href={{
+                pathname: '/accessibility-review',
+                query: {
+                  doc_key: currDocData?.documentKey,
+                  doc_id: currDocData?.documentID,
+                  version_id: currDocData?.versions.originalVersion.versionID,
+                },
+              }}
+              className='btn-link inline-flex items-center px-2 py-2 text-base font-medium text-stone-700'
+            >
+              <span aria-hidden='true'>
+                <HiArrowNarrowLeft className='mr-3 mt-[0.125rem] h-6 w-6' />
+              </span>
+              Back to review
+            </Link>
+          )}
         </div>
 
         <div className='flex items-center'>
@@ -232,9 +274,9 @@ const Reader = (props: Props) => {
             isComparingDocs ? 'ml-12' : 'ml-24'
           } flex flex-1 flex-col items-stretch border border-stone-800`}
         >
-          {isComparingDocs && (
-            <h2 className='my-3 text-center text-lg font-semibold'>Modified</h2>
-          )}
+          <h2 className='my-3 text-center text-lg font-semibold'>
+            Modified{!isComparingDocs && ' Document'}
+          </h2>
           {!isDocDataLoading && currentDocReader}
         </div>
         {!isComparingDocs && (

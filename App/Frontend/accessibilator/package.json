@@ -9,11 +9,14 @@
     "format:fix": "prettier --write --ignore-path .gitignore ."
   },
   "dependencies": {
+    "@adobe/react-spectrum": "^3.32.2",
     "@ant-design/icons": "^5.2.6",
     "@cyntler/react-doc-viewer": "^1.14.0",
     "@headlessui/react": "^1.7.17",
     "@headlessui/tailwindcss": "^0.2.0",
     "@heroicons/react": "^2.0.18",
+    "@react-spectrum/toast": "^3.0.0-beta.7",
+    "@sentry/nextjs": "^7.81.1",
     "axios": "^1.6.0",
     "lodash": "^4.17.21",
     "next": "latest",

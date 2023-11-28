@@ -6,6 +6,9 @@ import axiosInit from '../services/axios';
 import { useRouter } from 'next/router';
 import { AxiosResponse } from 'axios';
 import delay from 'lodash/delay';
+import { ToastQueue } from '@react-spectrum/toast';
+import { reportException } from '../services/errorReporting';
+import DocumentArrowUpIcon from '@heroicons/react/24/solid/DocumentArrowUpIcon';
 
 export default function Home() {
   const router = useRouter();
@@ -69,17 +72,31 @@ export default function Home() {
           }
         )
         .catch((err) => {
-          console.log(err);
+          ToastQueue.negative(
+            `An error occured! ${err?.response?.message || err?.message || ''}`,
+            {
+              timeout: 5000,
+            }
+          );
           setDocUploadError(
             `An Error Occurred, Please try again ${
               err?.message ? `(Message: ${err?.message})` : ''
             }`
           );
+          reportException(err, {
+            category: 'general',
+            message: 'Failed to upload file to server',
+            data: {
+              origin: 'File Upload Screen',
+            },
+          });
           setIsUploading(false);
         });
     } else {
       // Handle No File Selected
-      console.log('No File Selected');
+      ToastQueue.neutral('No File Selected', {
+        timeout: 5000,
+      });
     }
   };
 
@@ -108,10 +125,14 @@ export default function Home() {
       return;
     } else if (e.dataTransfer.files.length > 1) {
       // Handle too many files error
-      //TODO: Toast message (One file at a time)
+      ToastQueue.negative('Only one file at a time allowed', {
+        timeout: 5000,
+      });
     } else if (!isFileTypeAllowed) {
       // Handle Unsupported file format
-      //TODO: Toast message (Document format not supported)
+      ToastQueue.negative('Document format not supported', {
+        timeout: 5000,
+      });
     }
   };
 
@@ -160,8 +181,8 @@ export default function Home() {
       </Head>
 
       <main className='flex flex-1 flex-col items-center justify-center bg-slate-50 text-center text-gray-900'>
-        <h1 className='mb-11 max-w-4xl text-5xl font-bold'>
-          Reading documents made more accessible😁
+        <h1 className='mb-11 max-w-3xl text-4xl font-bold'>
+          Making your documents easier to read
         </h1>
 
         <div className='relative w-[40rem] max-w-full overflow-hidden rounded-2xl bg-zinc-900 px-8 pb-28 pt-12 text-white'>
@@ -203,7 +224,7 @@ export default function Home() {
               onDrop={onFileDrop}
             >
               <div>
-                <p className='mb-3'>Select a file or drag and drop here</p>
+                <p className='mb-3'>Select a document or drag and drop here</p>
               </div>
               <div className='space-y-1 text-center'>
                 <div className='flex text-sm text-gray-600'>
@@ -211,8 +232,9 @@ export default function Home() {
                     htmlFor='file-upload'
                     className='relative cursor-pointer rounded-md bg-white font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2'
                   >
-                    <span className='btn inline-block border-[1px] border-white bg-gray-700 px-4 text-white '>
-                      Select Document
+                    <span className='btn inline-flex gap-2 border-[1px] border-white bg-gray-700 px-4 text-base text-slate-50'>
+                      <DocumentArrowUpIcon className='h-6 w-6' />
+                      <span> Select Document</span>
                     </span>
                     <input
                       accept='doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
