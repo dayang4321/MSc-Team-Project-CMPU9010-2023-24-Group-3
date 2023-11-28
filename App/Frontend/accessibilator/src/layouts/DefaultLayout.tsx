@@ -17,11 +17,11 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
     <>
       <div className='flex min-h-screen flex-col'>
         <nav
-          className={`relative flex px-8 ${
-            variant === 'dark' ? 'bg-stone-900 py-2 text-stone-100' : 'py-5'
+          className={`relative flex px-8 shadow ${
+            variant === 'dark' ? 'bg-stone-900 py-2 text-stone-100' : 'py-4'
           } `}
         >
-          <Link className='text-2xl font-extrabold uppercase' href='/'>
+          <Link className='text-3xl font-extrabold uppercase' href='/'>
             Accessibilator
           </Link>
           {title && (
@@ -43,7 +43,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
           />
         </nav>
         {children}
-        <footer className='p-5'>Footer</footer>
+        <footer className='invisible p-5'>Footer</footer>
       </div>
       <FeedbackForm
         isShowing={isShowingFeedback}
