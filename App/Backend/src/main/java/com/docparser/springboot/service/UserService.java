@@ -39,7 +39,7 @@ public class UserService {
         userRepository.saveUser(user);
     }
 
-    public Optional<UserAccount> getLoggedInUser(String token) {
+    public Optional<UserResponse> getLoggedInUser(String token) {
 
         String updatedToken = token.substring(7);
         String userId = SessionUtils.getSessionIdFromToken(updatedToken);
@@ -48,7 +48,8 @@ public class UserService {
             logger.error("User not found");
             return new UserNotFoundException("User not found");
         });
-        return existingAccount;
+        Optional<UserResponse> userResponse = Optional.of(new UserResponse(existingAccount.get().getUserId(), existingAccount.get().getUsername(), existingAccount.get().getEmail(), existingAccount.get().getProvider()));
+        return userResponse;
     }
 
 
