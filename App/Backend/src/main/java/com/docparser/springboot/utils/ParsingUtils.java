@@ -77,26 +77,22 @@ public class ParsingUtils {
     }
 
     public static XWPFDocument copyStylesAndContent(XWPFDocument source, XWPFDocument target) {
-        for (XWPFParagraph sourceParagraph : source.getParagraphs()) {
+
+
+
+// Copy paragraphs (text, formatting, styles)
+        for (XWPFParagraph paragraph : source.getParagraphs()) {
             XWPFParagraph newParagraph = target.createParagraph();
+            newParagraph.getCTP().set(paragraph.getCTP().copy());
 
-            // Copy paragraph style
-            if (sourceParagraph.getCTP().getPPr() != null)
-                newParagraph.getCTP().setPPr((sourceParagraph.getCTP().getPPr()));
-
-            // Concatenate text from all runs in the source paragraph
-            StringBuilder paragraphText = new StringBuilder();
-            for (XWPFRun sourceRun : sourceParagraph.getRuns()) {
-                paragraphText.append(sourceRun.getText(0));
+            // Copy runs (text, formatting, styles)
+            for (XWPFRun run : paragraph.getRuns()) {
+                XWPFRun newRun = newParagraph.createRun();
+                newRun.getCTR().set(run.getCTR().copy());
+                // Copy other run-level properties as needed
             }
 
-            // Create a new run in the new paragraph and set its text
-            XWPFRun newRun = newParagraph.createRun();
-            newRun.setText(paragraphText.toString());
-
-            // Copy run style
-            if (sourceParagraph.getRuns() != null && !sourceParagraph.getRuns().isEmpty() && sourceParagraph.getRuns().get(0).getCTR().getRPr() != null)
-                newRun.getCTR().setRPr((sourceParagraph.getRuns().get(0).getCTR().getRPr()));
+            // Copy additional paragraph-level properties if needed
         }
 
         return target;
@@ -159,7 +155,7 @@ public class ParsingUtils {
     public static Optional<List<String>> extractHeadings(XWPFDocument document) {
         List<String> headings = new ArrayList<>();
         List<XWPFParagraph> paragraphs = document.getParagraphs();
-        paragraphs.stream().filter(ParsingUtils::checkIfHeadingStylePresent).forEach(paragraph -> headings.add(paragraph.getText()));
+        paragraphs.stream().filter(ParsingUtils::checkIfHeadingStylePresent).forEach(paragraph -> headings.add(paragraph.getRuns().get(0).toString()));
         return Optional.of(headings);
     }
 

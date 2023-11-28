@@ -19,6 +19,8 @@ public  class DocumentConfig {
     private String alignment;
     private Boolean generateTOC;
     private Boolean removeItalics;
+    private Boolean paragraphSplitting;
+    private Boolean headerGeneration;
 
 }
 
