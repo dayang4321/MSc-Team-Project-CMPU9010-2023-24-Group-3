@@ -18,17 +18,32 @@ public class DocumentProcessor {
         this.runModifier = runMod;
     }
 
-    public void process(XWPFDocument document, DocumentConfig config) {
-        document.getParagraphs().stream().forEach(paragraph -> {
+    public XWPFDocument process(XWPFDocument document, DocumentConfig config) {
+        XWPFDocument finalDoc = documentModifier.modify(document, config);
+        finalDoc.getParagraphs().stream().forEach(paragraph -> {
             paragraphModifier.modify(paragraph, config);
-            if (ParsingUtils.checkForFontParameterChange.apply(config.getFontSize()) && ParsingUtils.checkIfHeadingStylePresent(paragraph)) {
-                paragraph.getRuns().stream().findFirst().ifPresent(run -> runModifier.modify(run, config, true));
+            if ( ParsingUtils.checkIfHeadingStylePresent(paragraph)) {
+                // Check if the paragraph has more than one run
+                if (paragraph.getRuns().size() > 1) {
+                    // Apply heading modifications to the first run
+                    paragraph.getRuns().stream().findFirst().ifPresent(run -> runModifier.modify(run, config, true));
+                    // Apply run modifications to the rest of the runs
+                    paragraph.getRuns().stream().skip(1).forEach(run -> runModifier.modify(run, config, false));
+                } else {
+                    // Apply heading modifications to the only run in the paragraph
+                    paragraph.getRuns().stream().findFirst().ifPresent(run -> runModifier.modify(run, config, true));
+                }
+
             } else {
-                paragraph.getRuns().stream().forEach(run -> runModifier.modify(run, config, false));
+                // Apply heading modifications to the only run in the paragraph
+                paragraph.getRuns().forEach(run -> runModifier.modify(run, config, false));
             }
         });
-        documentModifier.modify(document, config);
-
+        //apply toc generation after all the modifications
+        if (ParsingUtils.checkForBooleanFontParameterChange.apply(config.getGenerateTOC())) {
+            documentModifier.modifyDocumentToc(finalDoc);
+        }
+        return finalDoc;
     }
 }
 

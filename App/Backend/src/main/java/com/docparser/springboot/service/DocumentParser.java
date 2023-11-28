@@ -46,9 +46,9 @@ public class DocumentParser {
             OPCPackage opcPackage = OPCPackage.open(inputStream);
             XWPFDocument document = new XWPFDocument(opcPackage);
             logger.info("modifying document " + tempFile.getName() + " with paragraphs : " + document.getParagraphs().size());
-            documentProcessor.process(document, formattingConfig);
+            XWPFDocument updated = documentProcessor.process(document, formattingConfig);
             FileOutputStream out = new FileOutputStream(tempFile);
-            document.write(out);
+            updated.write(out);
             out.close();
         } catch (Exception e) {
             logger.error("Error while modifying document" + e.getMessage());
@@ -135,7 +135,7 @@ public class DocumentParser {
             documentResponse.setVersions(getDocumentVersions(info));
             documentResponse.setDocumentConfig(
                     Optional.ofNullable(info.getDocumentConfig())
-                            .orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null)));
+                            .orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null,null,null)));
         });
         return documentResponse;
     }
