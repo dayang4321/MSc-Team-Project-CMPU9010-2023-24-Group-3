@@ -43,3 +43,18 @@ Focused on resolving issues and enhancing documentation for Llama 2. Key highlig
 2. **Issues with Ollama2 on AWS EC2**: Investigated and documented solutions for running Ollama2 on AWS EC2.
    [GitHub Issue #630](https://github.com/jmorganca/ollama/issues/630)
    [GitHub Issue #788](https://github.com/jmorganca/ollama/issues/788)
+
+On to finding alternate solutions for implementing Ollama2 with the SpringBoot Java Backend.
+
+Looking more into different ways of integrating Ollama2 with the Accessibilator.
+
+## Llama2 Implementation and Hugging Face Models
+
+Today's focus was on Llama2 implementation and integrating Hugging Face models with AWS SageMaker. Key aspects:
+
+1. **Llama2 using Java**: Explored the Java implementation of Llama2 for diverse application scenarios.
+   [Llama2 Java Repository](https://github.com/mukel/llama2.java)
+2. **Ollama2 Implementation using LangChain and Python**: Analyzed the use of LangChain with Python for Ollama2.
+   [YouTube Tutorial](https://www.youtube.com/watch?v=CPgp8MhmGVY)
+3. **Hugging Face Models on AWS SageMaker**: Discussed challenges and solutions for training Hugging Face models on SageMaker.
+   [Hugging Face Discussion](https://discuss.huggingface.co/t/some-issues-when-training-model-on-sagemaker/12213)
