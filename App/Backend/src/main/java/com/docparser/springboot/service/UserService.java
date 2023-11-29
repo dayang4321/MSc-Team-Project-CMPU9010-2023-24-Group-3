@@ -47,7 +47,7 @@ public class UserService {
         if(existingAccount.isEmpty()){
            return Optional.empty();
         }
-        Optional<UserResponse> userResponse = Optional.of(new UserResponse(existingAccount.get().getUserId(), existingAccount.get().getUsername(), existingAccount.get().getEmail(), existingAccount.get().getProvider()));
+        Optional<UserResponse> userResponse = Optional.of(new UserResponse(existingAccount.get().getUserId(), existingAccount.get().getEmail(), existingAccount.get().getUsername(), existingAccount.get().getProvider()));
         return userResponse;
     }
 
