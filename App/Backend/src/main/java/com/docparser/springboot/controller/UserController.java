@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin
@@ -22,9 +24,12 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getLoggedinUser(HttpServletRequest request) {
+    public ResponseEntity<Object> getLoggedinUser(HttpServletRequest request) {
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
-        return ResponseEntity.ok(userService.getLoggedInUser(token.get()).get());
+        Map<String, Object> object = new HashMap<>();
+        Optional<UserResponse> user = userService.getLoggedInUser(token.get());
+       object.put("user",user.isPresent() ? user.get() : null);
+        return ResponseEntity.ok(object);
     }
     @GetMapping("/{id}")
     public ResponseEntity<UserAccount> getUserById(@PathVariable String  id) {

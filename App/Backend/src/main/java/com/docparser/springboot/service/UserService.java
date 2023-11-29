@@ -44,10 +44,9 @@ public class UserService {
         String updatedToken = token.substring(7);
         String userId = SessionUtils.getSessionIdFromToken(updatedToken);
         Optional<UserAccount> existingAccount = userRepository.getUserInfo(userId);
-        existingAccount.orElseThrow(() -> {
-            logger.error("User not found");
-            return new UserNotFoundException("User not found");
-        });
+        if(existingAccount.isEmpty()){
+           return Optional.empty();
+        }
         Optional<UserResponse> userResponse = Optional.of(new UserResponse(existingAccount.get().getUserId(), existingAccount.get().getUsername(), existingAccount.get().getEmail(), existingAccount.get().getProvider()));
         return userResponse;
     }
