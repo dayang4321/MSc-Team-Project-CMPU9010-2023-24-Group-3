@@ -34,7 +34,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 determineTargetUrl(request, response, authentication) : redirectUri;
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         String token = SessionUtils.generateToken(user.getId(),SessionUtils.getTime(),SessionUtils.getExpirationTime());
-        targetUrl = UriComponentsBuilder.fromUriString(targetUrl).queryParam("token", token).build().toUriString();
+        targetUrl = UriComponentsBuilder.fromUriString(targetUrl).queryParam("token", token).queryParam("expiry",SessionUtils.getExpirationTime().toInstant().toString()).build().toUriString();
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }
