@@ -1,8 +1,13 @@
 import Axios, { AxiosError, isAxiosError } from 'axios';
 import { STORAGE_KEYS } from '../configs/constants';
+import { IS_DEV_MODE } from '../configs/configs';
+
+const apiUrl = IS_DEV_MODE
+  ? 'http://localhost:8080'
+  : 'https://hn6noz98uf.execute-api.eu-north-1.amazonaws.com';
 
 const axiosInit = Axios.create({
-  baseURL: 'https://hn6noz98uf.execute-api.eu-north-1.amazonaws.com',
+  baseURL: apiUrl,
 });
 
 const getTokenApi = async () => {
@@ -10,7 +15,7 @@ const getTokenApi = async () => {
     const accessTokenRes = await Axios.get<{
       token: string;
       expiry: string;
-    }>('https://hn6noz98uf.execute-api.eu-north-1.amazonaws.com/getToken');
+    }>(`${apiUrl}/auth/token`);
 
     return Promise.resolve(accessTokenRes);
   } catch (err) {
@@ -23,7 +28,7 @@ axiosInit.interceptors.request.use(async function (config) {
   const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
   const expiry = localStorage.getItem(STORAGE_KEYS.EXPIRY) || '0';
 
-  const isTokenValid = Number(expiry) > Date.now();
+  const isTokenValid = Number(expiry) > Date.now() || true;
 
   if (!!token && isTokenValid) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -58,7 +63,6 @@ axiosInit.interceptors.response.use(
 
         try {
           const accessTokenRes = await getTokenApi();
-          console.log({ accessTokenRes });
 
           localStorage.setItem(
             STORAGE_KEYS.TOKEN,
