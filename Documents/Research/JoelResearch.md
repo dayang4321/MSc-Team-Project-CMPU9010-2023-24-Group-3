@@ -56,4 +56,23 @@ https://towardsdatascience.com/end-to-end-topic-modeling-in-python-latent-dirich
  https://www.kaggle.com/code/mksaad/paper-s-title-generation-from-abstracts
  https://www.kaggle.com/code/cihankrdgn/title-generation/notebook
  
+OLLAMA documentation
+https://ollama.ai/download/linux
+https://github.com/jmorganca/ollama/blob/main/docs/api.md
+
+Sagemaker Documentation
+https://docs.aws.amazon.com/sagemaker/latest/dg/serverless-endpoints-create.html#serverless-endpoints-create-config
+https://docs.aws.amazon.com/sagemaker/latest/dg/serverless-endpoints.html#serverless-endpoints-how-it-works-containers
+
+Install and Run Mistral 7B on AWS
+https://www.youtube.com/watch?v=aSh66tG1B5o
+
+Deploy Llama 2 on AWS SageMaker using DLC (Deep Learning Containers)
+https://www.youtube.com/watch?v=rQq1m2aJ_fk
+
+Build Your API for Llama 2 on AWS: Lambda Function and API Gateway
+https://www.youtube.com/watch?v=Nlo7WclRBXc
+
+Your Own Llama 2 API on AWS SageMaker in 10 min! Complete AWS, Lambda, API Gateway Tutorial
+https://www.youtube.com/watch?v=3y_TcDNC0HE
 
