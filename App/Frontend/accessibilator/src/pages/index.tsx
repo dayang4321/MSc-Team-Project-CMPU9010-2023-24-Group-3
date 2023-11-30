@@ -36,7 +36,7 @@ export default function Home() {
     if (!!uploadedFiles[0].file) {
       formData.append('file', uploadedFiles[0].file);
       axiosInit
-        .post('/uploadFile', formData, {
+        .post('/api/file/uploadFile', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -73,7 +73,9 @@ export default function Home() {
         )
         .catch((err) => {
           ToastQueue.negative(
-            `An error occured! ${err?.response?.message || err?.message || ''}`,
+            `An error occurred! ${
+              err?.response?.message || err?.message || ''
+            }`,
             {
               timeout: 5000,
             }
