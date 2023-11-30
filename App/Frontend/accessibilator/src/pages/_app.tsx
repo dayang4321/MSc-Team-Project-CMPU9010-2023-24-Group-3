@@ -5,6 +5,7 @@ import { Lexend } from 'next/font/google';
 import { defaultTheme, Provider } from '@adobe/react-spectrum';
 import { ToastContainer } from '@react-spectrum/toast';
 import Script from 'next/script';
+import AuthProvider from '../contexts/AuthContext';
 
 const lexend = Lexend({
   subsets: ['latin'],
@@ -17,7 +18,9 @@ export default function App({ Component, pageProps }: AppProps) {
       <Provider theme={defaultTheme} colorScheme='light'>
         <div className={`${lexend.variable} font-sans`}>
           <ToastContainer />
-          <Component {...pageProps} />
+          <AuthProvider>
+            <Component {...pageProps} />
+          </AuthProvider>
         </div>
       </Provider>
       <Script id='accessibilator_hotjar' strategy='afterInteractive'>

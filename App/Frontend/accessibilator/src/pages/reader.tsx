@@ -31,11 +31,10 @@ const Reader = (props: Props) => {
   const fetchDocument = async (id: string) => {
     setIsDocDataLoading(true);
     try {
-      const docRes = await axiosInit.get<DocumentData>(`/document/${id}`);
+      const docRes = await axiosInit.get<DocumentData>(`/api/file/${id}`);
       return Promise.resolve(docRes.data);
     } catch (error) {
       console.log(error);
-      // TODO: Toast error
       return Promise.reject(error);
     } finally {
     }
@@ -96,14 +95,17 @@ const Reader = (props: Props) => {
     };
 
     axiosInit
-      .get<DocumentData>('/modifyFile', {
-        params: {
-          filename: docData.documentKey,
-          docID: docData.documentID,
-          versionID: docData.versions.originalVersion.versionID,
-          ...docModParams,
-        },
-      })
+      .post<DocumentData>(
+        '/api/file/modifyFile',
+        { ...docModParams },
+        {
+          params: {
+            filename: docData.documentKey,
+            docID: docData.documentID,
+            versionID: docData.versions.originalVersion.versionID,
+          },
+        }
+      )
       .then((res) => {
         //  console.log(res);
         setCurrDocData(res.data);

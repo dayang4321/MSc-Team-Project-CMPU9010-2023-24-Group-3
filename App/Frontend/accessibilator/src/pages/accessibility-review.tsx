@@ -57,14 +57,17 @@ export default function AccessibilityReview() {
     };
 
     axiosInit
-      .get<DocumentData>('/modifyFile', {
-        params: {
-          filename: doc_key,
-          docID: doc_id,
-          versionID: version_id,
-          ...docModParams,
-        },
-      })
+      .post<DocumentData>(
+        '/api/file/modifyFile',
+        { ...docModParams },
+        {
+          params: {
+            filename: doc_key,
+            docID: doc_id,
+            versionID: version_id,
+          },
+        }
+      )
       .then((res) => {
         //  console.log(res);
         router.push({

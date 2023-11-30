@@ -42,7 +42,7 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
   const submitHandler: SubmitHandler<FeedbackFormFields> = async (data) => {
     setIsSubmitLoading(true);
     try {
-      const feedbackRes = await axiosInit.post('/feedback', data, {
+      const feedbackRes = await axiosInit.post('/api/feedback/save', data, {
         headers: {
           'Content-Type': 'application/json',
         },
