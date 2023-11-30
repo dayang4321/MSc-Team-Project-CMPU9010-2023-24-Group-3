@@ -5,6 +5,7 @@ import com.docparser.springboot.errorHandler.DocumentNotExist;
 import com.docparser.springboot.errorHandler.FileParsingException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.FileUtils;
+import com.docparser.springboot.utils.ParsingUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
@@ -23,21 +24,21 @@ public class DocumentParser {
     Logger logger = LoggerFactory.getLogger(DocumentParser.class);
     private final S3BucketStorage s3FileUploadService;
     private final DocumentRepository documentRepository;
-    private  final DocumentProcessor documentProcessor;
+    private final DocumentProcessor documentProcessor;
 
 
-    public DocumentParser(S3BucketStorage s3FileUploadService, DocumentRepository documentRepository,DocumentProcessor documentProcessor) {
+    public DocumentParser(S3BucketStorage s3FileUploadService, DocumentRepository documentRepository, DocumentProcessor documentProcessor) {
         this.s3FileUploadService = s3FileUploadService;
         this.documentRepository = documentRepository;
         this.documentProcessor = documentProcessor;
     }
 
-    private void checkIfDBdocumentKeyExists(String documentKey, String docID) {
-        documentRepository.getDocumentInfo(docID).ifPresent(documentInfo -> {
-            if (!documentInfo.getDocumentKey().equals(documentKey)) {
-                throw new DocumentNotExist("Document key does not match with the document ID");
-            }
-        });
+    private DocumentInfo checkStoredDocumentConfigs(String documentKey, String docID) {
+        DocumentInfo documentInfo = documentRepository.getDocumentInfo(docID).orElseThrow(() -> new DocumentNotExist("Document does not exist"));
+        if (!documentInfo.getDocumentKey().equals(documentKey)) {
+            throw new DocumentNotExist("Document key does not match with the document ID");
+        }
+        return documentInfo;
     }
 
 
@@ -57,18 +58,18 @@ public class DocumentParser {
     }
 
 
-
     public DocumentResponse modifyFile(String key, String docID, String versionID, DocumentConfig formattingConfig) throws IOException {
-        checkIfDBdocumentKeyExists(key, docID);
+        DocumentInfo documentInfo = checkStoredDocumentConfigs(key, docID);
+        documentInfo.setDocumentConfig(formattingConfig);
         InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key, versionID);
         File tempFile = new File(key);
         tempFile.deleteOnExit();
         logger.info("initiating file modification");
         modifyDocument(tempFile, inputStream, formattingConfig);
         logger.info("file modification completed");
-        uploadFileAfterModification(tempFile, docID, formattingConfig);
+        uploadFileAfterModification(tempFile, documentInfo);
 
-        return fetchDocument(docID);
+        return fetchModifyResponse(documentInfo);
     }
 
 
@@ -100,16 +101,11 @@ public class DocumentParser {
         return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
     }
 
-    public void uploadFileAfterModification(File file, String docID, DocumentConfig formattingConfig) throws IOException {
+    public void uploadFileAfterModification(File file, DocumentInfo documentInfo) throws IOException {
         String fileName = FileUtils.generateFileName(file);
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
-
-        Optional<DocumentInfo> documentInfo = documentRepository.getDocumentInfo(docID);
-        documentInfo.ifPresent(info -> {
-            info.getDocumentVersions().add(new VersionInfo(s3response.versionId(), s3response.eTag(), Instant.now()));
-            info.setDocumentConfig(formattingConfig);
-            documentRepository.save(info);
-        });
+        documentInfo.getDocumentVersions().add(new VersionInfo(s3response.versionId(), s3response.eTag(), Instant.now()));
+        documentRepository.save(documentInfo);
         file.delete();
     }
 
@@ -135,8 +131,20 @@ public class DocumentParser {
             documentResponse.setVersions(getDocumentVersions(info));
             documentResponse.setDocumentConfig(
                     Optional.ofNullable(info.getDocumentConfig())
-                            .orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null,null,null)));
+                            .orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null)));
         });
+        return documentResponse;
+    }
+
+    public DocumentResponse fetchModifyResponse(DocumentInfo documentInfo) {
+        DocumentResponse documentResponse = new DocumentResponse();
+        documentResponse.setDocumentKey(documentInfo.getDocumentKey());
+        documentResponse.setDocumentID(documentInfo.getDocumentID());
+        documentResponse.setVersions(getDocumentVersions(documentInfo));
+        documentResponse.setDocumentConfig(
+                Optional.ofNullable(documentInfo.getDocumentConfig())
+                        .orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null)));
+
         return documentResponse;
     }
 

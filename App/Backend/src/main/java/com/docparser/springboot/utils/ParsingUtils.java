@@ -1,5 +1,6 @@
 package com.docparser.springboot.utils;
 
+import com.docparser.springboot.model.DocumentConfig;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.springframework.stereotype.Component;
@@ -16,16 +17,47 @@ import java.util.regex.Pattern;
 public class ParsingUtils {
 
 
-    public static List<XWPFParagraph> getParagraphsInTheDocument(XWPFDocument document) {
-        return document.getParagraphs();
+    public static List<String> getParagraphsInTheDocument(XWPFDocument document) {
+        List<String> paragraphs = new ArrayList<>();
+        document.getParagraphs().forEach(paragraph -> paragraphs.add(paragraph.getParagraphText()));
+        return paragraphs;
     }
 
     public static Function<String, Boolean> checkForFontParameterChange = formatConfig -> formatConfig != null && !formatConfig.isEmpty();
-    public static Function<Boolean, Boolean> checkForBooleanFontParameterChange = formatConfig -> formatConfig != null && formatConfig;
+    public static Function<Boolean, Boolean> checkForBooleanFontParameterChange = formatConfig -> formatConfig != null;
 
 
     public String getTextFromParagraph(XWPFParagraph paragraph) {
         return paragraph.getParagraphText();
+    }
+
+    public static Boolean checkIfAdvancedConfigEnabled(DocumentConfig userConfig, DocumentConfig dbConfig) {
+        if(dbConfig == null) {
+            return false;
+        }
+        if ((userConfig.getParagraphSplitting() != null && userConfig.getParagraphSplitting()) && (dbConfig.getParagraphSplitting() != null && dbConfig.getParagraphSplitting())) {
+            return true;
+        }
+        if ((userConfig.getHeaderGeneration() != null && userConfig.getHeaderGeneration()) && (dbConfig.getHeaderGeneration() != null && dbConfig.getHeaderGeneration())) {
+            return true;
+        }
+        if ((userConfig.getGenerateTOC() != null && userConfig.getGenerateTOC()) && (dbConfig.getGenerateTOC() != null && dbConfig.getGenerateTOC())) {
+            return true;
+        }
+        return false;
+    }
+
+    public static DocumentConfig resetAdvancedConfig(DocumentConfig config, DocumentConfig dbConfig) {
+        if (config.getParagraphSplitting() != null && config.getParagraphSplitting() && (dbConfig.getParagraphSplitting() != null && dbConfig.getParagraphSplitting())) {
+            config.setParagraphSplitting(false);
+        }
+        if (config.getHeaderGeneration() != null && config.getHeaderGeneration() && (dbConfig.getHeaderGeneration() != null && dbConfig.getHeaderGeneration())) {
+            config.setHeaderGeneration(false);
+        }
+        if (config.getGenerateTOC() != null && config.getGenerateTOC() && (dbConfig.getGenerateTOC() != null && dbConfig.getGenerateTOC())) {
+            config.setGenerateTOC(false);
+        }
+        return config;
     }
 
     public static ParagraphAlignment mapStringToAlignment(String alignmentString) {
@@ -79,7 +111,6 @@ public class ParsingUtils {
     public static XWPFDocument copyStylesAndContent(XWPFDocument source, XWPFDocument target) {
 
 
-
 // Copy paragraphs (text, formatting, styles)
         for (XWPFParagraph paragraph : source.getParagraphs()) {
             XWPFParagraph newParagraph = target.createParagraph();
@@ -123,8 +154,11 @@ public class ParsingUtils {
     }
 
     public static void removeRuns(XWPFParagraph paragraph) {
-        while (!paragraph.getRuns().isEmpty()) {
-            paragraph.removeRun(0);
+        for (int i = paragraph.getRuns().size() - 1; i >= 0; i--) {
+            XWPFRun run = paragraph.getRuns().get(i);
+            if (run.getEmbeddedPictures().isEmpty()) {
+                paragraph.removeRun(i);
+            }
         }
     }
 
@@ -149,7 +183,12 @@ public class ParsingUtils {
     }
 
     public static boolean checkIfHeadingStylePresent(XWPFParagraph paragraph) {
-        return paragraph.getStyleID() != null && paragraph.getStyleID().startsWith("Heading");
+        if (paragraph.getStyleID() != null && paragraph.getStyleID().startsWith("Heading"))
+            return true;
+        if (paragraph.getRuns().size() == 1) {
+            return paragraph.getRuns().get(0).isBold();
+        }
+        return false;
     }
 
     public static Optional<List<String>> extractHeadings(XWPFDocument document) {

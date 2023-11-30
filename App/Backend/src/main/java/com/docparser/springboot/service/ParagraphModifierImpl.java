@@ -2,18 +2,41 @@ package com.docparser.springboot.service;
 
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.utils.ParsingUtils;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTColor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTParaRPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STLineSpacingRule;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 @Component
 public class ParagraphModifierImpl implements ParagraphModifier {
+
+
+    private void addNewText(XWPFRun run, String para) {
+        run.setText(para);
+        run.addCarriageReturn();
+        run.addCarriageReturn();
+    }
+
+    private void modifyText(XWPFParagraph paragraph, DocumentConfig formattingConfig) {
+        String text = paragraph.getParagraphText();
+        String contentHash = Integer.toHexString(paragraph.getText().hashCode());
+        if (ParsingUtils.countLines(text).length >= 2) {
+            String[] paras = ParsingUtils.divideParagraph(text, 2);
+            ParsingUtils.removeRuns(paragraph);
+            for (String para : paras) {
+                addNewText(paragraph.createRun(), para);
+            }
+        }
+    }
+
 
     private void modifyAlignment(XWPFParagraph paragraph, String alignment) {
         paragraph.setAlignment(ParsingUtils.mapStringToAlignment(alignment));
@@ -47,6 +70,8 @@ public class ParagraphModifierImpl implements ParagraphModifier {
             modifyLineSpacing(paragraph, formattingConfig.getLineSpacing());
         if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
             modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
+        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getParagraphSplitting()) && formattingConfig.getParagraphSplitting())
+            modifyText(paragraph, formattingConfig);
 
 
     };
