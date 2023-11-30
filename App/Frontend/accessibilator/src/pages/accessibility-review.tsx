@@ -57,7 +57,7 @@ export default function AccessibilityReview() {
     };
 
     axiosInit
-      .get<DocumentData>('/modifyFile', {
+      .get<DocumentData>('/api/file/modifyFile', {
         params: {
           filename: doc_key,
           docID: doc_id,
