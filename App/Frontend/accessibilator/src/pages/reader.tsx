@@ -95,14 +95,17 @@ const Reader = (props: Props) => {
     };
 
     axiosInit
-      .get<DocumentData>('/api/file/modifyFile', {
-        params: {
-          filename: docData.documentKey,
-          docID: docData.documentID,
-          versionID: docData.versions.originalVersion.versionID,
-          ...docModParams,
-        },
-      })
+      .post<DocumentData>(
+        '/api/file/modifyFile',
+        { ...docModParams },
+        {
+          params: {
+            filename: docData.documentKey,
+            docID: docData.documentID,
+            versionID: docData.versions.originalVersion.versionID,
+          },
+        }
+      )
       .then((res) => {
         //  console.log(res);
         setCurrDocData(res.data);
