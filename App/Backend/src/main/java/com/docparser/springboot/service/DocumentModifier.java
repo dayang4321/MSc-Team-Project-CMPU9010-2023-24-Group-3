@@ -6,5 +6,5 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 public interface DocumentModifier {
 
-    void modify(XWPFDocument document, DocumentConfig config);
+    XWPFDocument modify(XWPFDocument document, DocumentConfig config);
 }

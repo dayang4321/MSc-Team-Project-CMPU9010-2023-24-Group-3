@@ -46,7 +46,14 @@ public class RunModifierImpl implements RunModifier {
         run.setFontSize(ParsingUtils.getHeadingSize(Integer.parseInt(fontSize)));
     }
 
+    private void addImageLabelling(XWPFRun run, String fontSize) {
+        if (!run.getEmbeddedPictures().isEmpty()) {
+            run.getEmbeddedPictures().removeAll(run.getEmbeddedPictures());
+        }
+    }
+
     BiConsumer<XWPFRun, DocumentConfig> modifyRun = (run, formattingConfig) -> {
+        boolean images = true;
         if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getFontSize()))
             modifyLineFontSize(run, formattingConfig.getFontSize());
         if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getFontColor()))
@@ -59,6 +66,8 @@ public class RunModifierImpl implements RunModifier {
             modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
         if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getRemoveItalics()))
             modifyToRemoveItalics(run);
+//if(images)
+        //   addImageLabelling(run,formattingConfig.getFontSize());
         // Define the behavior of modifyRun here
     };
     private final BiConsumer<XWPFRun, DocumentConfig> modifyHeadingRun = (run, formattingConfig) -> {

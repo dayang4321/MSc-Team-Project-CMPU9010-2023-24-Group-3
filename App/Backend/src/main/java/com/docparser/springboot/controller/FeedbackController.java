@@ -19,6 +19,7 @@ import java.util.Optional;
 
 @CrossOrigin
 @RestController
+@RequestMapping("/api/feedback")
 public class FeedbackController {
     Logger logger = LoggerFactory.getLogger(FeedbackController.class);
     @Autowired
@@ -28,7 +29,7 @@ public class FeedbackController {
 
 
     @ResponseBody
-    @PostMapping("/feedback")
+    @PostMapping("/save")
     public ResponseEntity<String> postFeedback(@RequestBody FeedBackForm feedBackForm, HttpServletRequest request) throws JsonProcessingException {
         // Code to save the file to a database or disk
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
@@ -37,7 +38,7 @@ public class FeedbackController {
     }
 
 
-    @GetMapping("/fetch/feedback")
+    @GetMapping("/fetch")
     public ResponseEntity<Object> getFeedback(HttpServletRequest request) throws JsonProcessingException {
         // Code to save the file to a database or disk
         Optional<String> token = Optional.of(request.getHeader("Authorization"));

@@ -5,12 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccessTokenRequest {
+@Getter
+@Setter
+public class UserResponse {
+    String userId;
+    String email;
+    String username;
+    String provider;
 
-    private String idToken;
-    private  String accessToken;
+
 }
