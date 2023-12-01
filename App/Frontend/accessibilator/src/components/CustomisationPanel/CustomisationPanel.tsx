@@ -16,20 +16,17 @@ import MyTagGroup from '../UI/inputs/MyTagGroup';
 import { findKey } from 'lodash';
 
 type CustomisationPanelProps = {
-  docData: DocumentData;
-  onConfigSave: (
-    docParamData: DocModifyParams,
-    docData: Pick<DocumentData, 'documentKey' | 'documentID' | 'versions'>
-  ) => void;
+  customisationConfig: DocModifyParams;
+  onConfigSave: (docParamData: DocModifyParams) => void;
   configSaveLoading: boolean;
 };
 
 const CustomisationPanel = ({
-  docData,
+  customisationConfig,
   configSaveLoading,
   onConfigSave,
 }: CustomisationPanelProps) => {
-  const docConfigData = docData.documentConfig;
+  const docConfigData = { ...customisationConfig };
 
   const [modificationsObj, setModificationsObj] = useState<DocModifyParams>({
     fontSize: Number(docConfigData?.fontSize),
@@ -499,11 +496,7 @@ const CustomisationPanel = ({
           loading={configSaveLoading}
           text={'Save Changes'}
           onClick={() => {
-            onConfigSave(modificationsObj, {
-              documentID: docData.documentID,
-              documentKey: docData.documentKey,
-              versions: docData.versions,
-            });
+            onConfigSave(modificationsObj);
           }}
         />
       </div>
