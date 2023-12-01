@@ -75,10 +75,7 @@ const Reader = (props: Props) => {
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
 
-  const onSaveConfig = (
-    docParamData: DocModifyParams,
-    docData: Pick<DocumentData, 'documentKey' | 'documentID' | 'versions'>
-  ) => {
+  const onSaveConfig = (docParamData: DocModifyParams) => {
     setIsModifyLoading(true);
     const docModParams: DocModifyParams = {
       fontType: docParamData.fontType,
@@ -100,9 +97,9 @@ const Reader = (props: Props) => {
         { ...docModParams },
         {
           params: {
-            filename: docData.documentKey,
-            docID: docData.documentID,
-            versionID: docData.versions.originalVersion.versionID,
+            filename: currDocData?.documentKey,
+            docID: currDocData?.documentID,
+            versionID: currDocData?.versions.originalVersion.versionID,
           },
         }
       )
@@ -303,7 +300,7 @@ const Reader = (props: Props) => {
           <CustomisationPanel
             onConfigSave={onSaveConfig}
             configSaveLoading={isModifyLoading}
-            docData={currDocData}
+            customisationConfig={currDocData.documentConfig}
           />
         )}
       </SlideModal>
