@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
 import Head from 'next/head';
 import Image from 'next/image';
@@ -8,6 +8,7 @@ import Button from '../components/UI/Button';
 import SlideModal from '../components/UI/SlideModal';
 import CustomisationPanel from '../components/CustomisationPanel/CustomisationPanel';
 import delay from 'lodash/delay';
+import { AuthContext } from '../contexts/AuthContext';
 
 const defaultSettings: DocModifyParams = {
   fontType: 'arial',
@@ -22,6 +23,7 @@ const defaultSettings: DocModifyParams = {
 };
 
 const Profile = () => {
+  const { user, logout } = useContext(AuthContext);
   const [userSettings, setUserSettings] = useState({
     ...defaultSettings,
   });
@@ -56,7 +58,9 @@ const Profile = () => {
     `Font Size: ${userSettings.fontSize}px`,
     `Line Spacing: ${userSettings.lineSpacing}`,
     `Letter Spacing: ${
-      userSettings.characterSpacing ? `${userSettings.characterSpacing * 10}%` : ''
+      userSettings.characterSpacing
+        ? `${userSettings.characterSpacing * 10}%`
+        : ''
     }`,
     `Remove Italics: ${userSettings.removeItalics ? 'Yes' : 'No'}`,
     `Align Text: ${userSettings?.alignment?.toLowerCase()}`,
@@ -75,17 +79,22 @@ const Profile = () => {
                 <Image
                   width={256}
                   height={256}
-                  src='https://ui-avatars.com/api/?name=Cheril&size=256&length=1&bold=true'
+                  src={`https://ui-avatars.com/api/?name=${user?.username}&size=256&length=1&bold=true`}
                   className='rounded-full '
                   alt='profile name initials'
                 />
               </div>
-              <p className='mt-8 text-lg font-semibold'>Cheril John</p>
-              <p className='mt-3 font-medium'>cheril@john@gmail.com</p>
+              <p className='mt-8 text-lg font-semibold'>{user?.username}</p>
+              <p className='mt-3 font-medium'> {user?.email}</p>
 
-              <Link className='btn-link mt-auto' href={'/'}>
-                Logout
-              </Link>
+              <Button
+                text='Logout'
+                variant='link'
+                className='btn-link mt-auto'
+                onClick={() => {
+                  logout();
+                }}
+              />
             </div>
 
             <div className='col-span-3 flex flex-col rounded border border-gray-400/60 bg-stone-50 px-16 py-10 text-left'>
