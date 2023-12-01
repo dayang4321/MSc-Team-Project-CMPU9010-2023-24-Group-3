@@ -1,10 +1,12 @@
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import React, { FC, useContext, useState } from 'react';
+import React, { FC, Fragment, useContext, useState } from 'react';
 import Button from '../components/UI/Button';
 import FeedbackForm from '../components/FeedbackForm/FeedbackForm';
 import { AuthContext } from '../contexts/AuthContext';
 import { IS_DEV_MODE } from '../configs/configs';
+import { Menu, Transition } from '@headlessui/react';
+import Image from 'next/image';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,7 +21,7 @@ const redirectUrl = IS_DEV_MODE
 const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
   const [isShowingFeedback, setIsShowingFeedback] = useState(false);
 
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { isAuthenticated, user, logout } = useContext(AuthContext);
 
   return (
     <>
@@ -38,15 +40,54 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
             </p>
           )}
           {isAuthenticated ? (
-            <Button
-              role='navigation'
-              variant='link'
-              className={`ml-auto inline-block  px-6 py-2 text-base font-medium underline  ${
-                variant === 'dark' ? 'text-stone-100' : 'text-stone-900'
-              } `}
-              text={'View Profile'}
-              onClick={() => {}}
-            />
+            <Menu as='div' className='relative ml-auto'>
+              <div>
+                <Menu.Button className='flex rounded-full border-2 border-primary-400 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-200'>
+                  <span className='sr-only'>Open user menu</span>
+                  <div className='inline-block h-9 w-9 overflow-hidden rounded-full'>
+                    <Image
+                      width={64}
+                      height={64}
+                      src={`https://ui-avatars.com/api/?name=${user?.email}&size=64&font-size=0.62&length=1&bold=true&background=431407&color=fafafa`}
+                      className='rounded-full '
+                      alt='profile name initials'
+                    />
+                  </div>
+                </Menu.Button>
+              </div>
+              <Transition
+                as={Fragment}
+                enter='transition ease-out duration-100'
+                enterFrom='transform opacity-0 scale-95'
+                enterTo='transform opacity-100 scale-100'
+                leave='transition ease-in duration-75'
+                leaveFrom='transform opacity-100 scale-100'
+                leaveTo='transform opacity-0 scale-95'
+              >
+                <Menu.Items className='absolute right-0 z-[200] mt-2 w-48 origin-top-right divide-y-2 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
+                  <Menu.Item>
+                    <Link
+                      href={'/profile'}
+                      className='block bg-white px-4 py-2 text-sm text-gray-800 hover:bg-primary-100'
+                    >
+                      Your Presets
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item
+                    as='button'
+                    onClick={() => {
+                      logout();
+                      //router.push('/');
+                    }}
+                    className={
+                      'w-full bg-white px-4 py-2 text-left text-sm text-gray-800 file:block hover:bg-primary-100'
+                    }
+                  >
+                    Log Out
+                  </Menu.Item>
+                </Menu.Items>
+              </Transition>
+            </Menu>
           ) : (
             <Link
               className='btn-primary ml-auto'
