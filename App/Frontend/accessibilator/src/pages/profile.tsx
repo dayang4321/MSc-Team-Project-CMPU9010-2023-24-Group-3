@@ -9,6 +9,7 @@ import SlideModal from '../components/UI/SlideModal';
 import CustomisationPanel from '../components/CustomisationPanel/CustomisationPanel';
 import delay from 'lodash/delay';
 import { AuthContext } from '../contexts/AuthContext';
+import IsProtectedRoute from '../hoc/IsProtectedRoute';
 
 const defaultSettings: DocModifyParams = {
   fontType: 'arial',
@@ -156,4 +157,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default IsProtectedRoute(Profile);
