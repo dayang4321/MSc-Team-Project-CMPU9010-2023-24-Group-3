@@ -4,18 +4,18 @@ import { useRouter } from 'next/router';
 
 export default function IsProtectedRoute(Component: React.FC) {
   return function IsProtectedRoute(props: any) {
-    const { isAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated, isAuthLoading } = useContext(AuthContext);
 
     const router = useRouter();
 
     useEffect(() => {
-      if (!isAuthenticated) {
+      if (!isAuthenticated && !isAuthLoading) {
         router.replace('/');
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated]);
+    }, [isAuthenticated, isAuthLoading]);
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated && isAuthLoading) {
       return null;
     }
 
