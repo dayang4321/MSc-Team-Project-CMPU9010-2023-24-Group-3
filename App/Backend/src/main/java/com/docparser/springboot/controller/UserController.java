@@ -1,7 +1,6 @@
 package com.docparser.springboot.controller;
 
 import com.docparser.springboot.model.UserAccount;
-import com.docparser.springboot.model.UserResponse;
 import com.docparser.springboot.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -27,7 +26,7 @@ public class UserController {
     public ResponseEntity<Object> getLoggedinUser(HttpServletRequest request) {
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
         Map<String, Object> object = new HashMap<>();
-        Optional<UserResponse> user = userService.getLoggedInUser(token.get());
+        Optional<UserAccount> user = userService.getLoggedInUser(token.get());
        object.put("user",user.isPresent() ? user.get() : null);
         return ResponseEntity.ok(object);
     }
