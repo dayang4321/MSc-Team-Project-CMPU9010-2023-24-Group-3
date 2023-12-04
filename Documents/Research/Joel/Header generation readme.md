@@ -31,15 +31,32 @@ For output generation, configure the decoder with dense layers and LSTM layers.
 
 Errors and their Solutions
 Transition from One-Hot Encoding to Embedding Layer:
-
 An embedding layer was added in place of the original one-hot encoding to increase performance and efficiency.
+
 Problems with Dimensionality in LSTM Layers:
 
 encountered issues because the LSTM layers' input and output dimensions weren't aligned.
 Shapes of the hidden and cell states were modified to match the anticipated input dimensions of the LSTM.
+
 Issues with Model Compilation and Training:
 
 encountered errors that suggested problems with input shapes and loss functions during the model's compilation and training.
 resolved by modifying the architecture of the model and verifying interlayer compatibility.
 To handle target sequences, the loss function was changed from "categorical_crossentropy" to "sparse_categorical_crossentropy."
+
 Error in GPU Compatibility:
+encountered a particular issue with the execution of the GPU LSTM.
+Reducing sequence length, changing LSTM configurations, employing standard LSTM, and modifying batch size were among the suggested remedies.
+
+Various Methods and Modifications:
+
+investigated a range of LSTM configurations, encompassing both unidirectional and bidirectional designs.
+To match the expected input-output dimensions, various dense layer configurations were experimented with.
+batch size and sequence length were adjusted as hyperparameters to improve performance and fix GPU-related problems.
+Complete Execution:
+
+A bidirectional LSTM encoder and a standard LSTM decoder were part of the final model setup.
+dense layers were used to fill in the dimensionality gap between the input from the decoder LSTM and the encoder states.
+Model compiled with a loss function and optimizer that are appropriate for sequence generation tasks.
+All along, the goal was to create a Seq2Seq model that was both functional and efficient enough to generate headlines. Numerous issues were resolved by iteratively debugging and modifying the model architecture, with a focus on LSTM configurations and GPU execution.
+
