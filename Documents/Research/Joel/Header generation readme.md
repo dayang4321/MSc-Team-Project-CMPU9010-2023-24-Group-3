@@ -60,3 +60,11 @@ dense layers were used to fill in the dimensionality gap between the input from 
 Model compiled with a loss function and optimizer that are appropriate for sequence generation tasks.
 All along, the goal was to create a Seq2Seq model that was both functional and efficient enough to generate headlines. Numerous issues were resolved by iteratively debugging and modifying the model architecture, with a focus on LSTM configurations and GPU execution.
 
+The model did not produce results that were good enough. The generated headlines lacked expected coherence and contextual accuracy.
+Possible Causes:
+Inadequate Training: Underfitting may have resulted from a lack sufficient data.
+Model Complexity: Difficulties in effectively learning patterns may have resulted from the model's complexity, particularly when bidirectional LSTMs were used.
+Data Preparation and Quality: Model performance is significantly influenced by the caliber of the input data and the preprocessing operations (such as tokenization and padding).
+Hyperparameter tuning: It would have been possible to further optimize parameters such as the number of LSTM units, embedding dimensions, and dense layer configurations.
+
+Technically speaking, the Seq2Seq model was successfully developed and debugged; however, the output quality suggests that certain aspects, such as training duration, data preprocessing, and model architecture, still require improvement.
