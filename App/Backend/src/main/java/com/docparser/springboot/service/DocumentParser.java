@@ -2,10 +2,11 @@ package com.docparser.springboot.service;
 
 import com.docparser.springboot.Repository.DocumentRepository;
 import com.docparser.springboot.errorHandler.DocumentNotExist;
+import com.docparser.springboot.errorHandler.DuplicateUpload;
 import com.docparser.springboot.errorHandler.FileParsingException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.FileUtils;
-import com.docparser.springboot.utils.ParsingUtils;
+import com.docparser.springboot.utils.SessionUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
@@ -25,12 +26,14 @@ public class DocumentParser {
     private final S3BucketStorage s3FileUploadService;
     private final DocumentRepository documentRepository;
     private final DocumentProcessor documentProcessor;
+    private final UserService userService;
 
 
-    public DocumentParser(S3BucketStorage s3FileUploadService, DocumentRepository documentRepository, DocumentProcessor documentProcessor) {
+    public DocumentParser(S3BucketStorage s3FileUploadService, DocumentRepository documentRepository, DocumentProcessor documentProcessor, UserService userService) {
         this.s3FileUploadService = s3FileUploadService;
         this.documentRepository = documentRepository;
         this.documentProcessor = documentProcessor;
+        this.userService = userService;
     }
 
     private DocumentInfo checkStoredDocumentConfigs(String documentKey, String docID) {
@@ -58,7 +61,7 @@ public class DocumentParser {
     }
 
 
-    public DocumentResponse modifyFile(String key, String docID, String versionID, DocumentConfig formattingConfig) throws IOException {
+    public DocumentResponse modifyFile(String key, String docID, String versionID, DocumentConfig formattingConfig, String token) throws IOException {
         DocumentInfo documentInfo = checkStoredDocumentConfigs(key, docID);
         documentInfo.setDocumentConfig(formattingConfig);
         InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key, versionID);
@@ -67,46 +70,76 @@ public class DocumentParser {
         logger.info("initiating file modification");
         modifyDocument(tempFile, inputStream, formattingConfig);
         logger.info("file modification completed");
-        uploadFileAfterModification(tempFile, documentInfo);
+        uploadFileAfterModification(tempFile, documentInfo, token);
 
         return fetchModifyResponse(documentInfo);
     }
 
 
-    private List<VersionInfo> setDocumentVersions(PutObjectResponse s3response, String fileName) {
+    private List<VersionInfo> setDocumentVersions(PutObjectResponse s3response) {
         VersionInfo versionInfo = new VersionInfo();
         List<VersionInfo> documentVersions = new ArrayList<>();
-        versionInfo.seteTag(s3response.eTag());
+        versionInfo.setETag(s3response.eTag());
         versionInfo.setVersionID(s3response.versionId());
         versionInfo.setCreatedDate(Instant.now());
         documentVersions.add(versionInfo);
         return documentVersions;
     }
 
+    private void updateDocumentInfo(String docID, String documentKey, PutObjectResponse s3response) {
+        DocumentInfo newDocumentInfo = new DocumentInfo();
+        newDocumentInfo.setDocumentID(docID);
+        newDocumentInfo.setDocumentKey(documentKey);
+        newDocumentInfo.setCreatedDate(Instant.now());
+        newDocumentInfo.setExpirationTime(Instant.now());
+        newDocumentInfo.setDocumentVersions(setDocumentVersions(s3response));
+        documentRepository.save(newDocumentInfo);
+    }
 
-    public S3StorageInfo uploadFile(MultipartFile multipartFile) throws IOException {
+    private void updateUserDocument(String token, String docID, String documentKey) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        Optional<UserAccount> userAccount = userService.fetchUserById(userId);
+        if (userAccount.isPresent()) {
+            List<UserDocument> userDocuments = userAccount.map(UserAccount::getUserDocuments).orElseGet(ArrayList::new);
+            //  userDocuments.removeIf(userDocument -> userDocument.getExpirationTime().isAfter(Instant.now()));
+            userDocuments.add(new UserDocument(docID, documentKey, Instant.now(), Instant.now().plusSeconds(24 * 60 * 60)));
+            userAccount.get().setUserDocuments(userDocuments);
+            userService.saveUser(userAccount.get());
+        }
+    }
+
+    public S3StorageInfo uploadFile(MultipartFile multipartFile, String token) throws IOException {
         File file = FileUtils.convertMultiPartToFile(multipartFile);
         String fileName = FileUtils.generateFileName(multipartFile);
-        DocumentInfo documentInfo = new DocumentInfo();
-        //  List<ParagraphStyleInfo> paragraphStyleInfoList = fetchDocumentMetaData(file);
-        documentInfo.setDocumentKey(fileName);
+        String docID = UUID.randomUUID().toString();
+        updateUserDocument(token, docID, fileName); // update user document
 
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
-        documentInfo.setDocumentID(UUID.randomUUID().toString());
 
-        documentInfo.setDocumentVersions(setDocumentVersions(s3response, fileName));
-        documentRepository.save(documentInfo);
+        updateDocumentInfo(docID, fileName, s3response);
         file.delete();
-        return new S3StorageInfo(documentInfo.getDocumentID(), fileUrl, fileName, s3response.versionId());
+        return new S3StorageInfo(docID, fileUrl, fileName, s3response.versionId());
     }
 
-    public void uploadFileAfterModification(File file, DocumentInfo documentInfo) throws IOException {
+
+    private void updateUserInfo(String token, DocumentInfo documentInfo) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        Optional<UserAccount> userAccount = userService.fetchUserById(userId);
+        userAccount.ifPresent(user -> {
+            user.setUserPresets(documentInfo.getDocumentConfig());
+            userService.saveUser(user);
+        });
+    }
+
+    public void uploadFileAfterModification(File file, DocumentInfo documentInfo, String token) throws IOException {
         String fileName = FileUtils.generateFileName(file);
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
         documentInfo.getDocumentVersions().add(new VersionInfo(s3response.versionId(), s3response.eTag(), Instant.now()));
         documentRepository.save(documentInfo);
+        updateUserInfo(token, documentInfo);
         file.delete();
+
     }
 
     public HashMap<String, DocumentVersion> getDocumentVersions(DocumentInfo documentInfo) {
@@ -129,9 +162,7 @@ public class DocumentParser {
             documentResponse.setDocumentKey(info.getDocumentKey());
             documentResponse.setDocumentID(info.getDocumentID());
             documentResponse.setVersions(getDocumentVersions(info));
-            documentResponse.setDocumentConfig(
-                    Optional.ofNullable(info.getDocumentConfig())
-                            .orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null)));
+            documentResponse.setDocumentConfig(Optional.ofNullable(info.getDocumentConfig()).orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null)));
         });
         return documentResponse;
     }
@@ -141,12 +172,19 @@ public class DocumentParser {
         documentResponse.setDocumentKey(documentInfo.getDocumentKey());
         documentResponse.setDocumentID(documentInfo.getDocumentID());
         documentResponse.setVersions(getDocumentVersions(documentInfo));
-        documentResponse.setDocumentConfig(
-                Optional.ofNullable(documentInfo.getDocumentConfig())
-                        .orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null)));
+        documentResponse.setDocumentConfig(Optional.ofNullable(documentInfo.getDocumentConfig()).orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null)));
 
         return documentResponse;
     }
 
+    public void deleteStoredDocuments() {
+        HashMap<String, List<String>> documentsList = documentRepository.getDocumentsExpired();
+        logger.info("deleting documents ID's" + documentsList.get("documentIDs").toString());
+        logger.info("deleting documents keys's" + documentsList.get("documentKeys").toString());
+        if (!documentsList.isEmpty()) {
+            s3FileUploadService.deleteBucketObjects(documentsList.get("documentKeys"));
+            documentRepository.deleteDocument(documentsList.get("documentIDs"));
+        }
 
+    }
 }

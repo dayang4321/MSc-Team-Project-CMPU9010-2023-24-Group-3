@@ -15,6 +15,8 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 
 import java.io.*;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -26,7 +28,6 @@ public class S3BucketStorage {
     private S3Client s3Client;
     @Autowired
     private S3Presigner s3Presigner;
-  
 
 
     public PutObjectResponse uploadFileToS3(String key, File file) throws IOException {
@@ -35,7 +36,7 @@ public class S3BucketStorage {
                 .key(key)
                 .build();
         PutObjectResponse response = s3Client.putObject(putObjectRequest, file.toPath());
-        logger.info("modified file successfully uploaded to s3"+response.toString());
+        logger.info("modified file successfully uploaded to s3" + response.toString());
         return response;
     }
 
@@ -50,7 +51,7 @@ public class S3BucketStorage {
                 .getObjectRequest(getObjectRequest)
                 .build();
         PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(getObjectPresignRequest);
-        logger.info("successfully obtained presigned URL"+presignedGetObjectRequest.url().toString());
+        logger.info("successfully obtained presigned URL" + presignedGetObjectRequest.url().toString());
         return presignedGetObjectRequest.url().toString();
     }
 
@@ -66,4 +67,30 @@ public class S3BucketStorage {
         return inputStream;
     }
 
+    public void deleteBucketObjects(List<String> documentKeys) {
+        logger.info("deleting objects from s3 bucket");
+        if (!documentKeys.isEmpty()) {
+
+            ArrayList<ObjectIdentifier> keys = new ArrayList<>();
+            for (String key : documentKeys) {
+                keys.add(ObjectIdentifier.builder().key(key).build());
+            }
+            Delete del = Delete.builder()
+                    .objects(keys)
+                    .build();
+
+            try {
+                DeleteObjectsRequest multiObjectDeleteRequest = DeleteObjectsRequest.builder()
+                        .bucket(bucketName)
+                        .delete(del)
+                        .build();
+
+                s3Client.deleteObjects(multiObjectDeleteRequest);
+                System.out.println("Multiple objects are deleted!");
+
+            } catch (S3Exception e) {
+                throw new RuntimeException("Error while deleting objects from S3 bucket");
+            }
+        }
+    }
 }
