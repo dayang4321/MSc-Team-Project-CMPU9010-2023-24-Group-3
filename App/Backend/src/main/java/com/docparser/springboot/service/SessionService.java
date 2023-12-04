@@ -1,6 +1,7 @@
 package com.docparser.springboot.service;
 
 import com.docparser.springboot.Repository.SessionRepository;
+import com.docparser.springboot.Repository.UserRepository;
 import com.docparser.springboot.errorHandler.SessionNotFoundException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.SessionUtils;
@@ -18,10 +19,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SessionService {
     Logger logger = LoggerFactory.getLogger(SessionService.class);
-
     private final ObjectMapper objectMapper;
-
     private final SessionRepository sessionRepository;
+    private final NLPService nlpService;
 
 
 
@@ -65,6 +65,8 @@ public class SessionService {
         SessionInfo sessionInfo = sessionRepository.getSessionInfo(sessionID);
         return sessionInfo.getFeedBackForms();
     }
+
+
 
 
 }

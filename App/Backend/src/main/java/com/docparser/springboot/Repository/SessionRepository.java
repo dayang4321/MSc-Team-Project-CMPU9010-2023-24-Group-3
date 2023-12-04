@@ -43,6 +43,9 @@ public class SessionRepository {
                     .addAttribute(Instant.class, a -> a.name("createdDate")
                             .getter(SessionInfo::getCreatedDate)
                             .setter(SessionInfo::setCreatedDate))
+                    .addAttribute(Instant.class, a -> a.name("expirationTime")
+                            .getter(SessionInfo::getExpirationTime)
+                            .setter(SessionInfo::setExpirationTime))
                     .addAttribute(EnhancedType.listOf(
                             EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)), a -> a.name("feedBackForms")
                             .getter(SessionInfo::getFeedBackForms)
