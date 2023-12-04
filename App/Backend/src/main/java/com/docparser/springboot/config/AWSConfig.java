@@ -1,5 +1,6 @@
 package com.docparser.springboot.config;
 
+// Importing essential packages for the AWSConfig Class
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,10 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
+/*
+ * Contains all variables related to AWS credentials required to run the application
+ * The backend application stores, retrieves and modifies the files stored on AWS S3 bucket
+ */
 @Configuration
 public class AWSConfig {
 
@@ -24,11 +29,11 @@ public class AWSConfig {
     @Value("${amazonProperties.region}")
     private String region;
 
-
-    private StaticCredentialsProvider getAccessCredentials (){
+    private StaticCredentialsProvider getAccessCredentials() {
         AwsCredentials credentials = AwsBasicCredentials.create(this.accessKey, this.secretKey);
-        return  StaticCredentialsProvider.create(credentials);
+        return StaticCredentialsProvider.create(credentials);
     }
+
     @Bean
     S3Client s3Client() {
         return S3Client.builder()
@@ -51,8 +56,9 @@ public class AWSConfig {
                 .region(Region.of(region))
                 .credentialsProvider(getAccessCredentials()).build();
     }
+
     @Bean
-     DynamoDbEnhancedClient getDynamoDbEnhancedClient() {
+    DynamoDbEnhancedClient getDynamoDbEnhancedClient() {
         return DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(getDynamoDbClient())
                 .build();
