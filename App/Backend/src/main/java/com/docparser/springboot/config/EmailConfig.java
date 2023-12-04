@@ -1,5 +1,6 @@
 package com.docparser.springboot.config;
 
+// Importing essential packages for the EmailConfig Class
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,10 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
+/*
+ * Contains all variables related to Mail Hosting Service required to run the application
+ * This service is used to send emails
+ */
 @Configuration
 public class EmailConfig {
 
