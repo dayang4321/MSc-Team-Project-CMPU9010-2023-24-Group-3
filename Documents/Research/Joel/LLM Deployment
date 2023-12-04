@@ -1,0 +1,8 @@
+Tries deployment in the free tier instance.
+Error: The Llama runner has been terminated. This error is caused by the free tier not having enough RAM to run the runner when the API is hit. The free tier has only 1 GB of RAM.
+
+Deployment on paid instances of EC2. (t.xlarge and t.2xlarge)
+When we tried running on paid instances such as t.xlarge and t.2xlarge we were able to hit the API and successfully get the results. However, the issue we face is that the response takes around 15-30 mins. This is quite a long wait for the user and also due to the single-threaded approach of the document processing, this can cause a backlog and might cause the system to crash.
+
+We have asked Amazon for access to ec2 instances with GPU but we haven't received any response yet.
+
