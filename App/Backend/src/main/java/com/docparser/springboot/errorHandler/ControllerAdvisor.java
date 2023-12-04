@@ -27,7 +27,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler({ServletException.class,SessionNotFoundException.class, AuthenticationException.class,GoogleSecurityException.class})
+    @ExceptionHandler({ServletException.class, AuthenticationException.class,GoogleSecurityException.class})
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(ServletException ex, WebRequest request) {
         logger.error("Exception occurred message : "+ex);
         ErrorResponse errorResponse = new ErrorResponse(403, ex.getMessage(),ex.getStackTrace().toString());
@@ -35,8 +35,16 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
                 .header("Access-Control-Allow-Origin", "*") // or specify a specific origin
                 .body(errorResponse);
     }
+    @ExceptionHandler(SessionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTokenValidationException(ServletException ex, WebRequest request) {
+        logger.error("Exception occurred message : "+ex);
+        ErrorResponse errorResponse = new ErrorResponse(401, ex.getMessage(),ex.getStackTrace().toString());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header("Access-Control-Allow-Origin", "*") // or specify a specific origin
+                .body(errorResponse);
+    }
 
-    @ExceptionHandler({ DocumentNotExist.class,UserNotFoundException.class})
+    @ExceptionHandler({ DocumentNotExist.class,UserNotFoundException.class,DuplicateUpload.class})
     public ResponseEntity<ErrorResponse> handleSpecificExceptions(Exception ex) {
         logger.error("Exception occurred message : "+ex);
         ErrorResponse errorResponse = new ErrorResponse(400, ex.getMessage(),ex.getStackTrace().toString());

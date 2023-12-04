@@ -1,6 +1,7 @@
 package com.docparser.springboot.utils;
 
 import com.docparser.springboot.model.DocumentConfig;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.springframework.stereotype.Component;
@@ -202,6 +203,11 @@ public class ParsingUtils {
         CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
         return ctpPr;
     }
+    public static List<List<String>> partitionList(List<String> documentIds) {
+        List<List<String>> subSets = ListUtils.partition(documentIds, 25);
+        return subSets;
+    }
+
 
     public static void loadCustomFonts() throws IOException, FontFormatException {
         /*
