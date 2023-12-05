@@ -1,15 +1,15 @@
 import React, { useContext, useState } from 'react';
-import DefaultLayout from '../layouts/DefaultLayout';
+import DefaultLayout from '../../layouts/DefaultLayout';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FONT_STYLE_OPTIONS } from '../configs/selectOptions';
-import Button from '../components/UI/Button';
-import SlideModal from '../components/UI/SlideModal';
-import CustomisationPanel from '../components/CustomisationPanel/CustomisationPanel';
+import { FONT_STYLE_OPTIONS } from '../../configs/selectOptions';
+import Button from '../../components/UI/Button';
+import SlideModal from '../../components/UI/SlideModal';
+import CustomisationPanel from '../../components/CustomisationPanel/CustomisationPanel';
 import delay from 'lodash/delay';
-import { AuthContext } from '../contexts/AuthContext';
-import IsProtectedRoute from '../hoc/IsProtectedRoute';
+import { AuthContext } from '../../contexts/AuthContext';
+import IsProtectedRoute from '../../hoc/IsProtectedRoute';
 
 const defaultSettings: DocModifyParams = {
   fontType: 'arial',
@@ -23,7 +23,7 @@ const defaultSettings: DocModifyParams = {
   generateTOC: false,
 };
 
-const Profile = () => {
+const PresetsPage = () => {
   const { user, logout } = useContext(AuthContext);
   const [userSettings, setUserSettings] = useState({
     ...defaultSettings,
@@ -157,4 +157,4 @@ const Profile = () => {
   );
 };
 
-export default IsProtectedRoute(Profile);
+export default IsProtectedRoute(PresetsPage);
