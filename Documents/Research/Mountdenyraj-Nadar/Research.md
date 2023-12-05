@@ -78,3 +78,32 @@ We tried implementing Ollama on AWS Sagemaker but the free tier machine of the s
 ### 3rd Solution
 
 #### Implementation of Ollama APIs using Langchain in Python
+
+Again, hosting Ollama on a server for the Python package `Langchain` to communicate with Ollama's APIs was a necessary factor. This ultimately again proved as a roadblock for us.
+
+### 4th Solution - Expert advise
+
+#### Using AWS EC2 with higher computational resources
+
+##### Observations
+
+Implementation on machines with higher amount of resources was possible and we were able to observe positive results from the integration.
+This proved that Ollama cannot be hosted on VMs with low system memory (RAM).
+
+The AWS EC2 with instance type as `t3.xlarge` (4 vCPUs | 16 GiB RAM) was capable of running the llama2 models from the Ollama integration. The Ollama API was responding while the instance was running properly.
+The new issue that we faced was the amount of time (latency) it took for the API to respond, for even a simple prompt, was approximately 15 to 20 minutes.
+
+We created a new machine with higher resources and instance type as `t3.2xlarge` (8 vCPUs | 32 GiB RAM). The results were observed to be the same, which proved that the system memory was only linked to loading the model onto the machine but executing the prompts still took additional computational resources.
+
+This issue was discussed with a Cloud expert and we concluded that since the technology is computationally exhaustive with regards to the resources, investing money into the Cloud services for a machine with higher amount of resources is the only way around this problem.
+
+##### Recordings
+
+AWS EC2 Large instance of type `t3.xlarge` with 16 GiB RAM and 4 vCPUs - Ollama 1: Check EC2-Large-Instance-Ollama-Run-Check-1.mp4 to EC2-Large-Instance-Ollama-Run-Check-7.mp4
+
+## Alternate solution to Ollama implementation
+
+### Using SpringBoot Package to integrate Ollama
+
+Documentation for SpringBoot AI API: <https://docs.spring.io/spring-ai/reference/api/aiclient.html>
+Reference: pom.xml - <https://github.com/spring-projects/spring-ai/blob/main/pom.xml>
