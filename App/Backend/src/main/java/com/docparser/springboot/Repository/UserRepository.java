@@ -16,17 +16,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+// Static imports for shared constants
 import static com.docparser.springboot.Repository.DocumentRepository.DOCUMENT_CONFIG_PARAMS;
 import static com.docparser.springboot.Repository.SessionRepository.TABLE_SCHEMA_FEEDBACKFORM;
 
 @Repository
 public class UserRepository {
+
     @Autowired
     private DynamoDbEnhancedClient dynamoDbenhancedClient;
     @Autowired
     private DynamoDbClient dynamoDbClient;
 
+    // Define the TableSchema for UserDocument
     public static final TableSchema<UserDocument> TABLE_SCHEMA_DOCUMENTS = TableSchema.builder(UserDocument.class)
+            // Supplier for new instances of UserDocument
             .newItemSupplier(UserDocument::new)
             .addAttribute(String.class, a -> a.name("documentID")
                     .getter(UserDocument::getDocumentID)
@@ -41,8 +45,12 @@ public class UserRepository {
                     .getter(UserDocument::getExpirationTime)
                     .setter(UserDocument::setExpirationTime))
             .build();
+
+    // Define the TableSchema for UserAccount
     public static final TableSchema<UserAccount> TABLE_SCHEMA_USER = TableSchema.builder(UserAccount.class)
+            // Supplier for new instances of UserAccount
             .newItemSupplier(UserAccount::new)
+            // Map 'userId' attribute as primary partition key
             .addAttribute(String.class, a -> a.name("userId")
                     .getter(UserAccount::getUserId)
                     .setter(UserAccount::setUserId)
@@ -56,25 +64,32 @@ public class UserRepository {
             .addAttribute(String.class, a -> a.name("provider")
                     .getter(UserAccount::getProvider)
                     .setter(UserAccount::setProvider))
-            .addAttribute(EnhancedType.listOf(
-                    EnhancedType.documentOf(UserDocument.class, TABLE_SCHEMA_DOCUMENTS)), a -> a.name("userDocuments")  // DocumentConfig.class
-                    .getter(UserAccount::getUserDocuments)
-                    .setter(UserAccount::setUserDocuments))
-            .addAttribute(EnhancedType.documentOf(DocumentConfig.class, DOCUMENT_CONFIG_PARAMS), a -> a.name("userPresets")  // DocumentConfig.class
-                    .getter(UserAccount::getUserPresets)
-                    .setter(UserAccount::setUserPresets))
-            .addAttribute(EnhancedType.listOf(
-                    EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)), a -> a.name("feedBackForms")
-                    .getter(UserAccount::getFeedBackForms)
-                    .setter(UserAccount::setFeedBackForms))
+            // Map 'userDocuments' attribute as a list of UserDocuments
+            .addAttribute(EnhancedType
+                    .listOf(EnhancedType.documentOf(UserDocument.class, TABLE_SCHEMA_DOCUMENTS)),
+                    a -> a.name("userDocuments")
+                            .getter(UserAccount::getUserDocuments)
+                            .setter(UserAccount::setUserDocuments))
+            // Map 'userPresets' attribute as a DocumentConfig
+            .addAttribute(EnhancedType.documentOf(DocumentConfig.class, DOCUMENT_CONFIG_PARAMS),
+                    a -> a.name("userPresets")
+                            .getter(UserAccount::getUserPresets)
+                            .setter(UserAccount::setUserPresets))
+            // Map 'feedBackForms' attribute as a list of FeedBackForms
+            .addAttribute(EnhancedType
+                    .listOf(EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)),
+                    a -> a.name("feedBackForms")
+                            .getter(UserAccount::getFeedBackForms)
+                            .setter(UserAccount::setFeedBackForms))
             .build();
-
 
     private DynamoDbTable<UserAccount> getTable() {
         // Create a tablescheme to scan our bean class order
+        // Get the DynamoDB table instance for 'Users' with the defined schema
         return dynamoDbenhancedClient.table("Users", TABLE_SCHEMA_USER);
     }
 
+    // Save a UserAccount instance to the DynamoDB table
     public void saveUser(UserAccount userAccount) {
         DynamoDbTable<UserAccount> sessionTable = getTable();
         sessionTable.putItem(userAccount);
@@ -82,15 +97,19 @@ public class UserRepository {
 
     public Optional<UserAccount> getUserInfo(String id) {
         try {
+            // Retrieve user information based on the provided ID
             DynamoDbTable<UserAccount> userAccountDynamoDbTable = getTable();
             // Construct the key with partition and sort key
             Key key = Key.builder().partitionValue(id).build();
+
             return Optional.ofNullable(userAccountDynamoDbTable.getItem(key));
         } catch (Exception e) {
+            // Handle exceptions by throwing a custom UserNotFoundException
             throw new UserNotFoundException("User not found" + e.getMessage());
         }
     }
 
+    // Retrieve user information based on email
     public Optional<UserAccount> getUserInfobyEmail(String email) {
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
         DynamoDbTable<UserAccount> userAccountDynamoDbTable = getTable();
@@ -102,10 +121,13 @@ public class UserRepository {
                 .build();
         ScanResponse response = dynamoDbClient.scan(scanRequest);
         Map<String, AttributeValue> item = response.items().stream().findFirst().orElse(null);
+
         if (item == null) {
             return Optional.empty();
         }
-        Optional<UserAccount> userAccount = Optional.ofNullable(userAccountDynamoDbTable.getItem(Key.builder().partitionValue(item.get("userId").s()).build()));
+
+        Optional<UserAccount> userAccount = Optional.ofNullable(userAccountDynamoDbTable
+                .getItem(Key.builder().partitionValue(item.get("userId").s()).build()));
 
         return userAccount;
     }
