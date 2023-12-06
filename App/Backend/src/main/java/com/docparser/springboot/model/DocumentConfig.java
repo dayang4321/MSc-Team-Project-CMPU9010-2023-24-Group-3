@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public  class DocumentConfig  implements Cloneable{
+public class DocumentConfig implements Cloneable {
     private String fontType;
     private String fontSize;
     private String fontColor;
@@ -28,13 +28,11 @@ public  class DocumentConfig  implements Cloneable{
     public DocumentConfig clone() {
         try {
             DocumentConfig clone = (DocumentConfig) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            // TODO: copy mutable state here, so the clone can't change the internals of the
+            // original
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }
 }
-
-
-
