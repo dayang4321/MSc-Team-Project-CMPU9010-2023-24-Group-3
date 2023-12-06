@@ -62,6 +62,8 @@ public class DocumentParser {
 
 
     public DocumentResponse modifyFile(String key, String docID, String versionID, DocumentConfig formattingConfig, String token) throws IOException {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        userService.checkUserLoggedIn(userId);
         DocumentInfo documentInfo = checkStoredDocumentConfigs(key, docID);
         documentInfo.setDocumentConfig(formattingConfig);
         InputStream inputStream = s3FileUploadService.getFileStreamFromS3(key, versionID);
@@ -70,7 +72,7 @@ public class DocumentParser {
         logger.info("initiating file modification");
         modifyDocument(tempFile, inputStream, formattingConfig);
         logger.info("file modification completed");
-        uploadFileAfterModification(tempFile, documentInfo, token);
+        uploadFileAfterModification(tempFile, documentInfo);
 
         return fetchModifyResponse(documentInfo);
     }
@@ -96,8 +98,7 @@ public class DocumentParser {
         documentRepository.save(newDocumentInfo);
     }
 
-    private void updateUserDocument(String token, String docID, String documentKey) {
-        String userId = SessionUtils.getSessionIdFromToken(token);
+    private void updateUserDocument(String userId, String docID, String documentKey) {
         Optional<UserAccount> userAccount = userService.fetchUserById(userId);
         if (userAccount.isPresent()) {
             List<UserDocument> userDocuments = userAccount.map(UserAccount::getUserDocuments).orElseGet(ArrayList::new);
@@ -109,10 +110,12 @@ public class DocumentParser {
     }
 
     public S3StorageInfo uploadFile(MultipartFile multipartFile, String token) throws IOException {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        userService.checkUserLoggedIn(userId);
         File file = FileUtils.convertMultiPartToFile(multipartFile);
         String fileName = FileUtils.generateFileName(multipartFile);
         String docID = UUID.randomUUID().toString();
-        updateUserDocument(token, docID, fileName); // update user document
+        updateUserDocument(userId, docID, fileName); // update user document
 
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
@@ -123,21 +126,11 @@ public class DocumentParser {
     }
 
 
-    private void updateUserInfo(String token, DocumentInfo documentInfo) {
-        String userId = SessionUtils.getSessionIdFromToken(token);
-        Optional<UserAccount> userAccount = userService.fetchUserById(userId);
-        userAccount.ifPresent(user -> {
-            user.setUserPresets(documentInfo.getDocumentConfig());
-            userService.saveUser(user);
-        });
-    }
-
-    public void uploadFileAfterModification(File file, DocumentInfo documentInfo, String token) throws IOException {
+    public void uploadFileAfterModification(File file, DocumentInfo documentInfo) throws IOException {
         String fileName = FileUtils.generateFileName(file);
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
         documentInfo.getDocumentVersions().add(new VersionInfo(s3response.versionId(), s3response.eTag(), Instant.now()));
         documentRepository.save(documentInfo);
-        updateUserInfo(token, documentInfo);
         file.delete();
 
     }
@@ -155,27 +148,30 @@ public class DocumentParser {
         return versions;
     }
 
-    public DocumentResponse fetchDocument(String docID) {
+    private void setDocumentResponse(DocumentInfo documentInfo, DocumentResponse documentResponse) {
+        documentResponse.setDocumentKey(documentInfo.getDocumentKey());
+        documentResponse.setDocumentID(documentInfo.getDocumentID());
+        documentResponse.setVersions(getDocumentVersions(documentInfo));
+        documentResponse.setDocumentConfig(Optional.ofNullable(documentInfo.getDocumentConfig()).orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null, null, null)));
+    }
+
+    public DocumentResponse fetchDocument(String docID, String token) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        userService.checkUserLoggedIn(userId);
         Optional<DocumentInfo> documentInfo = documentRepository.getDocumentInfo(docID);
         DocumentResponse documentResponse = new DocumentResponse();
         documentInfo.ifPresent(info -> {
-            documentResponse.setDocumentKey(info.getDocumentKey());
-            documentResponse.setDocumentID(info.getDocumentID());
-            documentResponse.setVersions(getDocumentVersions(info));
-            documentResponse.setDocumentConfig(Optional.ofNullable(info.getDocumentConfig()).orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null)));
+            setDocumentResponse(info, documentResponse);
         });
         return documentResponse;
     }
 
     public DocumentResponse fetchModifyResponse(DocumentInfo documentInfo) {
         DocumentResponse documentResponse = new DocumentResponse();
-        documentResponse.setDocumentKey(documentInfo.getDocumentKey());
-        documentResponse.setDocumentID(documentInfo.getDocumentID());
-        documentResponse.setVersions(getDocumentVersions(documentInfo));
-        documentResponse.setDocumentConfig(Optional.ofNullable(documentInfo.getDocumentConfig()).orElse(new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null)));
-
+        setDocumentResponse(documentInfo, documentResponse);
         return documentResponse;
     }
+
 
     public void deleteStoredDocuments() {
         HashMap<String, List<String>> documentsList = documentRepository.getDocumentsExpired();

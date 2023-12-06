@@ -63,6 +63,12 @@ public class DocumentRepository {
             .addAttribute(Boolean.class, a -> a.name("removeItalics")
                     .getter(DocumentConfig::getRemoveItalics)
                     .setter(DocumentConfig::setRemoveItalics))
+            .addAttribute(Boolean.class, a -> a.name("borderGeneration")
+                    .getter(DocumentConfig::getBorderGeneration)
+                    .setter(DocumentConfig::setBorderGeneration))
+            .addAttribute(Boolean.class, a -> a.name("syllableSplitting")
+                    .getter(DocumentConfig::getSyllableSplitting)
+                    .setter(DocumentConfig::setSyllableSplitting))
             .build();
     public static final TableSchema<VersionInfo> TABLE_SCHEMA_VERSIONS = TableSchema.builder(VersionInfo.class)
             .newItemSupplier(VersionInfo::new)

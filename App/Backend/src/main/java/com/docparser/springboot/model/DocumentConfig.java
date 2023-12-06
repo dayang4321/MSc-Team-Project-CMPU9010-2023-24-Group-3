@@ -21,6 +21,8 @@ public  class DocumentConfig  implements Cloneable{
     private Boolean removeItalics;
     private Boolean paragraphSplitting;
     private Boolean headerGeneration;
+    private Boolean borderGeneration;
+    private Boolean syllableSplitting;
 
     @Override
     public DocumentConfig clone() {

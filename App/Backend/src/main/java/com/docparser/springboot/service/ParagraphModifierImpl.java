@@ -2,6 +2,8 @@ package com.docparser.springboot.service;
 
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.utils.ParsingUtils;
+import lombok.AllArgsConstructor;
+import org.apache.poi.xwpf.usermodel.Borders;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -16,8 +18,9 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 @Component
+@AllArgsConstructor
 public class ParagraphModifierImpl implements ParagraphModifier {
-
+    private  final NLPService nlpService;
 
     private void addNewText(XWPFRun run, String para) {
         run.setText(para);
@@ -25,10 +28,18 @@ public class ParagraphModifierImpl implements ParagraphModifier {
         run.addCarriageReturn();
     }
 
+    private void modifyTextToAddSyllableStyling(XWPFParagraph paragraph, DocumentConfig formattingConfig) {
+        String text = paragraph.getParagraphText();
+       String formattedText= nlpService.hyphenateText(text);
+       ParsingUtils.removeRuns(paragraph);
+       paragraph.createRun().setText(formattedText);
+
+    }
     private void modifyText(XWPFParagraph paragraph, DocumentConfig formattingConfig) {
         String text = paragraph.getParagraphText();
         String contentHash = Integer.toHexString(paragraph.getText().hashCode());
-        if (ParsingUtils.countLines(text).length >= 2) {
+        String []lines = ParsingUtils.countLines(text);
+        if (lines!=null && lines.length >= 2) {
             String[] paras = ParsingUtils.divideParagraph(text, 2);
             ParsingUtils.removeRuns(paragraph);
             for (String para : paras) {
@@ -54,7 +65,15 @@ public class ParagraphModifierImpl implements ParagraphModifier {
         }
     }
 
+private  void addParagraphBorder(XWPFParagraph paragraph) {
+if(paragraph.getRuns().size()>1){
+    paragraph.setBorderBottom(Borders.BASIC_BLACK_DASHES);
+    paragraph.setBorderLeft(Borders.BASIC_BLACK_DASHES);
+    paragraph.setBorderRight(Borders.BASIC_BLACK_DASHES);
+    paragraph.setBorderTop(Borders.BASIC_BLACK_DASHES);
+}
 
+}
     private void modifyColorShading(XWPFParagraph paragraph, String colorShading) {
         CTPPr ctpPr = ParsingUtils.getCTPPr(paragraph);
         CTParaRPr ll = ctpPr.getRPr() == null ? ctpPr.addNewRPr() : ctpPr.getRPr();
@@ -70,8 +89,12 @@ public class ParagraphModifierImpl implements ParagraphModifier {
             modifyLineSpacing(paragraph, formattingConfig.getLineSpacing());
         if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
             modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
+        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getSyllableSplitting()) && formattingConfig.getSyllableSplitting())
+            modifyTextToAddSyllableStyling(paragraph, formattingConfig);
         if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getParagraphSplitting()) && formattingConfig.getParagraphSplitting())
             modifyText(paragraph, formattingConfig);
+        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getBorderGeneration()) && formattingConfig.getBorderGeneration())
+            addParagraphBorder(paragraph);
 
 
     };
