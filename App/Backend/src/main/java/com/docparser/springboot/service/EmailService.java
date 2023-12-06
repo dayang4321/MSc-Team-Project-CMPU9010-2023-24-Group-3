@@ -23,8 +23,15 @@ public class EmailService {
         MimeMessageHelper message = new MimeMessageHelper(messagemimeMessage, "UTF-8");
         message.setFrom("Accessibilator");
         message.setTo(to);
-        message.setSubject("Hi there! Please click on the link below to login to Accessibilator");
-        message.setText(redirectUrl + "?email=" + to + "&token=" + token);
+        message.setSubject("Login to Accessibilator ");
+        StringBuilder sb = new StringBuilder();
+        sb.append("Hi there!").append("\n\n")
+                .append("To log in to Accessibilator, click this link")
+                .append("\n\n").append(redirectUrl + "?email=" + to + "&token=" + token)
+                .append("\n\n")
+                .append("The above link automatically expires in 30 minutes. Copy and paste it into your browser if you're unable to click the link. If you didn't make this request, please ignore this email.")
+                .append("\n\n").append("Thanks!").append("\n\n").append("The Accessibilator Team");
+              message.setText(sb.toString());
         emailSender.send(messagemimeMessage);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
