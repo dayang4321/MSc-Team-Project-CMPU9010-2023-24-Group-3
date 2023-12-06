@@ -24,3 +24,5 @@ Since Ollama is running on WSL,  WSL2 noticeably does not share an IP address wi
 https://jwstanly.com/blog/article/Port+Forwarding+WSL+2+to+Your+LAN/
 
 Development and coding of the crude solutions in case we are not successful in deploying the LLM’s.
+
+Faced a lot of changes as I had to research everything. As both WSL2 and ur computer dot have the same IP address we had to do port forwarding and this was quite difficult to find out. But in the end, was successful in deploying and was able to connect to Ollama from the internet. Even on local the API is taking around time to respond. Having a VPN with a static IP made it easier to achieve as the IP doesn't keep changing.
