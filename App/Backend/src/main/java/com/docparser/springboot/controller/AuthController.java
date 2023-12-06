@@ -31,7 +31,7 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity<Object> loginUserUsingLink(@RequestBody Login login) {
         userService.authenticateUserWithEmailLink(login.getEmail());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Email sent successfully");
     }
     @GetMapping("/auth/validate")
     public ResponseEntity<TokenResponse> loginUserUsingLink(@RequestParam String token, @RequestParam String email) {
@@ -41,6 +41,6 @@ public class AuthController {
     public ResponseEntity<Object> logoutUser( HttpServletRequest request) {
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
         userService.logoutUser(token.get().substring(7));
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("User logged out successfully");
     }
 }
