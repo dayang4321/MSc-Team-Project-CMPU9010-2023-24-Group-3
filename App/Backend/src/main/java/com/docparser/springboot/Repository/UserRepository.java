@@ -22,7 +22,7 @@ import static com.docparser.springboot.Repository.SessionRepository.TABLE_SCHEMA
 
 @Repository
 public class UserRepository {
-
+    // Autowired dependencies for DynamoDB enhanced and standard clients
     @Autowired
     private DynamoDbEnhancedClient dynamoDbenhancedClient;
     @Autowired
