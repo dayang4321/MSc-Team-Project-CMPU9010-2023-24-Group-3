@@ -6,3 +6,21 @@ When we tried running on paid instances such as t.xlarge and t.2xlarge we were a
 
 We have asked Amazon for access to ec2 instances with GPU but we haven't received any response yet.
 
+Deployment and connecting via Local computer.
+To make your local PC, where you have a service (like Ollama) running on port 11434, accessible over the internet from another PC, you need to follow several steps:
+
+Static IP or Dynamic DNS: Ensure your PC has a static IP address within your local network. If your public IP is dynamic (changes frequently), you might need a Dynamic DNS service so that you can access your PC with a domain name that updates its IP address automatically.
+
+Configure Port Forwarding: You need to set up port forwarding on your router. This process varies depending on the router's make and model, but generally involves:
+
+Logging into your router's configuration page (usually through a web browser).
+Navigating to the port forwarding section.
+Setting up a new port forwarding rule to forward traffic from the external port 11434 to the internal IP address of your PC (where Ollama is running) and the same port number (11434).
+Firewall Configuration: Ensure your PC’s firewall allows incoming connections on port 11434. You might need to create a rule in your firewall settings to allow this.
+Testing: Once you have configured port forwarding and firewall settings, you can test the setup. Use another device outside your local network and try to connect to your service using your public IP address (or Dynamic DNS hostname) followed by the port number (e.g., http://[YourPublicIP]:11434 or http://[YourDynamicDNSHostname]:11434).
+Security Considerations: Exposing a local service to the internet comes with security risks. Ensure Ollama is secured and updated. Consider implementing additional security measures such as VPNs, SSL/TLS, or access control mechanisms.
+Check ISP Policy and Router Capabilities: Some Internet Service Providers (ISPs) may block incoming connections on certain ports, and not all routers support port forwarding. Verify these aspects if you encounter issues.
+Since Ollama is running on WSL,  WSL2 noticeably does not share an IP address with your computer. Because WSL2 was implemented with Hyper-V, it runs with a virtualized ethernet adapter. Your computer hides WSL2 behind a NAT where WSL2 has its unique IP. Although WSL2 can be accessed on your machine through localhost thanks to recent updates, these ports will not be open on your LAN.
+https://jwstanly.com/blog/article/Port+Forwarding+WSL+2+to+Your+LAN/
+
+Development and coding of the crude solutions in case we are not successful in deploying the LLM’s.
