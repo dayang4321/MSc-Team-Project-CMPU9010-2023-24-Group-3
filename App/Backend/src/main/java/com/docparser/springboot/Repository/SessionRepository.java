@@ -2,18 +2,28 @@ package com.docparser.springboot.Repository;
 
 import com.docparser.springboot.model.FeedBackForm;
 import com.docparser.springboot.model.SessionInfo;
+import com.docparser.springboot.utils.ParsingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Repository
 public class SessionRepository {
     @Autowired
     private DynamoDbEnhancedClient dynamoDbenhancedClient;
-
+    @Autowired
+    private DynamoDbClient dynamoDbClient;
+    Logger logger = LoggerFactory.getLogger(SessionRepository.class);
     public static final TableSchema<FeedBackForm> TABLE_SCHEMA_FEEDBACKFORM = TableSchema.builder(FeedBackForm.class)
             .newItemSupplier(FeedBackForm::new)
             .addAttribute(String.class, a -> a.name("email")
@@ -51,6 +61,7 @@ public class SessionRepository {
                             .getter(SessionInfo::getFeedBackForms)
                             .setter(SessionInfo::setFeedBackForms))
                     .build();
+
     private DynamoDbTable<SessionInfo> getTable() {
         // Create a tablescheme to scan our bean class order
         return dynamoDbenhancedClient.table("SessionInfo", SESSION_INFO_TABLE_SCHEMA);
@@ -66,5 +77,16 @@ public class SessionRepository {
         // Construct the key with partition and sort key
         Key key = Key.builder().partitionValue(sessionID).build();
         return sessionTable.getItem(key);
+    }
+
+    public void deleteUserSession(String userSessionId) {
+        logger.info("deleting user session ID on logout");
+
+        AttributeValue value = AttributeValue.builder().s(userSessionId).build();
+         DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(DeleteItemRequest.builder()
+                .tableName("SessionInfo")
+                .key(Collections.singletonMap("sessionID", value))
+                .build());
+        logger.info("session deleted" + deleteItemResponse.toString());
     }
 }

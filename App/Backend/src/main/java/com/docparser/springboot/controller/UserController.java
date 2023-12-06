@@ -1,7 +1,10 @@
 package com.docparser.springboot.controller;
 
+import com.docparser.springboot.model.DocumentConfig;
+import com.docparser.springboot.model.FeedBackForm;
 import com.docparser.springboot.model.UserAccount;
 import com.docparser.springboot.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +29,26 @@ public class UserController {
     public ResponseEntity<Object> getLoggedinUser(HttpServletRequest request) {
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
         Map<String, Object> object = new HashMap<>();
-        Optional<UserAccount> user = userService.getLoggedInUser(token.get());
+        Optional<UserAccount> user = userService.getLoggedInUser(token.get().substring(7));
        object.put("user",user.isPresent() ? user.get() : null);
         return ResponseEntity.ok(object);
     }
     @GetMapping("/{id}")
     public ResponseEntity<UserAccount> getUserById(@PathVariable String  id) {
         return ResponseEntity.ok(userService.fetchUserById(id).isPresent() ? userService.fetchUserById(id).get() : null);
+    }
+    @PostMapping("/presets")
+    public ResponseEntity<Object> updateUserConfig(@RequestBody DocumentConfig documentConfig, HttpServletRequest request) {
+        Optional<String> token = Optional.of(request.getHeader("Authorization"));
+        userService.updateUserInfo(token.get().substring(7),documentConfig);
+        return  ResponseEntity.ok("success");
+    }
+
+    @PostMapping("/feedback")
+    public ResponseEntity<String> postFeedback(@RequestBody FeedBackForm feedBackForm, HttpServletRequest request) throws JsonProcessingException {
+        // Code to save the file to a database or disk
+        Optional<String> token = Optional.of(request.getHeader("Authorization"));
+        userService.saveFeedbackInfo(token.get().substring(7), feedBackForm);
+        return ResponseEntity.ok("Feedback saved successfully");
     }
 }

@@ -50,7 +50,8 @@ public class DocxController {
     @GetMapping("/{id}")
     public ResponseEntity<DocumentResponse> getDocumentInfo(@PathVariable String id,HttpServletRequest request) {
         // Code to save the file to a database or disk
-        return ResponseEntity.ok(documentParser.fetchDocument(id));
+        Optional<String> token = Optional.of(request.getHeader("Authorization"));
+        return ResponseEntity.ok(documentParser.fetchDocument(id,token.get().substring(7)));
     }
     @DeleteMapping
     public ResponseEntity<Object> batchDeleteDocumentsStored() {

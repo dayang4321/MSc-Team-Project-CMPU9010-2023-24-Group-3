@@ -6,6 +6,7 @@ import com.docparser.springboot.Repository.UserRepository;
 import com.docparser.springboot.errorHandler.SessionNotFoundException;
 import com.docparser.springboot.errorHandler.UserNotFoundException;
 import com.docparser.springboot.model.*;
+import com.docparser.springboot.utils.ParsingUtils;
 import com.docparser.springboot.utils.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ import java.util.*;
 public class UserService {
     Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
-    private final SessionRepository sessionRepository;
+    private final SessionService sessionService;
     private final EmailService emailService;
 
 
@@ -43,9 +44,8 @@ public class UserService {
     }
 
     public Optional<UserAccount> getLoggedInUser(String token) {
-
-        String updatedToken = token.substring(7);
-        String userId = SessionUtils.getSessionIdFromToken(updatedToken);
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        checkUserLoggedIn(userId);
         Optional<UserAccount> existingAccount = userRepository.getUserInfo(userId);
         if (existingAccount.isPresent()) {
             List<UserDocument> userDocuments = existingAccount.map(UserAccount::getUserDocuments).orElseGet(ArrayList::new);
@@ -59,20 +59,20 @@ public class UserService {
 
     public void authenticateUserWithEmailLink(String email) {
         SessionInfo sessionInfo = new SessionInfo();
-        String sessionID = UUID.randomUUID().toString();
-        sessionInfo.setSessionID(sessionID);
+        String magicToken = UUID.randomUUID().toString();
+        sessionInfo.setSessionID(magicToken);
         sessionInfo.setCreatedDate(Instant.now());
         sessionInfo.setExpirationTime(Instant.now().plusSeconds(15 * 60));
-        sessionRepository.save(sessionInfo);
-        emailService.sendSimpleMessage(email, sessionID);
+        sessionService.saveSessionInfo(sessionInfo);
+        emailService.sendSimpleMessage(email, magicToken);
     }
 
     public TokenResponse validateMagicToken(String token, String email) {
-        SessionInfo sessionInfo = sessionRepository.getSessionInfo(token);
-        if (sessionInfo == null) {
+        Optional<SessionInfo> sessionInfo = sessionService.getSessionInfo(token);
+        if (sessionInfo.isEmpty()) {
             throw new SessionNotFoundException("Code not Valid");
         }
-        if (sessionInfo.getExpirationTime().isBefore(Instant.now())) {
+        if (sessionInfo.get().getExpirationTime().isBefore(Instant.now())) {
             throw new SessionNotFoundException("Code Expired");
         }
         Optional<UserAccount> userAccount = userRepository.getUserInfobyEmail(email);
@@ -84,15 +84,62 @@ public class UserService {
             userAccount1.setUserId(userId);
             userAccount1.setProvider("magicLink");
             userAccount1.setUsername(email);
-            userAccount1.setUserPresets(new DocumentConfig("arial", "12", "000000", "FFFFFF", "1.5", "2.5", "LEFT", false, false, false, false));
+            userAccount1.setUserPresets(new DocumentConfig("arial", "12", "000000", "FFFFFF", "1.5", "2.5", "LEFT", false, false, false, false, false, false));
             userRepository.saveUser(userAccount1);
         } else {
             userId = userAccount.get().getUserId();
         }
         String sessionID = SessionUtils.generateToken(userId, SessionUtils.getTime(), SessionUtils.getExpirationTime());
+        sessionService.saveSessionInfo(new SessionInfo(userId, sessionID, SessionUtils.getTime().toInstant(), SessionUtils.getExpirationTime().toInstant()));
         return new TokenResponse(sessionID, SessionUtils.getExpirationTime().toInstant().toString());
     }
 
+    public void updateUserInfo(String token, DocumentConfig documentConfig) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        checkUserLoggedIn(userId);
+        Optional<UserAccount> userAccount = fetchUserById(userId);
+        userAccount.ifPresentOrElse(user -> {
+            DocumentConfig targetConfig = user.getUserPresets();
+            if (targetConfig == null) {
+                targetConfig = new DocumentConfig();
+            }
+            ParsingUtils.copyDocumentConfig(documentConfig, targetConfig);
+            user.setUserPresets(targetConfig);
+            userRepository.saveUser(user);
+        }, () -> {
+            throw new UserNotFoundException("User not found");
+        });
+    }
+
+    public void checkUserLoggedIn(String userId) {
+        Optional<SessionInfo> userSession = sessionService.getSessionInfo(userId);
+        userSession.orElseThrow(() -> {
+            logger.error("User not logged in");
+            return new SessionNotFoundException("User not logged in");
+        });
+    }
+
+    public void logoutUser(String token) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        sessionService.deleteSession(userId);
+    }
+
+    public void saveFeedbackInfo(String token, FeedBackForm feedBackForm) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        checkUserLoggedIn(userId);
+        Optional<UserAccount> userAccount = fetchUserById(userId);
+        userAccount.ifPresentOrElse(user -> {
+            List<FeedBackForm> feedBackForms = user.getFeedBackForms();
+            if (feedBackForms == null) {
+                feedBackForms = new ArrayList<>();
+            }
+            feedBackForms.add(feedBackForm);
+            user.setFeedBackForms(feedBackForms);
+            userRepository.saveUser(user);
+        }, () -> {
+            throw new UserNotFoundException("User not found");
+        });
+    }
 }
 
 
