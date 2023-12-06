@@ -1,12 +1,12 @@
 package com.docparser.springboot.utils;
 
 import com.docparser.springboot.model.DocumentConfig;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
@@ -24,41 +24,8 @@ public class ParsingUtils {
     }
 
     public static Function<String, Boolean> checkForFontParameterChange = formatConfig -> formatConfig != null && !formatConfig.isEmpty();
-    public static Function<Boolean, Boolean> checkForBooleanFontParameterChange = formatConfig -> formatConfig != null;
+    public static Function<Boolean, Boolean> checkForBooleanFontParameterChange = Objects::nonNull;
 
-
-    public String getTextFromParagraph(XWPFParagraph paragraph) {
-        return paragraph.getParagraphText();
-    }
-
-    public static Boolean checkIfAdvancedConfigEnabled(DocumentConfig userConfig, DocumentConfig dbConfig) {
-        if(dbConfig == null) {
-            return false;
-        }
-        if ((userConfig.getParagraphSplitting() != null && userConfig.getParagraphSplitting()) && (dbConfig.getParagraphSplitting() != null && dbConfig.getParagraphSplitting())) {
-            return true;
-        }
-        if ((userConfig.getHeaderGeneration() != null && userConfig.getHeaderGeneration()) && (dbConfig.getHeaderGeneration() != null && dbConfig.getHeaderGeneration())) {
-            return true;
-        }
-        if ((userConfig.getGenerateTOC() != null && userConfig.getGenerateTOC()) && (dbConfig.getGenerateTOC() != null && dbConfig.getGenerateTOC())) {
-            return true;
-        }
-        return false;
-    }
-
-    public static DocumentConfig resetAdvancedConfig(DocumentConfig config, DocumentConfig dbConfig) {
-        if (config.getParagraphSplitting() != null && config.getParagraphSplitting() && (dbConfig.getParagraphSplitting() != null && dbConfig.getParagraphSplitting())) {
-            config.setParagraphSplitting(false);
-        }
-        if (config.getHeaderGeneration() != null && config.getHeaderGeneration() && (dbConfig.getHeaderGeneration() != null && dbConfig.getHeaderGeneration())) {
-            config.setHeaderGeneration(false);
-        }
-        if (config.getGenerateTOC() != null && config.getGenerateTOC() && (dbConfig.getGenerateTOC() != null && dbConfig.getGenerateTOC())) {
-            config.setGenerateTOC(false);
-        }
-        return config;
-    }
 
     public static ParagraphAlignment mapStringToAlignment(String alignmentString) {
         return switch (alignmentString.toUpperCase()) {
@@ -96,10 +63,6 @@ public class ParsingUtils {
         };
     }
 
-    public static XWPFDocument createNewDocument() {
-        return new XWPFDocument();
-    }
-
     public static XWPFParagraph createNewParagraph(XWPFDocument document) {
         return document.createParagraph();
     }
@@ -109,7 +72,6 @@ public class ParsingUtils {
     }
 
     public static XWPFDocument copyStylesAndContent(XWPFDocument source, XWPFDocument target) {
-
 
 // Copy paragraphs (text, formatting, styles)
         for (XWPFParagraph paragraph : source.getParagraphs()) {
@@ -149,6 +111,7 @@ public class ParsingUtils {
     }
 
     public static String[] countLines(String text) {
+        if (text == null) return new String[]{};
         Pattern re = Pattern.compile("(?<=[.!?])\\s+(?=[a-zA-Z0-9])", Pattern.MULTILINE | Pattern.COMMENTS);
         return re.split(text);
     }
@@ -185,7 +148,7 @@ public class ParsingUtils {
     public static boolean checkIfHeadingStylePresent(XWPFParagraph paragraph) {
         if (paragraph.getStyleID() != null && paragraph.getStyleID().startsWith("Heading"))
             return true;
-        if (paragraph.getRuns().size() == 1) {
+        if (!paragraph.getRuns().isEmpty()) {
             return paragraph.getRuns().get(0).isBold();
         }
         return false;
@@ -203,15 +166,116 @@ public class ParsingUtils {
         return ctpPr;
     }
 
-    public static void loadCustomFonts() throws IOException, FontFormatException {
-        /*
-        String dyslexieFontPath = "src/main/resources/fonts/OpenDyslexic-Bold.otf";
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(dyslexieFontPath)));
-        Optional<Font> b = Arrays.stream(ge.getAllFonts()).filter(font -> font.getName().equals("OpenDyslexic")).findFirst();
-        Font[] f = ge.getAllFonts();
-         */
-
+    public static List<List<String>> partitionList(List<String> documentIds) {
+        List<List<String>> subSets = ListUtils.partition(documentIds, 25);
+        return subSets;
     }
 
+    /*
+        public static void loadCustomFonts()  {
+            String dyslexieFontPath = "src/main/resources/fonts/OpenDyslexic-Bold.otf";
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(dyslexieFontPath)));
+            Optional<Font> b = Arrays.stream(ge.getAllFonts()).filter(font -> font.getName().equals("OpenDyslexic")).findFirst();
+            Font[] f = ge.getAllFonts();
+        }*/
+    public static void copyDocumentConfig(DocumentConfig source, DocumentConfig target) {
+        target.setFontColor(checkForFontParameterChange.apply(source.getFontColor())?source.getFontColor():target.getFontColor());
+        target.setFontSize(checkForFontParameterChange.apply(source.getFontSize())?source.getFontSize():target.getFontSize());
+        target.setFontType(checkForFontParameterChange.apply(source.getFontType())?source.getFontType():target.getFontType());
+        target.setLineSpacing(checkForFontParameterChange.apply(source.getLineSpacing())?source.getLineSpacing():target.getLineSpacing());
+        target.setAlignment(checkForFontParameterChange.apply(source.getAlignment())?source.getAlignment():target.getAlignment());
+        target.setBackgroundColor(checkForFontParameterChange.apply(source.getBackgroundColor())?source.getBackgroundColor():target.getBackgroundColor());
+        target.setFontColor(checkForFontParameterChange.apply(source.getFontColor())?source.getFontColor():target.getFontColor());
+        target.setRemoveItalics(checkForBooleanFontParameterChange.apply(source.getRemoveItalics())?source.getRemoveItalics():target.getRemoveItalics());
+        target.setBorderGeneration(checkForBooleanFontParameterChange.apply(source.getBorderGeneration())?source.getBorderGeneration():target.getBorderGeneration());
+        target.setParagraphSplitting(checkForBooleanFontParameterChange.apply(source.getParagraphSplitting())?source.getParagraphSplitting():target.getParagraphSplitting());
+        target.setHeaderGeneration(checkForBooleanFontParameterChange.apply(source.getHeaderGeneration())?source.getHeaderGeneration():target.getHeaderGeneration());
+        target.setGenerateTOC(checkForBooleanFontParameterChange.apply(source.getGenerateTOC())?source.getGenerateTOC():target.getGenerateTOC());
+        target.setSyllableSplitting(checkForBooleanFontParameterChange.apply(source.getSyllableSplitting())?source.getSyllableSplitting():target.getSyllableSplitting());
+        target.setCharacterSpacing(checkForFontParameterChange.apply(source.getCharacterSpacing())?source.getCharacterSpacing():target.getCharacterSpacing());
+    }
+
+    public static Set<String> stopWords() {
+        Set<String> stopWords = new HashSet<>();
+        stopWords.add("the");
+        stopWords.add("in");
+        stopWords.add("that");
+        stopWords.add("is");
+        stopWords.add("a");
+        stopWords.add("an");
+        stopWords.add("to");
+        stopWords.add("and");
+        stopWords.add("of");
+        stopWords.add("for");
+        stopWords.add("with");
+        stopWords.add("as");
+        stopWords.add("by");
+        stopWords.add("on");
+        stopWords.add("at");
+        stopWords.add("this");
+        stopWords.add("from");
+        stopWords.add("or");
+        stopWords.add("you");
+        stopWords.add("your");
+        stopWords.add("we");
+        stopWords.add("our");
+        stopWords.add("us");
+        stopWords.add("i");
+        stopWords.add("me");
+        stopWords.add("my");
+        stopWords.add("mine");
+        stopWords.add("he");
+        stopWords.add("she");
+        stopWords.add("him");
+        stopWords.add("her");
+        stopWords.add("his");
+        stopWords.add("hers");
+        stopWords.add("they");
+        stopWords.add("them");
+        stopWords.add("their");
+        stopWords.add("theirs");
+        stopWords.add("it");
+        stopWords.add("its");
+        stopWords.add("be");
+        stopWords.add("been");
+        stopWords.add("being");
+        stopWords.add("have");
+        stopWords.add("has");
+        stopWords.add("had");
+        stopWords.add("do");
+        stopWords.add("does");
+        stopWords.add("did");
+        stopWords.add("will");
+        stopWords.add("would");
+        stopWords.add("shall");
+        stopWords.add("should");
+        stopWords.add("can");
+        stopWords.add("could");
+        stopWords.add("may");
+        stopWords.add("might");
+        stopWords.add("must");
+        stopWords.add("am");
+        stopWords.add("are");
+        stopWords.add("was");
+        stopWords.add("were");
+        stopWords.add("not");
+        stopWords.add("no");
+        stopWords.add("nor");
+        stopWords.add("so");
+        stopWords.add("if");
+        stopWords.add("but");
+        stopWords.add("what");
+        stopWords.add("when");
+        stopWords.add("where");
+        stopWords.add("why");
+        stopWords.add("how");
+        stopWords.add("which");
+        stopWords.add("who");
+        stopWords.add("whom");
+        stopWords.add("whose");
+        stopWords.add("more");
+
+        return stopWords;
+    }
 }

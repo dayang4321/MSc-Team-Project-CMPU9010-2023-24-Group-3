@@ -17,6 +17,8 @@ public class UserAccount {
     String username;
     String provider;
     private List<FeedBackForm> feedBackForms;
+    private List<UserDocument> userDocuments;
+    private DocumentConfig userPresets;
 
 
     @DynamoDbAttribute("userId")
@@ -63,6 +65,20 @@ public class UserAccount {
 
     public void setProvider(String provider) {
         this.provider = provider;
+    }
+    @DynamoDbAttribute("userPresets")
+    public DocumentConfig getUserPresets() {
+        return userPresets;
+    }
+    public void setUserPresets(DocumentConfig userPresets) {
+        this.userPresets = userPresets;
+    }
+    @DynamoDbAttribute("userDocuments")
+    public List<UserDocument> getUserDocuments() {
+        return userDocuments;
+    }
+    public void setUserDocuments(List<UserDocument> userDocuments) {
+        this.userDocuments = userDocuments;
     }
 
 }

@@ -3,6 +3,7 @@ package com.docparser.springboot.service;
 
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.utils.ParsingUtils;
+import lombok.AllArgsConstructor;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
@@ -11,11 +12,13 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
+@AllArgsConstructor
 public class DocumentModifierImpl implements DocumentModifier {
 
-
+   private  final NLPService nlpService;
     public void modifyDocumentColor(XWPFDocument document, String color) {
         try {
             XWPFSettings settings = ParsingUtils.getSettings(document);
@@ -67,6 +70,7 @@ public class DocumentModifierImpl implements DocumentModifier {
 
     private void addHeader(XWPFDocument document) {
         List<String> docHeadings = new ArrayList<>();
+        Set<String> stopWords = ParsingUtils.stopWords();
         for (XWPFParagraph paragraph : document.getParagraphs()) {
             if (!paragraph.getRuns().isEmpty() && !paragraph.getParagraphText().isEmpty()) {
                 if (ParsingUtils.checkIfHeadingStylePresent(paragraph)) {
@@ -76,7 +80,8 @@ public class DocumentModifierImpl implements DocumentModifier {
                 }
                 if (docHeadings.isEmpty()) {
                     XWPFRun run = paragraph.insertNewRun(0);
-                    run.setText("Heading Text");
+                    String headingText= nlpService.findMostCommonWord(paragraph.getParagraphText(),stopWords);
+                    run.setText(headingText.toUpperCase());
                     run.addCarriageReturn();
                     run.setFontSize(16); // Set font size as needed
                     run.setBold(true);

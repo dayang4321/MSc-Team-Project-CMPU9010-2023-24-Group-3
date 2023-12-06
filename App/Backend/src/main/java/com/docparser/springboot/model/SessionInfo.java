@@ -13,6 +13,7 @@ public class SessionInfo {
     private String sessionID;
     private String tokenID;
     private Instant createdDate;
+    private Instant expirationTime;
 
     private List<FeedBackForm> feedBackForms;
 
@@ -24,11 +25,23 @@ public class SessionInfo {
         this.createdDate = createdDate;
         this.sessionID = sessionID;
     }
-
+    public SessionInfo(String sessionID, String tokenID, Instant createdDate, Instant expirationTime) {
+        this.tokenID = tokenID;
+        this.createdDate = createdDate;
+        this.sessionID = sessionID;
+        this.expirationTime = expirationTime;
+    }
     public SessionInfo() {
         // Initialization code if needed
     }
 
+    @DynamoDbAttribute("expirationTime")
+    public Instant getExpirationTime() {
+        return expirationTime;
+    }
+    public  void setExpirationTime(Instant expirationTime){
+        this.expirationTime = expirationTime;
+    }
     @DynamoDbAttribute("token")
 
     public String getTokenID() {

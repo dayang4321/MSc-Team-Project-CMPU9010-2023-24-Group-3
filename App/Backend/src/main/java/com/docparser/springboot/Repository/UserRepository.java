@@ -1,8 +1,7 @@
 package com.docparser.springboot.Repository;
 
 import com.docparser.springboot.errorHandler.UserNotFoundException;
-import com.docparser.springboot.model.FeedBackForm;
-import com.docparser.springboot.model.UserAccount;
+import com.docparser.springboot.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
@@ -12,9 +11,13 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.docparser.springboot.Repository.DocumentRepository.DOCUMENT_CONFIG_PARAMS;
+import static com.docparser.springboot.Repository.SessionRepository.TABLE_SCHEMA_FEEDBACKFORM;
 
 @Repository
 public class UserRepository {
@@ -23,20 +26,20 @@ public class UserRepository {
     @Autowired
     private DynamoDbClient dynamoDbClient;
 
-    public static final TableSchema<FeedBackForm> TABLE_SCHEMA_FEEDBACKFORM = TableSchema.builder(FeedBackForm.class)
-            .newItemSupplier(FeedBackForm::new)
-            .addAttribute(String.class, a -> a.name("email")
-                    .getter(FeedBackForm::getEmail)
-                    .setter(FeedBackForm::setEmail))
-            .addAttribute(String.class, a -> a.name("whatUserLiked")
-                    .getter(FeedBackForm::getWhatUserLiked)
-                    .setter(FeedBackForm::setWhatUserLiked))
-            .addAttribute(String.class, a -> a.name("whatUserDisliked")
-                    .getter(FeedBackForm::getWhatUserDisliked)
-                    .setter(FeedBackForm::setWhatUserDisliked))
-            .addAttribute(String.class, a -> a.name("newFeatures")
-                    .getter(FeedBackForm::getNewFeatures)
-                    .setter(FeedBackForm::setNewFeatures))
+    public static final TableSchema<UserDocument> TABLE_SCHEMA_DOCUMENTS = TableSchema.builder(UserDocument.class)
+            .newItemSupplier(UserDocument::new)
+            .addAttribute(String.class, a -> a.name("documentID")
+                    .getter(UserDocument::getDocumentID)
+                    .setter(UserDocument::setDocumentID))
+            .addAttribute(String.class, a -> a.name("documentKey")
+                    .getter(UserDocument::getDocumentKey)
+                    .setter(UserDocument::setDocumentKey))
+            .addAttribute(Instant.class, a -> a.name("createdDate")
+                    .getter(UserDocument::getCreatedDate)
+                    .setter(UserDocument::setCreatedDate))
+            .addAttribute(Instant.class, a -> a.name("expirationTime")
+                    .getter(UserDocument::getExpirationTime)
+                    .setter(UserDocument::setExpirationTime))
             .build();
     public static final TableSchema<UserAccount> TABLE_SCHEMA_USER = TableSchema.builder(UserAccount.class)
             .newItemSupplier(UserAccount::new)
@@ -53,6 +56,13 @@ public class UserRepository {
             .addAttribute(String.class, a -> a.name("provider")
                     .getter(UserAccount::getProvider)
                     .setter(UserAccount::setProvider))
+            .addAttribute(EnhancedType.listOf(
+                    EnhancedType.documentOf(UserDocument.class, TABLE_SCHEMA_DOCUMENTS)), a -> a.name("userDocuments")  // DocumentConfig.class
+                    .getter(UserAccount::getUserDocuments)
+                    .setter(UserAccount::setUserDocuments))
+            .addAttribute(EnhancedType.documentOf(DocumentConfig.class, DOCUMENT_CONFIG_PARAMS), a -> a.name("userPresets")  // DocumentConfig.class
+                    .getter(UserAccount::getUserPresets)
+                    .setter(UserAccount::setUserPresets))
             .addAttribute(EnhancedType.listOf(
                     EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)), a -> a.name("feedBackForms")
                     .getter(UserAccount::getFeedBackForms)
@@ -71,13 +81,13 @@ public class UserRepository {
     }
 
     public Optional<UserAccount> getUserInfo(String id) {
-        try{
+        try {
             DynamoDbTable<UserAccount> userAccountDynamoDbTable = getTable();
             // Construct the key with partition and sort key
             Key key = Key.builder().partitionValue(id).build();
             return Optional.ofNullable(userAccountDynamoDbTable.getItem(key));
-        }catch (Exception e){
-            throw new UserNotFoundException("User not found"+e.getMessage());
+        } catch (Exception e) {
+            throw new UserNotFoundException("User not found" + e.getMessage());
         }
     }
 
@@ -92,6 +102,9 @@ public class UserRepository {
                 .build();
         ScanResponse response = dynamoDbClient.scan(scanRequest);
         Map<String, AttributeValue> item = response.items().stream().findFirst().orElse(null);
+        if (item == null) {
+            return Optional.empty();
+        }
         Optional<UserAccount> userAccount = Optional.ofNullable(userAccountDynamoDbTable.getItem(Key.builder().partitionValue(item.get("userId").s()).build()));
 
         return userAccount;

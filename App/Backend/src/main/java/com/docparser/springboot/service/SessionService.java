@@ -1,6 +1,7 @@
 package com.docparser.springboot.service;
 
 import com.docparser.springboot.Repository.SessionRepository;
+import com.docparser.springboot.Repository.UserRepository;
 import com.docparser.springboot.errorHandler.SessionNotFoundException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.SessionUtils;
@@ -18,25 +19,23 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SessionService {
     Logger logger = LoggerFactory.getLogger(SessionService.class);
-
     private final ObjectMapper objectMapper;
-
     private final SessionRepository sessionRepository;
 
 
-
-    public TokenResponse saveSessionInfo(String id) {
-        Date expirationTime = SessionUtils.getExpirationTime();
-        Date issuedAt = SessionUtils.getTime();
-        String token = SessionUtils.generateToken(id, issuedAt, expirationTime);
-        sessionRepository.save(new SessionInfo(id, token, Instant.now()));
-        logger.info("token generated  and saved in DB" + token);
-        return new TokenResponse(token, Instant.now().toString());
+    public void saveSessionInfo(SessionInfo sessionInfo) {
+        sessionRepository.save(sessionInfo);
     }
 
     public TokenResponse generateAndSaveSessionInfo() {
         String sessionID = UUID.randomUUID().toString();
-        return saveSessionInfo(sessionID);
+        SessionInfo sessionInfo = new SessionInfo();
+        sessionInfo.setSessionID(sessionID);
+        sessionInfo.setCreatedDate(Instant.now());
+        String token = SessionUtils.generateToken(sessionID, SessionUtils.getTime(), SessionUtils.getExpirationTime());
+        sessionInfo.setTokenID(token);
+        saveSessionInfo(sessionInfo);
+        return new TokenResponse(token, SessionUtils.getTime().toInstant().toString());
     }
 
     public void saveFeedbackInfo(String token, FeedBackForm feedBackForm) {
@@ -66,6 +65,12 @@ public class SessionService {
         return sessionInfo.getFeedBackForms();
     }
 
+    public Optional<SessionInfo> getSessionInfo(String sessionID) {
+        return Optional.ofNullable(sessionRepository.getSessionInfo(sessionID));
+    }
+    public void deleteSession(String sessionID) {
+        sessionRepository.deleteUserSession(sessionID);
+    }
 
 }
 

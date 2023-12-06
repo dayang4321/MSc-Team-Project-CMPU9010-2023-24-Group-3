@@ -10,11 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserResponse {
-    String userId;
+public class Login {
+
     String email;
-    String username;
-    String provider;
 
 
 }

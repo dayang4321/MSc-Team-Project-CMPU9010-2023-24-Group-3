@@ -5,20 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 import java.time.Instant;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-public class VersionInfo {
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserDocument {
 
-    private String versionID;
-    private String eTag;
-
+    private String documentID;
+    private String documentKey;
     private Instant createdDate;
+    private Instant expirationTime;
 
 
 }
-

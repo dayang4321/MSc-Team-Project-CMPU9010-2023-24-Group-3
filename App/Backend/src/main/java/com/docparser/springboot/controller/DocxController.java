@@ -31,25 +31,35 @@ public class DocxController {
     public ResponseEntity<S3StorageInfo> fileUploading(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         // Code to save the file to a database or disk
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
-        S3StorageInfo storageInfo = documentParser.uploadFile(file);
+        S3StorageInfo storageInfo = documentParser.uploadFile(file, token.get().substring(7));
         return ResponseEntity.ok(storageInfo);
     }
 
 
     @PostMapping ("/modifyFile")
     public ResponseEntity<DocumentResponse> modifyDocument(@RequestParam("filename") String fileName, @RequestParam("docID") String docID, @RequestParam("versionID") String versionID,
-                                                           @RequestBody DocumentConfig documentConfig) throws IOException {
+                                                           @RequestBody DocumentConfig documentConfig,HttpServletRequest request) throws IOException {
 
         // Code to save the file to a database or disk
-        DocumentResponse storageInfo = documentParser.modifyFile(fileName, docID, versionID, documentConfig);
+        Optional<String> token = Optional.of(request.getHeader("Authorization"));
+        DocumentResponse storageInfo = documentParser.modifyFile(fileName, docID, versionID, documentConfig,token.get().substring(7));
         return ResponseEntity.ok(storageInfo);
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentResponse> getDocumentInfo(@PathVariable String id) {
+    public ResponseEntity<DocumentResponse> getDocumentInfo(@PathVariable String id,HttpServletRequest request) {
         // Code to save the file to a database or disk
-        return ResponseEntity.ok(documentParser.fetchDocument(id));
+        Optional<String> token = Optional.of(request.getHeader("Authorization"));
+        return ResponseEntity.ok(documentParser.fetchDocument(id,token.get().substring(7)));
+    }
+    @DeleteMapping
+    public ResponseEntity<Object> batchDeleteDocumentsStored() {
+        // Code to save the file to a database or disk
+        logger.info("deleting all stored documents");
+        documentParser.deleteStoredDocuments();
+        return ResponseEntity.ok("success");
+
     }
 
 }
