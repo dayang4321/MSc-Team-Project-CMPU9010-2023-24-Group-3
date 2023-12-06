@@ -4,24 +4,21 @@ import { useRouter } from 'next/router';
 import delay from 'lodash/delay';
 
 const SignInPage = () => {
-  const { isAuthenticated, setAuth, user } = useContext(AuthContext);
+  const { isAuthenticated, isAuthLoading, setAuth } = useContext(AuthContext);
 
   const router = useRouter();
-  const { token } = router.query;
 
   useEffect(() => {
     if (isAuthenticated) {
-      alert('Sign in successful');
-
       delay(() => {
         router.push('/');
-      }, 1000);
+      }, 500);
 
       return;
     } else {
-      !!token &&
+      !!router.query.token &&
         setAuth({
-          token: String(token),
+          token: String(router.query.token),
         }).then((val) => {
           // console.log({ val });
           // console.log({ user, isAuthenticated }, 'redirect log');
@@ -29,7 +26,7 @@ const SignInPage = () => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, router.query.token]);
 
   return (
     <div
@@ -40,8 +37,16 @@ const SignInPage = () => {
         left: 0,
         top: 0,
         background: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 24,
       }}
-    ></div>
+    >
+      {isAuthenticated && 'Login successful'}
+      {isAuthLoading && 'Logging in...'}
+    </div>
   );
 };
 

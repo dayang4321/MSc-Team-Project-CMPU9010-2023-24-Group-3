@@ -103,7 +103,7 @@ export default function AccessibilityReview() {
   return (
     <DefaultLayout>
       <Head>
-        <title>Accessibilator</title>
+        <title>Accessibilator | Review your modifications</title>
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
@@ -119,7 +119,7 @@ export default function AccessibilityReview() {
 
           <div className='mt-12 divide-y divide-solid rounded-md border border-gray-600 p-7'>
             <div className='flex items-center justify-between py-5'>
-              <InfoTooltip infoTip='We use sans serif fonts like Arial or Comic Sans as they appear less crowded, making each letter more distinct and easier to read for people living with dyslexia.'>
+              <InfoTooltip infoTip='We use sans serif fonts like Arial as they appear less crowded, making each letter more distinct and easier to read for people living with dyslexia.'>
                 <p>Font style changed</p>
               </InfoTooltip>
 
