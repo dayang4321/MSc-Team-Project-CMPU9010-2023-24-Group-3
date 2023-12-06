@@ -93,7 +93,7 @@ public class DocumentParser {
         newDocumentInfo.setDocumentID(docID);
         newDocumentInfo.setDocumentKey(documentKey);
         newDocumentInfo.setCreatedDate(Instant.now());
-        newDocumentInfo.setExpirationTime(Instant.now());
+        newDocumentInfo.setExpirationTime(Instant.now().plusSeconds(24 * 60 * 60));
         newDocumentInfo.setDocumentVersions(setDocumentVersions(s3response));
         documentRepository.save(newDocumentInfo);
     }
