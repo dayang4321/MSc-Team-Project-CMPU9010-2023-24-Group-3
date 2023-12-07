@@ -42,93 +42,93 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
               {title}
             </p>
           )}
-          {IS_DEV_MODE ? (
-            isAuthenticated ? (
-              <Menu as='div' className='relative ml-auto'>
-                <div>
-                  <Menu.Button className='flex rounded-full border-2 border-primary-400 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-200'>
-                    <span className='sr-only'>Toggle user menu</span>
-                    <div className='inline-block h-9 w-9 overflow-hidden rounded-full'>
-                      <Image
-                        width={64}
-                        height={64}
-                        src={`https://ui-avatars.com/api/?name=${user?.email}&size=64&font-size=0.62&length=1&bold=true&background=431407&color=fafafa`}
-                        className='rounded-full '
-                        alt='profile name initials'
-                      />
-                    </div>
-                  </Menu.Button>
-                </div>
-                <Transition
-                  as={Fragment}
-                  enter='transition ease-out duration-100'
-                  enterFrom='transform opacity-0 scale-95'
-                  enterTo='transform opacity-100 scale-100'
-                  leave='transition ease-in duration-75'
-                  leaveFrom='transform opacity-100 scale-100'
-                  leaveTo='transform opacity-0 scale-95'
-                >
-                  <Menu.Items className='absolute right-0 z-[200] mt-2 w-48 origin-top-right divide-y-2 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
-                    <Menu.Item>
-                      <Link
-                        href={'/profile'}
-                        className='block bg-white px-4 py-2 text-sm text-gray-800 hover:bg-primary-100'
-                      >
-                        Your Presets
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item>
-                      <Link
-                        href={'user/documents'}
-                        className='block bg-white px-4 py-2 text-sm text-gray-800 hover:bg-primary-100'
-                      >
-                        Past Documents
-                      </Link>
-                    </Menu.Item>
-                    <Menu.Item
-                      as='button'
-                      onClick={() => {
-                        logout();
-                        router.push('/');
-                      }}
-                      className={
-                        'w-full bg-white px-4 py-2 text-left text-sm text-gray-800 file:block hover:bg-primary-100'
-                      }
+          {isAuthenticated ? (
+            <Menu as='div' className='relative ml-auto'>
+              <div>
+                <Menu.Button className='flex rounded-full border-2 border-primary-400 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-200'>
+                  <span className='sr-only'>Toggle user menu</span>
+                  <div className='inline-block h-9 w-9 overflow-hidden rounded-full'>
+                    <Image
+                      width={64}
+                      height={64}
+                      src={`https://ui-avatars.com/api/?name=${user?.email}&size=64&font-size=0.62&length=1&bold=true&background=431407&color=fafafa`}
+                      className='rounded-full '
+                      alt='profile name initials'
+                    />
+                  </div>
+                </Menu.Button>
+              </div>
+              <Transition
+                as={Fragment}
+                enter='transition ease-out duration-100'
+                enterFrom='transform opacity-0 scale-95'
+                enterTo='transform opacity-100 scale-100'
+                leave='transition ease-in duration-75'
+                leaveFrom='transform opacity-100 scale-100'
+                leaveTo='transform opacity-0 scale-95'
+              >
+                <Menu.Items className='absolute right-0 z-[200] mt-2 w-48 origin-top-right divide-y-2 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
+                  <Menu.Item>
+                    <Link
+                      href={'/profile'}
+                      className='block bg-white px-4 py-2 text-sm text-gray-800 hover:bg-primary-100'
                     >
-                      Log Out
-                    </Menu.Item>
-                  </Menu.Items>
-                </Transition>
-              </Menu>
-            ) : (
-              <Menu as='div' className='relative ml-auto'>
-                <div>
-                  <Menu.Button className='btn-primary'>
-                    <span className='sr-only'>Toggle login menu</span>
-                    Login
-                  </Menu.Button>
-                </div>
-                <Transition
-                  as={Fragment}
-                  enter='transition ease-out duration-100'
-                  enterFrom='transform opacity-0 scale-95'
-                  enterTo='transform opacity-100 scale-100'
-                  leave='transition ease-in duration-75'
-                  leaveFrom='transform opacity-100 scale-100'
-                  leaveTo='transform opacity-0 scale-95'
-                >
-                  <Menu.Items className='absolute right-0 z-[200] mt-2 w-48 origin-top-right divide-y-2 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
-                    <Menu.Item>
-                      <button
-                        onClick={() => {
-                          setIsShowingLoginModal(true);
-                        }}
-                        className='block w-full bg-white px-4 py-2 text-left text-sm text-gray-800 hover:bg-primary-100'
-                      >
-                        Login with email
-                      </button>
-                    </Menu.Item>
+                      Your Presets
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link
+                      href={'user/documents'}
+                      className='block bg-white px-4 py-2 text-sm text-gray-800 hover:bg-primary-100'
+                    >
+                      Past Documents
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item
+                    as='button'
+                    onClick={() => {
+                      logout();
+                      router.push('/');
+                    }}
+                    className={
+                      'w-full bg-white px-4 py-2 text-left text-sm text-gray-800 file:block hover:bg-primary-100'
+                    }
+                  >
+                    Log Out
+                  </Menu.Item>
+                </Menu.Items>
+              </Transition>
+            </Menu>
+          ) : (
+            <Menu as='div' className='relative ml-auto'>
+              <div>
+                <Menu.Button className='btn-primary'>
+                  <span className='sr-only'>Toggle login menu</span>
+                  Login
+                </Menu.Button>
+              </div>
+              <Transition
+                as={Fragment}
+                enter='transition ease-out duration-100'
+                enterFrom='transform opacity-0 scale-95'
+                enterTo='transform opacity-100 scale-100'
+                leave='transition ease-in duration-75'
+                leaveFrom='transform opacity-100 scale-100'
+                leaveTo='transform opacity-0 scale-95'
+              >
+                <Menu.Items className='absolute right-0 z-[200] mt-2 w-48 origin-top-right divide-y-2 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
+                  <Menu.Item>
+                    <button
+                      onClick={() => {
+                        setIsShowingLoginModal(true);
+                      }}
+                      className='block w-full bg-white px-4 py-2 text-left text-sm text-gray-800 hover:bg-primary-100'
+                    >
+                      Login with email
+                    </button>
+                  </Menu.Item>
 
+                  {IS_DEV_MODE && (
                     <Menu.Item>
                       <Link
                         className='block bg-white px-4 py-2 text-sm text-gray-800 hover:bg-primary-100'
@@ -138,11 +138,11 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
                         Continue with google
                       </Link>
                     </Menu.Item>
-                  </Menu.Items>
-                </Transition>
-              </Menu>
-            )
-          ) : null}
+                  )}
+                </Menu.Items>
+              </Transition>
+            </Menu>
+          )}
 
           <Button
             role='navigation'
