@@ -1,6 +1,5 @@
 package com.docparser.springboot.service;
 
-
 import com.docparser.springboot.Repository.SessionRepository;
 import com.docparser.springboot.Repository.UserRepository;
 import com.docparser.springboot.errorHandler.SessionNotFoundException;
@@ -24,7 +23,7 @@ public class UserService {
     private final SessionService sessionService;
     private final EmailService emailService;
 
-
+    // Fetches a user by their email. Throws an exception if the user is not found.
     public Optional<UserAccount> fetchUserByEmail(String email) {
         Optional<UserAccount> existingAccount = userRepository.getUserInfobyEmail(email);
         existingAccount.orElseThrow(() -> {
@@ -34,29 +33,37 @@ public class UserService {
         return existingAccount;
     }
 
+    // Fetches a user by their ID.
     public Optional<UserAccount> fetchUserById(String id) {
         Optional<UserAccount> existingAccount = userRepository.getUserInfo(id);
         return existingAccount;
     }
 
+    // Saves a user account to the repository.
     public void saveUser(UserAccount user) {
         userRepository.saveUser(user);
     }
 
+    /*
+     * Retrieves the logged-in user based on the session token and updates their
+     * documents.
+     */
     public Optional<UserAccount> getLoggedInUser(String token) {
         String userId = SessionUtils.getSessionIdFromToken(token);
         checkUserLoggedIn(userId);
         Optional<UserAccount> existingAccount = userRepository.getUserInfo(userId);
         if (existingAccount.isPresent()) {
-            List<UserDocument> userDocuments = existingAccount.map(UserAccount::getUserDocuments).orElseGet(ArrayList::new);
-            userDocuments.removeIf(userDoc ->
-                    userDoc.getExpirationTime() != null && userDoc.getExpirationTime().isBefore(Instant.now()));
+            List<UserDocument> userDocuments = existingAccount.map(UserAccount::getUserDocuments)
+                    .orElseGet(ArrayList::new);
+            userDocuments.removeIf(userDoc -> userDoc.getExpirationTime() != null
+                    && userDoc.getExpirationTime().isBefore(Instant.now()));
             existingAccount.get().setUserDocuments(userDocuments);
             saveUser(existingAccount.get());
         }
         return existingAccount;
     }
 
+    // Authenticates a user by generating a magic token and sending it via email.
     public void authenticateUserWithEmailLink(String email) {
         SessionInfo sessionInfo = new SessionInfo();
         String magicToken = UUID.randomUUID().toString();
@@ -67,6 +74,10 @@ public class UserService {
         emailService.sendSimpleMessage(email, magicToken);
     }
 
+    /*
+     * Validates a magic token and returns a token response. Creates a new user if
+     * not found.
+     */
     public TokenResponse validateMagicToken(String token, String email) {
         Optional<SessionInfo> sessionInfo = sessionService.getSessionInfo(token);
         if (sessionInfo.isEmpty()) {
@@ -84,16 +95,19 @@ public class UserService {
             userAccount1.setUserId(userId);
             userAccount1.setProvider("magicLink");
             userAccount1.setUsername(email);
-            userAccount1.setUserPresets(new DocumentConfig("arial", "12", "000000", "FFFFFF", "1.5", "2.5", "LEFT", false, false, false, false, false, false));
+            userAccount1.setUserPresets(new DocumentConfig("arial", "12", "000000", "FFFFFF", "1.5", "2.5", "LEFT",
+                    false, false, false, false, false, false));
             userRepository.saveUser(userAccount1);
         } else {
             userId = userAccount.get().getUserId();
         }
         String sessionID = SessionUtils.generateToken(userId, SessionUtils.getTime(), SessionUtils.getExpirationTime());
-        sessionService.saveSessionInfo(new SessionInfo(userId, sessionID, SessionUtils.getTime().toInstant(), SessionUtils.getExpirationTime().toInstant()));
+        sessionService.saveSessionInfo(new SessionInfo(userId, sessionID, SessionUtils.getTime().toInstant(),
+                SessionUtils.getExpirationTime().toInstant()));
         return new TokenResponse(sessionID, SessionUtils.getExpirationTime().toInstant().toString());
     }
 
+    // Updates user information based on the provided document configuration.
     public void updateUserInfo(String token, DocumentConfig documentConfig) {
         String userId = SessionUtils.getSessionIdFromToken(token);
         checkUserLoggedIn(userId);
@@ -111,6 +125,7 @@ public class UserService {
         });
     }
 
+    // Checks if the user is logged in based on the session information.
     public void checkUserLoggedIn(String userId) {
         Optional<SessionInfo> userSession = sessionService.getSessionInfo(userId);
         userSession.orElseThrow(() -> {
@@ -119,11 +134,13 @@ public class UserService {
         });
     }
 
+    // Logs out a user by deleting their session.
     public void logoutUser(String token) {
         String userId = SessionUtils.getSessionIdFromToken(token);
         sessionService.deleteSession(userId);
     }
 
+    // Saves user feedback information.
     public void saveFeedbackInfo(String token, FeedBackForm feedBackForm) {
         String userId = SessionUtils.getSessionIdFromToken(token);
         checkUserLoggedIn(userId);
@@ -141,8 +158,3 @@ public class UserService {
         });
     }
 }
-
-
-
-
-
