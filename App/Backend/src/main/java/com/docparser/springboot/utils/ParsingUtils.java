@@ -2,7 +2,6 @@ package com.docparser.springboot.utils;
 
 import com.docparser.springboot.model.DocumentConfig;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.springframework.stereotype.Component;

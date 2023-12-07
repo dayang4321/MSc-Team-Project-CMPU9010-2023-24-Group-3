@@ -8,10 +8,8 @@ import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
 import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.simple.Sentence;
 import edu.stanford.nlp.util.CoreMap;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -68,7 +66,6 @@ public class NLPService {
                 if ("NN" .equals(pos) || "NNS" .equals(pos) || "NNP" .equals(pos) || "NNPS" .equals(pos)) {
                     mainTopic = token.originalText();
                     topics.add(mainTopic);
-                    // Break after finding the first noun
                 }
             }
         }
@@ -114,7 +111,7 @@ public class NLPService {
         return mostCommonWord;
     }
 
-    public  String hyphenateText(String text) {
+    public String hyphenateText(String text) {
         String[] words = text.split("\\s+");
         StringBuilder syllabledText = new StringBuilder();
 
@@ -125,11 +122,56 @@ public class NLPService {
         return syllabledText.toString().trim();
     }
 
-    public String hyphenateWord(String word) {
+    public String hyphenateWords(String word) {
         // Basic pattern: Vowel followed by non-vowels (greedy), then optional non-vowels
         // This is a simplistic pattern and won't work correctly for all English words
-        String pattern = "([aeiouy]+[^aeiouy]*)([^aeiouy]*)";
-        return word.replaceAll(pattern, "$1-$2").replaceAll("-{2,}", "-").replaceAll("-$", "");
+        //  String pattern = "([aeiouy]+[^aeiouy]*)([^aeiouy]*)";
+        String pattern = "([aeiouy]{1,2})([^aeiouy]+)|([^aeiouy]*)([aeiouy]{1,2})";
+        return word.replaceAll(pattern, "$1$3-$2$4").replaceAll("-{2,}", "-").replaceAll("-$", "");
     }
+
+    public List<String> identifySyllables(String word) {
+        List<String> syllables = new ArrayList<>();
+        String[] vowels = {"a", "e", "i", "o", "u", "y"};
+        String currentSyllable = "";
+        boolean lastCharVowel = false;
+        for (int i = 0; i < word.length(); i++) {
+            String currentChar = word.substring(i, i + 1).toLowerCase();
+            boolean currentCharVowel = false;
+            for (String vowel : vowels) {
+                if (vowel.equals(currentChar)) {
+                    currentCharVowel = true;
+                    break;
+                }
+            }
+            if (currentCharVowel) {
+                if (!lastCharVowel) {
+                    syllables.add(currentSyllable);
+                    currentSyllable = "";
+                }
+                lastCharVowel = true;
+            } else {
+                currentSyllable += currentChar;
+                lastCharVowel = false;
+            }
+        }
+        if (!currentSyllable.isEmpty()) {
+            syllables.add(currentSyllable);
+        }
+        return syllables;
+    }
+
+    public String hyphenateWord(String word) {
+        List<String> syllables = identifySyllables(word);
+        String hyphenatedWord = "";
+        for (int i = 0; i < syllables.size(); i++) {
+            hyphenatedWord += syllables.get(i);
+            if (i < syllables.size() - 1) {
+                hyphenatedWord += "-";
+            }
+        }
+        return hyphenatedWord;
+    }
+
 }
 
