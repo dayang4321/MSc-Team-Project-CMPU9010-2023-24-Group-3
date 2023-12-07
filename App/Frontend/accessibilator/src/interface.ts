@@ -15,6 +15,10 @@ interface DocModifyParams {
   alignment: 'LEFT' | 'RIGHT' | 'CENTRE' | null;
   removeItalics: boolean | null;
   generateTOC: boolean | null;
+  paragraphSplitting: boolean | null;
+  headerGeneration: boolean | null;
+  borderGeneration: boolean | null;
+  syllableSplitting: boolean | null;
 }
 interface DocumentData {
   documentID: string;
