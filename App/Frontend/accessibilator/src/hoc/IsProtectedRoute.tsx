@@ -1,18 +1,21 @@
 import React, { useContext, useEffect } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 export default function IsProtectedRoute(Component: React.FC) {
   return function IsProtectedRoute(props: any) {
-    const { isAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated, isAuthLoading } = useContext(AuthContext);
+
+    const router = useRouter();
 
     useEffect(() => {
-      if (!isAuthenticated) {
-        return redirect('/');
+      if (!isAuthenticated && !isAuthLoading) {
+        router.replace('/');
       }
-    }, [isAuthenticated]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated, isAuthLoading]);
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated && isAuthLoading) {
       return null;
     }
 

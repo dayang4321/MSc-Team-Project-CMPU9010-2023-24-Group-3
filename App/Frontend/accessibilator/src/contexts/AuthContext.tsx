@@ -1,5 +1,4 @@
 import { AxiosRequestConfig } from 'axios';
-import { useRouter } from 'next/router';
 import { createContext, useCallback, useEffect, useState } from 'react';
 import { STORAGE_KEYS } from '../configs/constants';
 import axiosInit from '../services/axios';
@@ -39,14 +38,11 @@ const AuthProvider = ({ children }) => {
 
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  const router = useRouter();
-
   const clearAuth = useCallback(() => {
     localStorage.removeItem(STORAGE_KEYS.USER);
     localStorage.removeItem(STORAGE_KEYS.TOKEN);
     setToken(null);
     setUser(null);
-    //return router.replace('/')
   }, []);
 
   const fetchUser = useCallback(
@@ -54,23 +50,25 @@ const AuthProvider = ({ children }) => {
       let currUser = user;
 
       if (!currUser) {
+        setIsAuthLoading(true);
         try {
-          const fetchUserRes = await axiosInit.get<User>('/api/user/me', {
-            params: {
-              ...config?.params,
-            },
-            ...config,
-          });
+          const fetchUserRes = await axiosInit.get<{ user: User | null }>(
+            '/api/user/me',
+            {
+              params: {
+                ...config?.params,
+              },
+              ...config,
+            }
+          );
 
-          currUser = fetchUserRes.data;
-          localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currUser));
+          currUser = fetchUserRes.data.user;
+          !!currUser &&
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currUser));
           setUser(currUser);
           setIsAuthLoading(false);
           return Promise.resolve(currUser);
         } catch (error) {
-          // if (error === 'Access Denied') {
-          //   clearAuth();
-          // }
           setIsAuthLoading(false);
           return Promise.reject(null);
         }
@@ -84,22 +82,21 @@ const AuthProvider = ({ children }) => {
     []
   );
 
-  //before first paint, check if token exists in storage
+  // check if token and user exists in storage
   useEffect(() => {
     setIsAuthLoading(true);
     const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
-    !!storedToken ? setToken(storedToken) : setIsAuthLoading(false);
-  }, [router.route]);
+    const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
 
-  //if token is found, get the user assigned to found token
-  useEffect(() => {
-    if (!!token) {
-      fetchUser().finally(() => {
-        setIsAuthLoading(false);
-      });
+    if (storedToken) {
+      setToken(storedToken);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, router.route]);
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    setIsAuthLoading(false);
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -117,7 +114,7 @@ const AuthProvider = ({ children }) => {
         fetchUser,
         logout: async () => {
           try {
-            //  await userSignOutApi()
+            //  TODO: await userSignOutApi()
           } finally {
             clearAuth();
             //  TODO: TOAST MSG ('user logged out')
