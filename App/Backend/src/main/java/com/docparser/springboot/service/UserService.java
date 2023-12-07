@@ -1,6 +1,7 @@
 package com.docparser.springboot.service;
 
 
+import com.docparser.springboot.Repository.DocumentRepository;
 import com.docparser.springboot.Repository.SessionRepository;
 import com.docparser.springboot.Repository.UserRepository;
 import com.docparser.springboot.errorHandler.SessionNotFoundException;
@@ -23,6 +24,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final SessionService sessionService;
     private final EmailService emailService;
+    private final DocumentRepository documentRepository;
+    private final S3BucketStorage s3BucketStorage;
 
 
     public Optional<UserAccount> fetchUserByEmail(String email) {
@@ -36,6 +39,14 @@ public class UserService {
 
     public Optional<UserAccount> fetchUserById(String id) {
         Optional<UserAccount> existingAccount = userRepository.getUserInfo(id);
+        if (existingAccount.isPresent()) {
+            List<UserDocument> userDocuments = existingAccount.map(UserAccount::getUserDocuments).orElseGet(ArrayList::new);
+            userDocuments.removeIf(userDoc ->
+                    userDoc.getExpirationTime() != null && userDoc.getExpirationTime().isBefore(Instant.now()));
+            existingAccount.get().setUserDocuments(userDocuments);
+            saveUser(existingAccount.get());
+        }
+
         return existingAccount;
     }
 
@@ -46,15 +57,7 @@ public class UserService {
     public Optional<UserAccount> getLoggedInUser(String token) {
         String userId = SessionUtils.getSessionIdFromToken(token);
         checkUserLoggedIn(userId);
-        Optional<UserAccount> existingAccount = userRepository.getUserInfo(userId);
-        if (existingAccount.isPresent()) {
-            List<UserDocument> userDocuments = existingAccount.map(UserAccount::getUserDocuments).orElseGet(ArrayList::new);
-            userDocuments.removeIf(userDoc ->
-                    userDoc.getExpirationTime() != null && userDoc.getExpirationTime().isBefore(Instant.now()));
-            existingAccount.get().setUserDocuments(userDocuments);
-            saveUser(existingAccount.get());
-        }
-        return existingAccount;
+        return fetchUserById(userId);
     }
 
     public void authenticateUserWithEmailLink(String email) {
@@ -135,6 +138,31 @@ public class UserService {
             }
             feedBackForms.add(feedBackForm);
             user.setFeedBackForms(feedBackForms);
+            userRepository.saveUser(user);
+        }, () -> {
+            throw new UserNotFoundException("User not found");
+        });
+    }
+
+    public void deleteUserDocuments(String token, Set<String> documentids) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        checkUserLoggedIn(userId);
+        Set<String> documentKeys = new HashSet<>();
+        if (documentids.size() == 1) {
+            documentKeys.add(documentRepository.getDocumentInfo(documentids.iterator().next()).get().getDocumentKey());
+            documentRepository.deleteSingleDocument(documentids.iterator().next());
+            s3BucketStorage.deleteBucketObjects(documentKeys);
+        } else {
+            documentRepository.deleteDocument(documentids);
+            documentKeys = documentRepository.getDocumentKeys(documentids);
+            s3BucketStorage.deleteBucketObjects(documentKeys);
+        }
+
+        Optional<UserAccount> userAccount = fetchUserById(userId);
+        userAccount.ifPresentOrElse(user -> {
+            List<UserDocument> userDocuments = user.getUserDocuments();
+            documentids.stream().forEach(documentID -> userDocuments.removeIf(userDocument -> userDocument.getDocumentID().equals(documentID)));
+            user.setUserDocuments(userDocuments);
             userRepository.saveUser(user);
         }, () -> {
             throw new UserNotFoundException("User not found");

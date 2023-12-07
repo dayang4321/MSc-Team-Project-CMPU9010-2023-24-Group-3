@@ -12,9 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -50,5 +49,12 @@ public class UserController {
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
         userService.saveFeedbackInfo(token.get().substring(7), feedBackForm);
         return ResponseEntity.ok("Feedback saved successfully");
+    }
+    @DeleteMapping("/documents/{documentids}")
+    public ResponseEntity<String> deleteUserDocuments( @PathVariable Set<String> documentids, HttpServletRequest request) throws JsonProcessingException {
+        // Code to save the file to a database or disk
+        Optional<String> token = Optional.of(request.getHeader("Authorization"));
+        userService.deleteUserDocuments(token.get().substring(7),  documentids);
+        return ResponseEntity.ok("Documents deleted successfully");
     }
 }
