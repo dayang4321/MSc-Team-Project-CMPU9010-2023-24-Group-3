@@ -12,16 +12,24 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserAccount {
-    String userId;
-    String email;
-    String username;
-    String provider;
+    String userId; // Unique identifier for the user
+    String email; // Email of the user
+    String username; // Username of the user
+    String provider; // Authentication provider for the user account
+
+    // List of feedback forms associated with the user
     private List<FeedBackForm> feedBackForms;
+
+    // List of user documents associated with the user
     private List<UserDocument> userDocuments;
+
+    // Document configuration settings for the user
     private DocumentConfig userPresets;
 
+    // Getter and setter methods for each field with DynamoDB annotations
+
     @DynamoDbAttribute("userId")
-    @DynamoDbPartitionKey
+    @DynamoDbPartitionKey // Marks this attribute as the primary key for DynamoDB
     public String getUserId() {
         return userId;
     }
