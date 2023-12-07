@@ -100,6 +100,7 @@ const AuthProvider = ({ children }) => {
     } else if (isTokenValid && storedToken && storedUser) {
       setToken(storedToken);
       fetchUser(JSON.parse(storedUser));
+      setIsAuthLoading(false);
       return;
     } else if (isTokenValid && storedToken && !storedUser) {
       setToken(storedToken);
