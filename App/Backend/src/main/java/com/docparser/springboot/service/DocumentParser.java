@@ -174,7 +174,7 @@ public class DocumentParser {
 
 
     public void deleteStoredDocuments() {
-        HashMap<String, List<String>> documentsList = documentRepository.getDocumentsExpired();
+        HashMap<String, Set<String>> documentsList = documentRepository.getDocumentsExpired();
         logger.info("deleting documents ID's" + documentsList.get("documentIDs").toString());
         logger.info("deleting documents keys's" + documentsList.get("documentKeys").toString());
         if (!documentsList.isEmpty()) {

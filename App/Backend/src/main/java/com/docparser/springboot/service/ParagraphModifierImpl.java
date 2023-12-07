@@ -20,7 +20,7 @@ import java.util.function.BiConsumer;
 @Component
 @AllArgsConstructor
 public class ParagraphModifierImpl implements ParagraphModifier {
-    private  final NLPService nlpService;
+    private final NLPService nlpService;
 
     private void addNewText(XWPFRun run, String para) {
         run.setText(para);
@@ -30,16 +30,17 @@ public class ParagraphModifierImpl implements ParagraphModifier {
 
     private void modifyTextToAddSyllableStyling(XWPFParagraph paragraph, DocumentConfig formattingConfig) {
         String text = paragraph.getParagraphText();
-       String formattedText= nlpService.hyphenateText(text);
-       ParsingUtils.removeRuns(paragraph);
-       paragraph.createRun().setText(formattedText);
+        String formattedText = nlpService.hyphenateText(text);
+        ParsingUtils.removeRuns(paragraph);
+        paragraph.createRun().setText(formattedText);
 
     }
+
     private void modifyText(XWPFParagraph paragraph, DocumentConfig formattingConfig) {
         String text = paragraph.getParagraphText();
         String contentHash = Integer.toHexString(paragraph.getText().hashCode());
-        String []lines = ParsingUtils.countLines(text);
-        if (lines!=null && lines.length >= 2) {
+        String[] lines = ParsingUtils.countLines(text);
+        if (lines != null && lines.length >= 2) {
             String[] paras = ParsingUtils.divideParagraph(text, 2);
             ParsingUtils.removeRuns(paragraph);
             for (String para : paras) {
@@ -65,15 +66,35 @@ public class ParagraphModifierImpl implements ParagraphModifier {
         }
     }
 
-private  void addParagraphBorder(XWPFParagraph paragraph) {
-if(paragraph.getRuns().size()>1){
-    paragraph.setBorderBottom(Borders.BASIC_BLACK_DASHES);
-    paragraph.setBorderLeft(Borders.BASIC_BLACK_DASHES);
-    paragraph.setBorderRight(Borders.BASIC_BLACK_DASHES);
-    paragraph.setBorderTop(Borders.BASIC_BLACK_DASHES);
-}
+    private void addParagraphBorder(XWPFParagraph paragraph) {
+        if (paragraph.getRuns().isEmpty() || paragraph.getParagraphText().isEmpty()) {
+            return;
+        }
+        paragraph.setBorderBottom(Borders.BASIC_BLACK_DOTS);
+        paragraph.setBorderLeft(Borders.BASIC_BLACK_DOTS);
+        paragraph.setBorderRight(Borders.BASIC_BLACK_DOTS);
+        paragraph.setBorderTop(Borders.BASIC_BLACK_DOTS);
 
-}
+
+    }
+
+    private void addHeader(XWPFParagraph paragraph) {
+        List<String> docHeadings = new ArrayList<>();
+        Set<String> stopWords = ParsingUtils.stopWords();
+        if (!paragraph.getRuns().isEmpty() && !paragraph.getParagraphText().isEmpty()) {
+            if (!ParsingUtils.checkIfHeadingStylePresent(paragraph)) {
+
+                XWPFRun run = paragraph.insertNewRun(0);
+                String headingText = nlpService.findMostCommonWord(paragraph.getParagraphText(), stopWords);
+                run.setText(headingText.toUpperCase());
+                run.addCarriageReturn();
+                run.setFontSize(16); // Set font size as needed
+                run.setBold(true);
+
+            }
+        }
+    }
+
     private void modifyColorShading(XWPFParagraph paragraph, String colorShading) {
         CTPPr ctpPr = ParsingUtils.getCTPPr(paragraph);
         CTParaRPr ll = ctpPr.getRPr() == null ? ctpPr.addNewRPr() : ctpPr.getRPr();

@@ -9,16 +9,14 @@ import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @AllArgsConstructor
 public class DocumentModifierImpl implements DocumentModifier {
 
-   private  final NLPService nlpService;
+    private final NLPService nlpService;
+
     public void modifyDocumentColor(XWPFDocument document, String color) {
         try {
             XWPFSettings settings = ParsingUtils.getSettings(document);
@@ -80,7 +78,7 @@ public class DocumentModifierImpl implements DocumentModifier {
                 }
                 if (docHeadings.isEmpty()) {
                     XWPFRun run = paragraph.insertNewRun(0);
-                    String headingText= nlpService.findMostCommonWord(paragraph.getParagraphText(),stopWords);
+                    String headingText = nlpService.findMostCommonWord(paragraph.getParagraphText(), stopWords);
                     run.setText(headingText.toUpperCase());
                     run.addCarriageReturn();
                     run.setFontSize(16); // Set font size as needed
@@ -132,18 +130,14 @@ public class DocumentModifierImpl implements DocumentModifier {
 
     private XWPFDocument modifyText(XWPFDocument document, XWPFDocument finalDoc) {
         finalDoc = ParsingUtils.copyStylesAndContent(document, finalDoc);
-        int j = 0;
+        document.getBodyElements();
         for (int i = 0; i < document.getParagraphs().size(); i++) {
             XWPFParagraph paragraph = document.getParagraphs().get(i);
             String text = paragraph.getParagraphText();
             if (ParsingUtils.countLines(text).length >= 3) {
                 String[] paras = ParsingUtils.divideParagraph(text, 3);
-                if (j != 0) j = j + 1;
-                XWPFParagraph existingPara = finalDoc.getParagraphs().get(j);
-                ParsingUtils.removeRuns(existingPara);
-                XmlCursor cursor = existingPara.getCTP().newCursor();
-                int noOfParas = paras.length;
-                j = j + noOfParas;
+                finalDoc.removeBodyElement(i);
+                XmlCursor cursor = finalDoc.getParagraphArray(i).getCTP().newCursor();
                 for (String para : paras) {
                     XWPFParagraph newParagraph = finalDoc.insertNewParagraph(cursor);
                     addNewText(newParagraph.createRun(), para);
@@ -173,20 +167,16 @@ public class DocumentModifierImpl implements DocumentModifier {
 
     @Override
     public XWPFDocument modify(XWPFDocument document, DocumentConfig formattingConfig) {
-        XWPFDocument finalDoc = null;
-        boolean image = true;
 
         if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getBackgroundColor())) {
             modifyDocumentColor(document, formattingConfig.getBackgroundColor());
         }
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getHeaderGeneration())&&  formattingConfig.getHeaderGeneration())
+        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getHeaderGeneration()) && formattingConfig.getHeaderGeneration())
             addHeader(document);
         if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getGenerateTOC()) && formattingConfig.getGenerateTOC()) {
             modifyDocumentToc(document);
         }
-
-
-        return finalDoc == null ? document : finalDoc;
+        return document;
 
     }
 
