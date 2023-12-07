@@ -42,4 +42,5 @@ interface User {
     createdDate: string;
     expirationTime: string;
   }[];
+  userPresets?: DocModifyParams;
 }

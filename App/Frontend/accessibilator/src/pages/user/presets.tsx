@@ -1,15 +1,16 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import DefaultLayout from '../../layouts/DefaultLayout';
 import Head from 'next/head';
 import Image from 'next/image';
-import Link from 'next/link';
 import { FONT_STYLE_OPTIONS } from '../../configs/selectOptions';
 import Button from '../../components/UI/Button';
 import SlideModal from '../../components/UI/SlideModal';
 import CustomisationPanel from '../../components/CustomisationPanel/CustomisationPanel';
-import delay from 'lodash/delay';
 import { AuthContext } from '../../contexts/AuthContext';
 import IsProtectedRoute from '../../hoc/IsProtectedRoute';
+import axiosInit from '../../services/axios';
+import { ToastQueue } from '@react-spectrum/toast';
+import { reportException } from '../../services/errorReporting';
 
 const defaultSettings: DocModifyParams = {
   fontType: 'arial',
@@ -31,25 +32,71 @@ const PresetsPage = () => {
 
   const [slideModalOpen, setSlideModalOpen] = useState(false);
 
-  const [isUserPresetLoading, setIsUserPresetLoading] = useState(false);
+  const [isUserPresetLoading, setIsUserPresetLoading] = useState(true);
+
+  const fetchUserPresets = async () => {
+    setIsUserPresetLoading(true);
+    try {
+      const fetchUserRes = await axiosInit.get<{ user: User | null }>(
+        '/api/user/me'
+      );
+
+      const currUserPresets = fetchUserRes?.data?.user?.userPresets;
+
+      setIsUserPresetLoading(false);
+      return Promise.resolve(currUserPresets);
+    } catch (error) {
+      setIsUserPresetLoading(false);
+      return Promise.reject(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserPresets().then((value) => {
+      !!value && setUserSettings((state) => ({ ...state, ...value }));
+    });
+  }, []);
 
   const onSaveConfig = (userPresetData: DocModifyParams) => {
     setIsUserPresetLoading(true);
 
-    //TODO: Save User Preset to backend
-    delay(
-      () =>
+    axiosInit
+      .post<DocumentData>('/api/user/presets', {
+        ...userPresetData,
+        characterSpacing: !!userPresetData.characterSpacing
+          ? userPresetData?.characterSpacing * 10
+          : userPresetData?.characterSpacing,
+      })
+      .then((res) => {
         setUserSettings({
           ...userPresetData,
           characterSpacing: !!userPresetData.characterSpacing
             ? userPresetData?.characterSpacing * 10
             : userPresetData?.characterSpacing,
         }),
-      1000
-    );
-
-    setIsUserPresetLoading(false);
-    setSlideModalOpen(false);
+          setSlideModalOpen(false);
+      })
+      .catch((err) => {
+        // console.log(err);
+        ToastQueue.negative(
+          `An error occurred! ${
+            err?.response?.data.detail || err?.message || ''
+          }`,
+          {
+            timeout: 5000,
+          }
+        );
+        reportException(err, {
+          category: 'presets',
+          message: 'Failed to set user presets',
+          data: {
+            origin: 'Presets Screen',
+          },
+        });
+      })
+      .finally(() => {
+        setIsUserPresetLoading(false);
+      });
   };
 
   const presetsArr = [
@@ -73,7 +120,7 @@ const PresetsPage = () => {
           <title>Accessibilator | Your presets</title>
           <link rel='icon' href='/favicon.ico' />
         </Head>
-        <main className='flex flex-1 flex-col justify-center  py-16 pb-8 text-center text-gray-900'>
+        <main className='flex flex-1 flex-col justify-center py-16  pb-8 text-center text-base text-gray-900'>
           <div className='grid flex-1 grid-cols-4 gap-8 px-16'>
             <div className='col-span-1 flex flex-col items-center rounded border border-gray-400/60 bg-stone-50 p-10'>
               <div>
@@ -127,9 +174,9 @@ const PresetsPage = () => {
                 </div>
               </div>
 
-              <div className='mb-10 mt-auto'>
+              <div className='mt-auto'>
                 <Button
-                  className=' px-6 py-2 text-base'
+                  className='px-6 py-2 text-base'
                   text={'Change'}
                   onClick={() => {
                     setSlideModalOpen(true);
