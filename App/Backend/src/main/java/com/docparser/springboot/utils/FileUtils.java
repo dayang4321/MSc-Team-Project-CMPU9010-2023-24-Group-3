@@ -12,7 +12,10 @@ import java.util.regex.Pattern;
 
 @Component
 public class FileUtils {
-    public  static File convertMultiPartToFile(MultipartFile file) throws IOException {
+
+    // Converts a MultipartFile to a File
+    public static File convertMultiPartToFile(MultipartFile file) throws IOException {
+        // Create a File object from the original file name of the MultipartFile
         File convFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
         FileOutputStream fos = new FileOutputStream(convFile);
         fos.write(file.getBytes());
@@ -20,18 +23,27 @@ public class FileUtils {
         return convFile;
     }
 
-    public  static String generateFileName(MultipartFile multiPart) {
-        return  removeSpecialCharacters(multiPart.getOriginalFilename());
-    }
-    public static String generateFileName(File file) {
-        return  file.getName();
+    // Generates a file name from a MultipartFile by removing special characters
+    public static String generateFileName(MultipartFile multiPart) {
+        /*
+         * Calls the helper method to remove special characters and return the cleaned
+         * file name
+         */
+        return removeSpecialCharacters(multiPart.getOriginalFilename());
     }
 
+    // Generates a file name from a File object
+    public static String generateFileName(File file) {
+        return file.getName();
+    }
+
+    // Helper method to remove special characters from a string
     private static String removeSpecialCharacters(String fileName) {
         // Define a regular expression to match special characters
         String regex = "[^a-zA-Z0-9\\.\\s\\-_]";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(fileName);
+        // Replace all special characters with an empty string
         return matcher.replaceAll("");
     }
 }
