@@ -15,51 +15,63 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
-
+// Enable cross-origin requests for the controller
 @CrossOrigin
 @RestController
-@RequestMapping("/api/file")
+@RequestMapping("/api/file") // Base URL for all handled requests
 public class DocxController {
+    // Logger for this class
     Logger logger = LoggerFactory.getLogger(DocxController.class);
 
-
+    // Automatically injects the DocumentParser instance
     @Autowired
     private DocumentParser documentParser;
 
-
+    // Endpoint for uploading a file
     @PostMapping("/uploadFile")
-    public ResponseEntity<S3StorageInfo> fileUploading(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
-        // Code to save the file to a database or disk
+    public ResponseEntity<S3StorageInfo> fileUploading(@RequestParam("file") MultipartFile file,
+            HttpServletRequest request) throws IOException {
+        // Extract the authorization token from the request header
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
+        // Call the document parser service to upload the file, passing the trimmed
+        // token
         S3StorageInfo storageInfo = documentParser.uploadFile(file, token.get().substring(7));
+
         return ResponseEntity.ok(storageInfo);
     }
 
-
-    @PostMapping ("/modifyFile")
-    public ResponseEntity<DocumentResponse> modifyDocument(@RequestParam("filename") String fileName, @RequestParam("docID") String docID, @RequestParam("versionID") String versionID,
-                                                           @RequestBody DocumentConfig documentConfig,HttpServletRequest request) throws IOException {
-
-        // Code to save the file to a database or disk
+    // Endpoint for modifying a file
+    @PostMapping("/modifyFile")
+    public ResponseEntity<DocumentResponse> modifyDocument(@RequestParam("filename") String fileName,
+            @RequestParam("docID") String docID, @RequestParam("versionID") String versionID,
+            @RequestBody DocumentConfig documentConfig, HttpServletRequest request) throws IOException {
+        // Extract the authorization token from the request header
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
-        DocumentResponse storageInfo = documentParser.modifyFile(fileName, docID, versionID, documentConfig,token.get().substring(7));
+        // Call the document parser service to modify the file, passing necessary
+        // parameters
+        DocumentResponse storageInfo = documentParser.modifyFile(fileName, docID, versionID, documentConfig,
+                token.get().substring(7));
+
         return ResponseEntity.ok(storageInfo);
     }
 
-
+    // Endpoint for retrieving a document's information
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentResponse> getDocumentInfo(@PathVariable String id,HttpServletRequest request) {
-        // Code to save the file to a database or disk
+    public ResponseEntity<DocumentResponse> getDocumentInfo(@PathVariable String id, HttpServletRequest request) {
+        // Extract the authorization token from the request header
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
-        return ResponseEntity.ok(documentParser.fetchDocument(id,token.get().substring(7)));
+        // Fetch the document info using the document parser service
+        return ResponseEntity.ok(documentParser.fetchDocument(id, token.get().substring(7)));
     }
+
+    // Endpoint for deleting all stored documents
     @DeleteMapping
     public ResponseEntity<Object> batchDeleteDocumentsStored() {
-        // Code to save the file to a database or disk
-        logger.info("deleting all stored documents");
+        // Log the deletion operation
+        logger.info("Deleting all stored documents");
+        // Call the document parser service to delete all stored documents
         documentParser.deleteStoredDocuments();
+
         return ResponseEntity.ok("success");
-
     }
-
 }
