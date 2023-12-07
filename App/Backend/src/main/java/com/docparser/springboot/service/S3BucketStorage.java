@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import java.io.*;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -67,7 +67,7 @@ public class S3BucketStorage {
         return inputStream;
     }
 
-    public void deleteBucketObjects(List<String> documentKeys) {
+    public void deleteBucketObjects(Set<String> documentKeys) {
         logger.info("deleting objects from s3 bucket");
         if (!documentKeys.isEmpty()) {
 
