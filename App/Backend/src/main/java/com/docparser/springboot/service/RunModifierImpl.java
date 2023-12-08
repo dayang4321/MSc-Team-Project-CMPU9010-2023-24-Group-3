@@ -37,14 +37,16 @@ public class RunModifierImpl implements RunModifier {
     }
 
     // Modifies the character spacing of a line in a document.
-    public void modifyCharSpacing(XWPFRun run, String charSpacing) {
-        CTRPr rpr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
-        CTSignedTwipsMeasure charSpacingNew = rpr.addNewSpacing();
-        charSpacingNew.setVal(ParsingUtils.mapStringToCharacterSpacingValueInBigInt(charSpacing));
+    private void modifyCharSpacing(XWPFRun run, String charSpacing) {
+        if (run.getCTR() != null) {
+            CTRPr rpr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
+            CTSignedTwipsMeasure charSpacingNew = rpr.addNewSpacing();
+            charSpacingNew.setVal(ParsingUtils.mapStringToCharacterSpacingValueInBigInt(charSpacing));
+        }
     }
 
     // Removes italic formatting from a line in a document.
-    public void modifyToRemoveItalics(XWPFRun run) {
+    private void modifyToRemoveItalics(XWPFRun run) {
         run.setItalic(false);
     }
 

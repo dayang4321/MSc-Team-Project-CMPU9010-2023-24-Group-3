@@ -197,9 +197,9 @@ public class DocumentParser {
     // Deletes stored documents that have expired
     public void deleteStoredDocuments() {
         HashMap<String, Set<String>> documentsList = documentRepository.getDocumentsExpired();
-        logger.info("deleting documents ID's" + documentsList.get("documentIDs").toString());
-        logger.info("deleting documents keys's" + documentsList.get("documentKeys").toString());
         if (!documentsList.isEmpty()) {
+            logger.info("deleting documents ID's" + documentsList.get("documentIDs").toString());
+            logger.info("deleting documents keys's" + documentsList.get("documentKeys").toString());
             s3FileUploadService.deleteBucketObjects(documentsList.get("documentKeys"));
             documentRepository.deleteDocument(documentsList.get("documentIDs"));
         }

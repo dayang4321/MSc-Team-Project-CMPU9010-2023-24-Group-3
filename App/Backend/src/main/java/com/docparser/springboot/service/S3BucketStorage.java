@@ -82,12 +82,7 @@ public class S3BucketStorage {
         return inputStream;
     }
 
-<<<<<<< HEAD
     public void deleteBucketObjects(Set<String> documentKeys) {
-=======
-    // Method to delete multiple objects from an S3 bucket
-    public void deleteBucketObjects(List<String> documentKeys) {
->>>>>>> e46a42720ca06075c6a1a7e9bf343e9fd94f8b51
         logger.info("deleting objects from s3 bucket");
         // Check if there are objects to delete
         if (!documentKeys.isEmpty()) {

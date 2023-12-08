@@ -155,6 +155,12 @@ public class DocumentRepository {
                 .expressionAttributeValues(expressionAttributeValues)
                 .build();
         ScanResponse response = dynamoDbClient.scan(scanRequest);
+        if (response.items().isEmpty()) {
+            return new HashMap<>();
+        }
+        if(response.items().size() == 1 && response.items().get(0).get("documentID")==null) {
+            return new HashMap<>();
+        }
         Set<String> documentIDs = response.items().stream().map(item -> item.get("documentID").s()).collect(Collectors.toSet());
         Set<String> documentkeys = response.items().stream().map(item -> item.get("documentKey").s()).collect(Collectors.toSet());
         HashMap<String, Set<String>> documentMap = new HashMap<>();
@@ -173,6 +179,9 @@ public class DocumentRepository {
 
     public Set<String> getDocumentKeys(Set<String> documentIDs) {
         Set<String> documentKeys = new HashSet<>();
+        if (documentIDs.isEmpty()) {
+            return documentKeys;
+        }
         BatchGetItemRequest batchGetItemRequest = BatchGetItemRequest.builder()
                 .requestItems(Collections.singletonMap("DocumentInfo", KeysAndAttributes.builder()
                         .keys(documentIDs.stream().map(id -> Collections.singletonMap("documentID", AttributeValue.builder().s(id).build())).collect(Collectors.toList()))
@@ -186,6 +195,7 @@ public class DocumentRepository {
 
         return documentKeys;
     }
+
     public void deleteDocument(Set<String> documentIDs) {
         logger.info("deleting documents ID's from db");
         if (!documentIDs.isEmpty()) {

@@ -1,10 +1,7 @@
 package com.docparser.springboot.service;
 
-<<<<<<< HEAD
 
 import com.docparser.springboot.Repository.DocumentRepository;
-=======
->>>>>>> e46a42720ca06075c6a1a7e9bf343e9fd94f8b51
 import com.docparser.springboot.Repository.SessionRepository;
 import com.docparser.springboot.Repository.UserRepository;
 import com.docparser.springboot.errorHandler.SessionNotFoundException;
@@ -66,20 +63,7 @@ public class UserService {
     public Optional<UserAccount> getLoggedInUser(String token) {
         String userId = SessionUtils.getSessionIdFromToken(token);
         checkUserLoggedIn(userId);
-<<<<<<< HEAD
         return fetchUserById(userId);
-=======
-        Optional<UserAccount> existingAccount = userRepository.getUserInfo(userId);
-        if (existingAccount.isPresent()) {
-            List<UserDocument> userDocuments = existingAccount.map(UserAccount::getUserDocuments)
-                    .orElseGet(ArrayList::new);
-            userDocuments.removeIf(userDoc -> userDoc.getExpirationTime() != null
-                    && userDoc.getExpirationTime().isBefore(Instant.now()));
-            existingAccount.get().setUserDocuments(userDocuments);
-            saveUser(existingAccount.get());
-        }
-        return existingAccount;
->>>>>>> e46a42720ca06075c6a1a7e9bf343e9fd94f8b51
     }
 
     // Authenticates a user by generating a magic token and sending it via email.
