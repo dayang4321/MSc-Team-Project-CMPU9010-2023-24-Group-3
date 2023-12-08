@@ -5,14 +5,33 @@ interface MyModalProps {
   title: ReactNode;
   isOpen: boolean;
   onModalClose: () => void;
+  size?: 'sm' | 'lg' | 'xl';
 }
 
 const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
   title,
   isOpen,
   onModalClose,
+  size,
   children,
 }) => {
+  let sizeClass = 'max-w-2xl';
+
+  switch (size) {
+    case 'sm':
+      sizeClass = 'max-w-lg';
+      break;
+    case 'lg':
+      sizeClass = 'max-w-xl';
+      break;
+    case 'xl':
+      sizeClass = 'max-w-3xl';
+      break;
+    default:
+      sizeClass = 'max-w-2xl';
+      break;
+  }
+
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -40,7 +59,9 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
                 leaveFrom='opacity-100 scale-100'
                 leaveTo='opacity-0 scale-95'
               >
-                <Dialog.Panel className='relative w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-8 pb-6 pt-10 text-left align-middle shadow-xl transition-all'>
+                <Dialog.Panel
+                  className={`relative w-full ${sizeClass} transform overflow-hidden rounded-2xl bg-white p-8 pb-6 pt-10 text-left align-middle shadow-xl transition-all`}
+                >
                   <div className='absolute right-8 top-4 z-10  flex pr-2 pt-4 sm:-ml-10 sm:pr-4'>
                     <button
                       className='rounded-full bg-transparent p-1 text-stone-900 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50'
