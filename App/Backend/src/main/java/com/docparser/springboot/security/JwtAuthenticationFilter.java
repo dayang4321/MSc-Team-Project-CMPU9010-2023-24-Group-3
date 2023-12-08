@@ -1,6 +1,5 @@
 package com.docparser.springboot.security;
 
-
 import com.docparser.springboot.utils.SessionUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,18 +18,25 @@ import java.util.Optional;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws  ServletException, IOException {
-        Optional<String> token= Optional.ofNullable(request.getHeader("Authorization"));
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        // Retrieve the 'Authorization' header from the request
+        Optional<String> token = Optional.ofNullable(request.getHeader("Authorization"));
 
-        if ( token.isPresent() && token.get().startsWith("Bearer ")) {
+        // Check if the token is present and starts with 'Bearer '
+        if (token.isPresent() && token.get().startsWith("Bearer ")) {
+            // Remove 'Bearer ' from the token
             token = Optional.of(token.get().substring(7));
 
-            // validate the token
+            // Validate the JWT token
             if (SessionUtils.validateToken(token.get())) {
-               Authentication authentication = new UsernamePasswordAuthenticationToken(SessionUtils.getSessionIdFromToken(token.get()), null, Collections.emptyList());
-               SecurityContextHolder.getContext().setAuthentication(authentication);
+                // Create an Authentication object using the session ID from the token
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        SessionUtils.getSessionIdFromToken(token.get()), null, Collections.emptyList());
+
+                // Set the authentication in the SecurityContext
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 

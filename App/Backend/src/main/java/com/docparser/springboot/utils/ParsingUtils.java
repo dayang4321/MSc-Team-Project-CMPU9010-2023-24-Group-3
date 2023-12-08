@@ -8,24 +8,25 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
 @Component
 public class ParsingUtils {
 
-
+    // Extracts all paragraphs as a list of strings from a given XWPFDocument
     public static List<String> getParagraphsInTheDocument(XWPFDocument document) {
         List<String> paragraphs = new ArrayList<>();
         document.getParagraphs().forEach(paragraph -> paragraphs.add(paragraph.getParagraphText()));
         return paragraphs;
     }
 
-    public static Function<String, Boolean> checkForFontParameterChange = formatConfig -> formatConfig != null && !formatConfig.isEmpty();
+    // Functions to check if a font parameter or boolean font parameter has changed
+    public static Function<String, Boolean> checkForFontParameterChange = formatConfig -> formatConfig != null
+            && !formatConfig.isEmpty();
     public static Function<Boolean, Boolean> checkForBooleanFontParameterChange = Objects::nonNull;
 
-
+    // Maps a string to a corresponding ParagraphAlignment enumeration
     public static ParagraphAlignment mapStringToAlignment(String alignmentString) {
         return switch (alignmentString.toUpperCase()) {
             case "LEFT" -> ParagraphAlignment.LEFT;
@@ -33,67 +34,64 @@ public class ParsingUtils {
             case "RIGHT" -> ParagraphAlignment.RIGHT;
             case "JUSTIFY" -> ParagraphAlignment.BOTH;
             case "DISTRIBUTE" -> ParagraphAlignment.DISTRIBUTE;
-            default ->
-                // Default to LEFT if the input string is not recognized
-                    ParagraphAlignment.LEFT;
+            default -> ParagraphAlignment.LEFT; // Defaults to LEFT if unrecognized
         };
     }
 
+    // Maps a string representing line spacing to its corresponding BigInteger value
     public static BigInteger mapStringToLineSpacingValueInBigInt(String lineSpacing) {
         return switch (lineSpacing.toUpperCase()) {
             case "1" -> BigInteger.valueOf(240);
             case "1.5" -> BigInteger.valueOf(360);
             case "2" -> BigInteger.valueOf(480);
-            default ->
-                // Default to LEFT if the input string is not recognized
-                    BigInteger.valueOf(360);
+            default -> BigInteger.valueOf(360); // Defaults to 1.5 if unrecognized
         };
     }
 
+    // Maps a string representing character spacing to its corresponding BigInteger
+    // value
     public static BigInteger mapStringToCharacterSpacingValueInBigInt(String lineSpacing) {
         return switch (lineSpacing.toUpperCase()) {
             case "1" -> BigInteger.valueOf(20);
             case "1.5" -> BigInteger.valueOf(30);
             case "2" -> BigInteger.valueOf(40);
             case "2.5" -> BigInteger.valueOf(50);
-            default ->
-                // Default to LEFT if the input string is not recognized
-                    BigInteger.valueOf(20);
+            default -> BigInteger.valueOf(20); // Defaults to 1 if unrecognized
         };
     }
 
+    // Creates a new paragraph in a given XWPFDocument
     public static XWPFParagraph createNewParagraph(XWPFDocument document) {
         return document.createParagraph();
     }
 
+    // Creates a new run (a chunk of text with uniform properties) in a paragraph
     public static XWPFRun createNewRun(XWPFParagraph paragraph) {
         return paragraph.createRun();
     }
 
+    // Copies styles and content from a source XWPFDocument to a target XWPFDocument
     public static XWPFDocument copyStylesAndContent(XWPFDocument source, XWPFDocument target) {
-
-// Copy paragraphs (text, formatting, styles)
         for (XWPFParagraph paragraph : source.getParagraphs()) {
             XWPFParagraph newParagraph = target.createParagraph();
             newParagraph.getCTP().set(paragraph.getCTP().copy());
 
-            // Copy runs (text, formatting, styles)
             for (XWPFRun run : paragraph.getRuns()) {
                 XWPFRun newRun = newParagraph.createRun();
                 newRun.getCTR().set(run.getCTR().copy());
-                // Copy other run-level properties as needed
+                // Additional properties could be copied here as needed
             }
-
-            // Copy additional paragraph-level properties if needed
+            // Additional paragraph-level properties could be copied here
         }
-
         return target;
     }
 
+    // Calculates the heading size based on the given font size
     public static Integer getHeadingSize(Integer fontSize) {
         return fontSize + 2;
     }
 
+    // Maps a string to a font style name
     public static String mapStringToFontStyle(String fontStyle) {
         return switch (fontStyle) {
             case "openSans" -> "Open Sans";
@@ -103,18 +101,19 @@ public class ParsingUtils {
             case "lexend" -> "Lexend";
             case "arial" -> "Arial";
             case "helvetica" -> "Helvetica";
-            default ->
-                // Default to LEFT if the input string is not recognized
-                    "Open Sans";
+            default -> "Open Sans"; // Defaults to Open Sans if unrecognized
         };
     }
 
+    // Counts lines in a text based on punctuation and whitespace patterns
     public static String[] countLines(String text) {
-        if (text == null) return new String[]{};
+        if (text == null)
+            return new String[] {};
         Pattern re = Pattern.compile("(?<=[.!?])\\s+(?=[a-zA-Z0-9])", Pattern.MULTILINE | Pattern.COMMENTS);
         return re.split(text);
     }
 
+    // Removes runs from a paragraph that don't contain embedded pictures
     public static void removeRuns(XWPFParagraph paragraph) {
         for (int i = paragraph.getRuns().size() - 1; i >= 0; i--) {
             XWPFRun run = paragraph.getRuns().get(i);
@@ -124,6 +123,8 @@ public class ParsingUtils {
         }
     }
 
+    // Divides a large paragraph into smaller paragraphs based on the specified
+    // number of lines
     public static String[] divideParagraph(String largeParagraph, int linesPerParagraph) {
         String[] lines = countLines(largeParagraph);
         int totalLines = lines.length;
@@ -138,12 +139,14 @@ public class ParsingUtils {
         return smallerParagraphs;
     }
 
+    // Retrieves the settings of a XWPFDocument through reflection
     public static XWPFSettings getSettings(XWPFDocument document) throws Exception {
         java.lang.reflect.Field settings = XWPFDocument.class.getDeclaredField("settings");
         settings.setAccessible(true);
         return (XWPFSettings) settings.get(document);
     }
 
+    // Checks if a paragraph has a heading style
     public static boolean checkIfHeadingStylePresent(XWPFParagraph paragraph) {
         if (paragraph.getStyleID() != null && paragraph.getStyleID().startsWith("Heading"))
             return true;
@@ -153,50 +156,94 @@ public class ParsingUtils {
         return false;
     }
 
+    // Extracts headings from a document based on paragraph styles
     public static Optional<List<String>> extractHeadings(XWPFDocument document) {
         List<String> headings = new ArrayList<>();
         List<XWPFParagraph> paragraphs = document.getParagraphs();
-        paragraphs.stream().filter(ParsingUtils::checkIfHeadingStylePresent).forEach(paragraph -> headings.add(paragraph.getRuns().get(0).toString()));
+        paragraphs.stream().filter(ParsingUtils::checkIfHeadingStylePresent)
+                .forEach(paragraph -> headings.add(paragraph.getRuns().get(0).toString()));
         return Optional.of(headings);
     }
 
+    /*
+     * Retrieves or creates a new CTPPr (paragraph properties) object for a given
+     * paragraph
+     */
     public static CTPPr getCTPPr(XWPFParagraph paragraph) {
         CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
         return ctpPr;
     }
 
+    // Partitions a list of document IDs into sublists with a maximum size of 25
     public static List<List<String>> partitionList(List<String> documentIds) {
         List<List<String>> subSets = ListUtils.partition(documentIds, 25);
         return subSets;
     }
 
     /*
-        public static void loadCustomFonts()  {
-            String dyslexieFontPath = "src/main/resources/fonts/OpenDyslexic-Bold.otf";
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(dyslexieFontPath)));
-            Optional<Font> b = Arrays.stream(ge.getAllFonts()).filter(font -> font.getName().equals("OpenDyslexic")).findFirst();
-            Font[] f = ge.getAllFonts();
-        }*/
+     * public static void loadCustomFonts() {
+     * String dyslexieFontPath = "src/main/resources/fonts/OpenDyslexic-Bold.otf";
+     * GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+     * ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new
+     * File(dyslexieFontPath)));
+     * Optional<Font> b = Arrays.stream(ge.getAllFonts()).filter(font ->
+     * font.getName().equals("OpenDyslexic")).findFirst();
+     * Font[] f = ge.getAllFonts();
+     * }
+     */
+    /*
+     * Copies configuration settings from a source DocumentConfig to a target
+     * DocumentConfig
+     */
     public static void copyDocumentConfig(DocumentConfig source, DocumentConfig target) {
-        target.setFontColor(checkForFontParameterChange.apply(source.getFontColor())?source.getFontColor():target.getFontColor());
-        target.setFontSize(checkForFontParameterChange.apply(source.getFontSize())?source.getFontSize():target.getFontSize());
-        target.setFontType(checkForFontParameterChange.apply(source.getFontType())?source.getFontType():target.getFontType());
-        target.setLineSpacing(checkForFontParameterChange.apply(source.getLineSpacing())?source.getLineSpacing():target.getLineSpacing());
-        target.setAlignment(checkForFontParameterChange.apply(source.getAlignment())?source.getAlignment():target.getAlignment());
-        target.setBackgroundColor(checkForFontParameterChange.apply(source.getBackgroundColor())?source.getBackgroundColor():target.getBackgroundColor());
-        target.setFontColor(checkForFontParameterChange.apply(source.getFontColor())?source.getFontColor():target.getFontColor());
-        target.setRemoveItalics(checkForBooleanFontParameterChange.apply(source.getRemoveItalics())?source.getRemoveItalics():target.getRemoveItalics());
-        target.setBorderGeneration(checkForBooleanFontParameterChange.apply(source.getBorderGeneration())?source.getBorderGeneration():target.getBorderGeneration());
-        target.setParagraphSplitting(checkForBooleanFontParameterChange.apply(source.getParagraphSplitting())?source.getParagraphSplitting():target.getParagraphSplitting());
-        target.setHeaderGeneration(checkForBooleanFontParameterChange.apply(source.getHeaderGeneration())?source.getHeaderGeneration():target.getHeaderGeneration());
-        target.setGenerateTOC(checkForBooleanFontParameterChange.apply(source.getGenerateTOC())?source.getGenerateTOC():target.getGenerateTOC());
-        target.setSyllableSplitting(checkForBooleanFontParameterChange.apply(source.getSyllableSplitting())?source.getSyllableSplitting():target.getSyllableSplitting());
-        target.setCharacterSpacing(checkForFontParameterChange.apply(source.getCharacterSpacing())?source.getCharacterSpacing():target.getCharacterSpacing());
+        // The following methods copy properties from source to target if they have
+        // changed
+        target.setFontColor(checkForFontParameterChange.apply(source.getFontColor()) ? source.getFontColor()
+                : target.getFontColor());
+        target.setFontSize(
+                checkForFontParameterChange.apply(source.getFontSize()) ? source.getFontSize() : target.getFontSize());
+        target.setFontType(
+                checkForFontParameterChange.apply(source.getFontType()) ? source.getFontType() : target.getFontType());
+        target.setLineSpacing(checkForFontParameterChange.apply(source.getLineSpacing()) ? source.getLineSpacing()
+                : target.getLineSpacing());
+        target.setAlignment(checkForFontParameterChange.apply(source.getAlignment()) ? source.getAlignment()
+                : target.getAlignment());
+        target.setBackgroundColor(
+                checkForFontParameterChange.apply(source.getBackgroundColor()) ? source.getBackgroundColor()
+                        : target.getBackgroundColor());
+        target.setFontColor(checkForFontParameterChange.apply(source.getFontColor()) ? source.getFontColor()
+                : target.getFontColor());
+        target.setRemoveItalics(
+                checkForBooleanFontParameterChange.apply(source.getRemoveItalics()) ? source.getRemoveItalics()
+                        : target.getRemoveItalics());
+        target.setBorderGeneration(
+                checkForBooleanFontParameterChange.apply(source.getBorderGeneration()) ? source.getBorderGeneration()
+                        : target.getBorderGeneration());
+        target.setParagraphSplitting(checkForBooleanFontParameterChange.apply(source.getParagraphSplitting())
+                ? source.getParagraphSplitting()
+                : target.getParagraphSplitting());
+        target.setHeaderGeneration(
+                checkForBooleanFontParameterChange.apply(source.getHeaderGeneration()) ? source.getHeaderGeneration()
+                        : target.getHeaderGeneration());
+        target.setGenerateTOC(
+                checkForBooleanFontParameterChange.apply(source.getGenerateTOC()) ? source.getGenerateTOC()
+                        : target.getGenerateTOC());
+        target.setSyllableSplitting(
+                checkForBooleanFontParameterChange.apply(source.getSyllableSplitting()) ? source.getSyllableSplitting()
+                        : target.getSyllableSplitting());
+        target.setCharacterSpacing(
+                checkForFontParameterChange.apply(source.getCharacterSpacing()) ? source.getCharacterSpacing()
+                        : target.getCharacterSpacing());
     }
 
     public static Set<String> stopWords() {
         Set<String> stopWords = new HashSet<>();
+
+        /*
+         * Adding common English stop words to the set.
+         * Stop words are commonly used words that are generally filtered out in natural
+         * language processing
+         */
         stopWords.add("the");
         stopWords.add("in");
         stopWords.add("that");

@@ -22,12 +22,14 @@ import java.util.function.BiConsumer;
 public class ParagraphModifierImpl implements ParagraphModifier {
     private final NLPService nlpService;
 
+    // Adds new text to a paragraph with carriage returns
     private void addNewText(XWPFRun run, String para) {
         run.setText(para);
         run.addCarriageReturn();
         run.addCarriageReturn();
     }
 
+    // Modifies text in a paragraph to add syllable styling
     private void modifyTextToAddSyllableStyling(XWPFParagraph paragraph, DocumentConfig formattingConfig) {
         String text = paragraph.getParagraphText();
         String formattedText = nlpService.hyphenateText(text);
@@ -49,17 +51,17 @@ public class ParagraphModifierImpl implements ParagraphModifier {
         }
     }
 
-
+    // Modifies the alignment of a paragraph
     private void modifyAlignment(XWPFParagraph paragraph, String alignment) {
         paragraph.setAlignment(ParsingUtils.mapStringToAlignment(alignment));
     }
 
+    // Modifies line spacing of a paragraph
     private void modifyLineSpacing(XWPFParagraph paragraph, String lineSpacing) {
         CTPPr ctpPr = ParsingUtils.getCTPPr(paragraph);
         if (ctpPr.isSetSpacing()) {
             ctpPr.getSpacing().setLineRule(STLineSpacingRule.AUTO);
             ctpPr.getSpacing().setLine(ParsingUtils.mapStringToLineSpacingValueInBigInt(lineSpacing));
-
         } else {
             ctpPr.addNewSpacing().setLineRule(STLineSpacingRule.AUTO);
             ctpPr.getSpacing().setLine(ParsingUtils.mapStringToLineSpacingValueInBigInt(lineSpacing));
@@ -100,26 +102,31 @@ public class ParagraphModifierImpl implements ParagraphModifier {
         CTParaRPr ll = ctpPr.getRPr() == null ? ctpPr.addNewRPr() : ctpPr.getRPr();
         CTColor val = ll.isSetColor() ? ctpPr.getRPr().getColor() : ctpPr.getRPr().addNewColor();
         val.setVal(colorShading);
-        Optional.ofNullable(ctpPr.getShd()).ifPresentOrElse(shd -> shd.setFill(colorShading), () -> ctpPr.addNewShd().setFill(colorShading));
+        Optional.ofNullable(ctpPr.getShd()).ifPresentOrElse(shd -> shd.setFill(colorShading),
+                () -> ctpPr.addNewShd().setFill(colorShading));
     }
 
+    // Lambda expression for modifying a paragraph with various styling options
     private final BiConsumer<XWPFParagraph, DocumentConfig> modifyParagraph = (paragraph, formattingConfig) -> {
+        // Apply different modifications based on the formatting configuration
         if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getAlignment()))
             modifyAlignment(paragraph, formattingConfig.getAlignment());
         if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getLineSpacing()))
             modifyLineSpacing(paragraph, formattingConfig.getLineSpacing());
         if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
             modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getSyllableSplitting()) && formattingConfig.getSyllableSplitting())
+        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getSyllableSplitting())
+                && formattingConfig.getSyllableSplitting())
             modifyTextToAddSyllableStyling(paragraph, formattingConfig);
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getParagraphSplitting()) && formattingConfig.getParagraphSplitting())
+        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getParagraphSplitting())
+                && formattingConfig.getParagraphSplitting())
             modifyText(paragraph, formattingConfig);
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getBorderGeneration()) && formattingConfig.getBorderGeneration())
+        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getBorderGeneration())
+                && formattingConfig.getBorderGeneration())
             addParagraphBorder(paragraph);
-
-
     };
 
+    // Method to apply modifications to a paragraph
     @Override
     public void modify(XWPFParagraph paragraph, DocumentConfig config) {
         modifyParagraph.accept(paragraph, config);

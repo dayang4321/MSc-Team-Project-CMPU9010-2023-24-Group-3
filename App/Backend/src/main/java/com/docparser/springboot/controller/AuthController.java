@@ -14,32 +14,47 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-
-@CrossOrigin
-@RestController
+@CrossOrigin // Enable Cross-Origin Resource Sharing (CORS)
+@RestController // Marks the class as a Spring MVC Controller handling REST requests
 public class AuthController {
+    // Logger for logging information
     Logger logger = LoggerFactory.getLogger(AuthController.class);
+
+    // Auto-wiring the SessionService dependency and the UserService dependency
     @Autowired
     private SessionService jwtTokenService;
     @Autowired
     private UserService userService;
 
+    // Endpoint to authenticate and generate a new token
     @GetMapping("/auth/token")
     public ResponseEntity<TokenResponse> authenticate() {
+        // Generate and return the session info as a token response
         return ResponseEntity.ok(jwtTokenService.generateAndSaveSessionInfo());
     }
+
+    // Endpoint to initiate login using an email link
     @PostMapping("/auth/login")
     public ResponseEntity<Object> loginUserUsingLink(@RequestBody Login login) {
+        // Authenticate the user by sending an email link
         userService.authenticateUserWithEmailLink(login.getEmail());
         return ResponseEntity.ok("Email sent successfully");
     }
+
+    // Endpoint to validate the login using a token received in the email
     @GetMapping("/auth/validate")
     public ResponseEntity<TokenResponse> loginUserUsingLink(@RequestParam String token, @RequestParam String email) {
+        // Validate the magic token and return the response
         return ResponseEntity.ok(userService.validateMagicToken(token, email));
     }
+
+    // Endpoint to logout the user
     @PostMapping("/auth/logout")
-    public ResponseEntity<Object> logoutUser( HttpServletRequest request) {
+    public ResponseEntity<Object> logoutUser(HttpServletRequest request) {
+        // Extract the token from the Authorization header
         Optional<String> token = Optional.of(request.getHeader("Authorization"));
+
+        // Log the user out using the token
         userService.logoutUser(token.get().substring(7));
         return ResponseEntity.ok("User logged out successfully");
     }

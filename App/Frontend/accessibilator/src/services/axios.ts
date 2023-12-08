@@ -28,7 +28,7 @@ axiosInit.interceptors.request.use(async function (config) {
   const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
   const expiry = localStorage.getItem(STORAGE_KEYS.EXPIRY) || '0';
 
-  const isTokenValid = Number(expiry) > Date.now() || true;
+  const isTokenValid = Number(expiry) > Date.now();
 
   if (!!token && isTokenValid) {
     config.headers.Authorization = `Bearer ${token}`;

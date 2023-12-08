@@ -19,12 +19,14 @@ import java.util.List;
 
 @Repository
 public class SessionRepository {
+    // Autowired dependencies for DynamoDB enhanced and standard clients
     @Autowired
     private DynamoDbEnhancedClient dynamoDbenhancedClient;
     @Autowired
     private DynamoDbClient dynamoDbClient;
     Logger logger = LoggerFactory.getLogger(SessionRepository.class);
-    public static final TableSchema<FeedBackForm> TABLE_SCHEMA_FEEDBACKFORM = TableSchema.builder(FeedBackForm.class)
+    public static final TableSchema<FeedBackForm> TABLE_SCHEMA_FEEDBACKFORM = TableSchema
+            .builder(FeedBackForm.class)
             .newItemSupplier(FeedBackForm::new)
             .addAttribute(String.class, a -> a.name("email")
                     .getter(FeedBackForm::getEmail)
@@ -40,27 +42,27 @@ public class SessionRepository {
                     .setter(FeedBackForm::setNewFeatures))
             .build();
 
-    public static final TableSchema<SessionInfo> SESSION_INFO_TABLE_SCHEMA =
-            TableSchema.builder(SessionInfo.class)
-                    .newItemSupplier(SessionInfo::new)
-                    .addAttribute(String.class, a -> a.name("sessionID")
-                            .getter(SessionInfo::getSessionID)
-                            .setter(SessionInfo::setSessionID)
-                            .addTag(StaticAttributeTags.primaryPartitionKey()))
-                    .addAttribute(String.class, a -> a.name("tokenID")
-                            .getter(SessionInfo::getTokenID)
-                            .setter(SessionInfo::setTokenID))
-                    .addAttribute(Instant.class, a -> a.name("createdDate")
-                            .getter(SessionInfo::getCreatedDate)
-                            .setter(SessionInfo::setCreatedDate))
-                    .addAttribute(Instant.class, a -> a.name("expirationTime")
-                            .getter(SessionInfo::getExpirationTime)
-                            .setter(SessionInfo::setExpirationTime))
-                    .addAttribute(EnhancedType.listOf(
-                            EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)), a -> a.name("feedBackForms")
+    public static final TableSchema<SessionInfo> SESSION_INFO_TABLE_SCHEMA = TableSchema.builder(SessionInfo.class)
+            .newItemSupplier(SessionInfo::new)
+            .addAttribute(String.class, a -> a.name("sessionID")
+                    .getter(SessionInfo::getSessionID)
+                    .setter(SessionInfo::setSessionID)
+                    .addTag(StaticAttributeTags.primaryPartitionKey()))
+            .addAttribute(String.class, a -> a.name("tokenID")
+                    .getter(SessionInfo::getTokenID)
+                    .setter(SessionInfo::setTokenID))
+            .addAttribute(Instant.class, a -> a.name("createdDate")
+                    .getter(SessionInfo::getCreatedDate)
+                    .setter(SessionInfo::setCreatedDate))
+            .addAttribute(Instant.class, a -> a.name("expirationTime")
+                    .getter(SessionInfo::getExpirationTime)
+                    .setter(SessionInfo::setExpirationTime))
+            .addAttribute(EnhancedType.listOf(
+                    EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)),
+                    a -> a.name("feedBackForms")
                             .getter(SessionInfo::getFeedBackForms)
                             .setter(SessionInfo::setFeedBackForms))
-                    .build();
+            .build();
 
     private DynamoDbTable<SessionInfo> getTable() {
         // Create a tablescheme to scan our bean class order
@@ -83,7 +85,7 @@ public class SessionRepository {
         logger.info("deleting user session ID on logout");
 
         AttributeValue value = AttributeValue.builder().s(userSessionId).build();
-         DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(DeleteItemRequest.builder()
+        DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(DeleteItemRequest.builder()
                 .tableName("SessionInfo")
                 .key(Collections.singletonMap("sessionID", value))
                 .build());

@@ -10,12 +10,13 @@ interface IAuthContext {
   isAuthLoading: boolean;
   setAuth: ({
     token,
+    expiry,
     user,
   }: {
     token: string;
+    expiry: string;
     user?: User;
   }) => Promise<User | null>;
-  setUser: (user: User) => void;
   fetchUser: () => void;
   logout: () => void;
 }
@@ -25,9 +26,8 @@ export const AuthContext = createContext<IAuthContext>({
   token: null,
   isAuthenticated: false,
   isAuthLoading: true,
-  setAuth: async ({ token, user }): Promise<User | null> =>
+  setAuth: async ({ token, expiry, user }): Promise<User | null> =>
     Promise.reject(null),
-  setUser: (user) => {},
   fetchUser: () => {},
   logout: () => {},
 });
@@ -41,6 +41,7 @@ const AuthProvider = ({ children }) => {
   const clearAuth = useCallback(() => {
     localStorage.removeItem(STORAGE_KEYS.USER);
     localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.EXPIRY);
     setToken(null);
     setUser(null);
   }, []);
@@ -86,16 +87,40 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     setIsAuthLoading(true);
     const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const expiry = localStorage.getItem(STORAGE_KEYS.EXPIRY) || '0';
     const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
 
-    if (storedToken) {
+    const isTokenValid = Number(expiry) > Date.now();
+
+    // If token is expired sign user out
+    if (!isTokenValid) {
+      clearAuth();
+      setIsAuthLoading(false);
+      return;
+    } else if (isTokenValid && storedToken && storedUser) {
       setToken(storedToken);
-    }
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      fetchUser(JSON.parse(storedUser));
+      setIsAuthLoading(false);
+      return;
+    } else if (isTokenValid && storedToken && !storedUser) {
+      setToken(storedToken);
+      fetchUser()
+        .then((user) => {
+          if (!!user) {
+            const { userId, email, username } = user;
+            setUser({ userId, email, username });
+          } else {
+            setUser(null);
+          }
+          setIsAuthLoading(false);
+        })
+        .catch((err) => {
+          clearAuth();
+          setIsAuthLoading(false);
+        });
     }
 
-    setIsAuthLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -105,12 +130,12 @@ const AuthProvider = ({ children }) => {
         token,
         isAuthLoading,
         isAuthenticated: !isAuthLoading && !!token && !!user,
-        setAuth: async ({ token, user }) => {
+        setAuth: async ({ token, expiry, user }) => {
           localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+          localStorage.setItem(STORAGE_KEYS.EXPIRY, `${Date.parse(expiry)}`);
           setToken(token);
           return await fetchUser(user);
         },
-        setUser,
         fetchUser,
         logout: async () => {
           try {

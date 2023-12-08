@@ -36,4 +36,11 @@ interface User {
   userId: string;
   email: string;
   username: string;
+  userDocuments?: {
+    documentID: string;
+    documentKey: string;
+    createdDate: string;
+    expirationTime: string;
+  }[];
+  userPresets?: DocModifyParams;
 }

@@ -19,17 +19,22 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Repository
 public class DocumentRepository {
+    // Autowired dependencies for DynamoDB enhanced and standard clients
     @Autowired
     private DynamoDbEnhancedClient dynamoDbenhancedClient;
     @Autowired
     private DynamoDbClient dynamoDbClient;
+
+    // Logger to log information
     Logger logger = LoggerFactory.getLogger(DocumentRepository.class);
 
+    // Define schema for DocumentConfig table
     public static final TableSchema<DocumentConfig> DOCUMENT_CONFIG_PARAMS = TableSchema.builder(DocumentConfig.class)
             .newItemSupplier(DocumentConfig::new)
+
+            // Define the attributes of the DocumentConfig table
             .addAttribute(String.class, a -> a.name("fontType")
                     .getter(DocumentConfig::getFontType)
                     .setter(DocumentConfig::setFontType))
@@ -70,8 +75,12 @@ public class DocumentRepository {
                     .getter(DocumentConfig::getSyllableSplitting)
                     .setter(DocumentConfig::setSyllableSplitting))
             .build();
+
+    // Define the schema for VersionInfo table
     public static final TableSchema<VersionInfo> TABLE_SCHEMA_VERSIONS = TableSchema.builder(VersionInfo.class)
             .newItemSupplier(VersionInfo::new)
+
+            // Define the attributes of the VersionInfo table
             .addAttribute(String.class, a -> a.name("eTag")
                     .getter(VersionInfo::getETag)
                     .setter(VersionInfo::setETag))
@@ -83,42 +92,49 @@ public class DocumentRepository {
                     .setter(VersionInfo::setCreatedDate))
             .build();
 
-    public static final TableSchema<DocumentInfo> DOCUMENT_INFO_TABLE_SCHEMA =
-            TableSchema.builder(DocumentInfo.class)
-                    .newItemSupplier(DocumentInfo::new)
-                    .addAttribute(String.class, a -> a.name("documentID")
-                            .getter(DocumentInfo::getDocumentID)
-                            .setter(DocumentInfo::setDocumentID)
-                            .addTag(StaticAttributeTags.primaryPartitionKey()))
-                    .addAttribute(String.class, a -> a.name("documentKey")
-                            .getter(DocumentInfo::getDocumentKey)
-                            .setter(DocumentInfo::setDocumentKey))
-                    .addAttribute(Instant.class, a -> a.name("createdDate")
-                            .getter(DocumentInfo::getCreatedDate)
-                            .setter(DocumentInfo::setCreatedDate))
-                    .addAttribute(Instant.class, a -> a.name("expirationTime")
-                            .getter(DocumentInfo::getExpirationTime)
-                            .setter(DocumentInfo::setExpirationTime))
-                    .addAttribute(EnhancedType.listOf(
-                            EnhancedType.documentOf(VersionInfo.class, TABLE_SCHEMA_VERSIONS)), a -> a.name("documentVersions")
+    // Define the schema for DocumentInfo table
+    public static final TableSchema<DocumentInfo> DOCUMENT_INFO_TABLE_SCHEMA = TableSchema.builder(DocumentInfo.class)
+            .newItemSupplier(DocumentInfo::new)
+
+            // Define the attributes of the DocumentInfo table
+            .addAttribute(String.class, a -> a.name("documentID")
+                    .getter(DocumentInfo::getDocumentID)
+                    .setter(DocumentInfo::setDocumentID)
+                    .addTag(StaticAttributeTags.primaryPartitionKey()))
+            .addAttribute(String.class, a -> a.name("documentKey")
+                    .getter(DocumentInfo::getDocumentKey)
+                    .setter(DocumentInfo::setDocumentKey))
+            .addAttribute(Instant.class, a -> a.name("createdDate")
+                    .getter(DocumentInfo::getCreatedDate)
+                    .setter(DocumentInfo::setCreatedDate))
+            .addAttribute(Instant.class, a -> a.name("expirationTime")
+                    .getter(DocumentInfo::getExpirationTime)
+                    .setter(DocumentInfo::setExpirationTime))
+            .addAttribute(EnhancedType.listOf(
+                    EnhancedType.documentOf(VersionInfo.class, TABLE_SCHEMA_VERSIONS)),
+                    a -> a.name("documentVersions")
                             .getter(DocumentInfo::getDocumentVersions)
                             .setter(DocumentInfo::setDocumentVersions))
-                    .addAttribute(EnhancedType.documentOf(DocumentConfig.class, DOCUMENT_CONFIG_PARAMS), a -> a.name("documentConfig")  // DocumentConfig.class
+            .addAttribute(EnhancedType.documentOf(DocumentConfig.class, DOCUMENT_CONFIG_PARAMS),
+                    a -> a.name("documentConfig") // DocumentConfig.class
                             .getter(DocumentInfo::getDocumentConfig)
                             .setter(DocumentInfo::setDocumentConfig))
-                    .build();
+            .build();
 
+    // Method to get the DynamoDbTable instance for DocumentInfo
     private DynamoDbTable<DocumentInfo> getTable() {
         // Create a tablescheme to scan our bean class order
         return dynamoDbenhancedClient.table("DocumentInfo", DOCUMENT_INFO_TABLE_SCHEMA);
     }
 
+    // Save a DocumentInfo record to the database
     public void save(DocumentInfo documentInfo) {
         DynamoDbTable<DocumentInfo> documentInfoTable = getTable();
-        documentInfoTable.putItem(documentInfo);
 
+        documentInfoTable.putItem(documentInfo);
     }
 
+    // Retrieve a DocumentInfo record by its ID
     public Optional<DocumentInfo> getDocumentInfo(String documentID) {
         DynamoDbTable<DocumentInfo> documentInfoTable = getTable();
         // Construct the key with partition and sort key
@@ -130,7 +146,9 @@ public class DocumentRepository {
         String expirationTime = Instant.now().toString();
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
         DynamoDbTable<DocumentInfo> documentInfoTable = getTable();
+
         expressionAttributeValues.put(":val", AttributeValue.builder().s(expirationTime).build());
+
         ScanRequest scanRequest = ScanRequest.builder()
                 .tableName("DocumentInfo")
                 .filterExpression("expirationTime <= :val")
@@ -181,11 +199,11 @@ public class DocumentRepository {
                             .key(Collections.singletonMap("documentID", value)).build();
                     requests.add(WriteRequest.builder().deleteRequest(request).build());
                 }
+
                 dynamoDbClient.batchWriteItem(BatchWriteItemRequest.builder()
                         .requestItems(Collections.singletonMap("DocumentInfo", requests))
                         .build());
             }
-
         }
     }
 }
