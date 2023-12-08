@@ -11,18 +11,21 @@ const SignInPage = () => {
   useEffect(() => {
     if (isAuthenticated) {
       delay(() => {
+        // TODO: Toast sign in success
         router.push('/');
       }, 500);
 
       return;
     } else {
-      !!router.query.token &&
+      if (!!router.query.token && !!router.query.token) {
         setAuth({
           token: String(router.query.token),
-        }).then((val) => {
-          // console.log({ val });
-          // console.log({ user, isAuthenticated }, 'redirect log');
-        });
+          expiry: String(router.query.expiry),
+        }).then((val) => {});
+      } else {
+        // TODO: Toast sign in failure
+        router.push('/');
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
