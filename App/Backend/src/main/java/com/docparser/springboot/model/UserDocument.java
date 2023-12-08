@@ -18,5 +18,4 @@ public class UserDocument {
     private Instant createdDate;
     private Instant expirationTime;
 
-
 }
