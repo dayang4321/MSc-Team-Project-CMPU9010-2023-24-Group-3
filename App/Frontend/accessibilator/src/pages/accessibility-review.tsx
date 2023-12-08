@@ -107,9 +107,9 @@ export default function AccessibilityReview() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <main className='flex flex-1 flex-col items-center justify-center bg-slate-50 py-16 pb-8 text-center text-gray-900'>
+      <main className='flex flex-1 flex-col items-center justify-center bg-slate-50 py-16 pb-8 text-center text-base text-gray-900'>
         <div className='max-w-[50rem] text-center'>
-          <h1 className='mb-11  text-4xl font-bold'>
+          <h1 className='mb-11 text-4xl font-bold'>
             The document you uploaded has been processed and modified
           </h1>
           <h3 className='text-2xl'>
