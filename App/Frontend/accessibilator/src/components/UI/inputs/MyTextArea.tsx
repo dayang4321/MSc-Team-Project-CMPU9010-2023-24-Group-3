@@ -2,9 +2,17 @@ import React from 'react';
 import { MyTextAreaProps } from './interfaces';
 import get from 'lodash/get';
 
-// Defining the functional React component named MyTextArea. It accepts the pre-defined MyTextAreaProps as its props.
+/**
+ * Defining the functional React component named MyTextArea.
+ * It accepts the pre-defined MyTextAreaProps as its props.
+ */
+
+/**
+ * MyTextArea functional component
+ * @param props: Extends the properties from MyTextAreaProps
+ * @returns MyTextArea component
+ */
 const MyTextArea: React.FC<MyTextAreaProps> = (props) => {
-  // Destructuring props to extract various properties.
   const {
     id,
     errors,
@@ -24,9 +32,9 @@ const MyTextArea: React.FC<MyTextAreaProps> = (props) => {
       {/* Conditional rendering for label. It is rendered only if 'label' prop is provided. */}
       {label && (
         <label
-          // Associates the label with the textarea using the 'id' prop.
+          // Associates the label with the textarea using the 'id' prop
           htmlFor={id}
-          // Spreads additional label properties if provided.
+          // Extends the label's properties if provided
           {...(labelProps && { ...labelProps })}
           className={`mb-2 block text-sm font-medium ${
             labelProps?.className || ''
@@ -38,24 +46,23 @@ const MyTextArea: React.FC<MyTextAreaProps> = (props) => {
       <div className='relative'>
         <textarea
           id={id}
-          name={inputRef?.name || name} // Sets the name of the textarea, preferring inputRef.name if available.
-          {...inputRef} // Spreads the ref object to the textarea, if provided.
-          className={`form-control-textarea  ${className || ''}`} // Applies dynamic class names.
-          {...textAreaProps} // Spreads additional textarea properties.
+          name={inputRef?.name || name}
+          {...inputRef}
+          className={`form-control-textarea  ${className || ''}`}
+          {...textAreaProps}
         />
-        {children}{' '}
         {/* Renders any children components or elements passed to MyTextArea. */}
+        {children}{' '}
       </div>
 
-      {/* Error message display, conditionally rendered if there are errors for this textarea's field. */}
+      {/* Error handling code to display the message, conditionally rendered if there are errors for this textarea's field. */}
       {get(errors, inputRef?.name || id) && (
         <small className='form-error ml-3'>
           {get(errors, inputRef?.name || id).message}{' '}
-          {/* Displays the error message. */}
         </small>
       )}
     </div>
   );
 };
 
-export default MyTextArea; // Exports the MyTextArea component for use in other parts of the application.
+export default MyTextArea;
