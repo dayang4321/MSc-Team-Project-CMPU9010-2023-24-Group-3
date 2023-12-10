@@ -13,6 +13,7 @@ import type { ListBoxItemProps } from 'react-aria-components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { MySelectProps } from './interfaces';
 
+// Defining a Custom functional MySelect component, a generic component with constrained type T
 function MySelect<
   T extends {
     id: string;
@@ -20,6 +21,7 @@ function MySelect<
   },
 >({ label, description, errorMessage, items, ...props }: MySelectProps<T>) {
   return (
+    // Using the Select component from react-aria-components
     <Select className='flex flex-col gap-2' {...props}>
       <Label className='cursor-default'>{label}</Label>
       <Button className='flex cursor-default items-center rounded-md border border-slate-400 bg-white bg-opacity-90 py-2 pl-4 pr-2 text-left text-base leading-normal text-gray-700 shadow ring-yellow-600 ring-offset-2 ring-offset-slate-200 transition focus:outline-none focus-visible:ring-2 pressed:bg-opacity-100 disabled:bg-gray-400/60'>
@@ -33,6 +35,7 @@ function MySelect<
       <FieldError>{errorMessage}</FieldError>
       <Popover className='entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out max-h-60 w-[--trigger-width] overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black/5'>
         <ListBox className='p-1 outline-none' items={items}>
+          {/* Mapping each item to a ListBoxItem */}
           {(
             item: T & {
               id: string;
@@ -49,6 +52,7 @@ function MySelect<
   );
 }
 
+// MyItem component, used for rendering each item in the list box
 export function MyItem(props: ListBoxItemProps) {
   return (
     <ListBoxItem
