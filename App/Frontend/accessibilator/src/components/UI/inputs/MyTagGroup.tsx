@@ -44,7 +44,7 @@ const MyTagGroup: FC<MyTagGroupProps> = ({
 
 // MyTag functional component which takes TagProps as props.
 const MyTag: FC<TagProps> = ({ children, textValue, ...props }) => {
-  // Handling textValue for the tag, defaulting to children if textValue is not provided.
+  // Conditional handling of the textValue for the tag, setting it to the default value if not provided.
   let textVal =
     textValue ?? typeof children === 'string' ? `${children}` : undefined;
   return (
