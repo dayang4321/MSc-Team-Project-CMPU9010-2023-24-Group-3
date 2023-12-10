@@ -2,8 +2,10 @@ import { FC, ReactNode } from 'react';
 import type { TagGroupProps, TagProps } from 'react-aria-components';
 import { Button, Label, Tag, TagGroup, TagList } from 'react-aria-components';
 
-// Defining the interface for MyTagGroupProps which extends TagGroupProps from react-aria-components.
-// It includes a label and an items array, each item having an id and content.
+/**
+ * Defining the interface for MyTagGroupProps which extends TagGroupProps from react-aria-components.
+ * It includes a label and an items array, each item having an id and content.
+ */
 interface MyTagGroupProps extends TagGroupProps {
   label: ReactNode;
   items: Array<{ id: string; content: ReactNode }>;
