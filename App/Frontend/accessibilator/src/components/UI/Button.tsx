@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import BeatLoader from 'react-spinners/BeatLoader';
 import { LoaderSizeMarginProps } from 'react-spinners/helpers/props';
 
+// Define the properties structure for the Button component
 export type BtnProps = {
   text: ReactNode;
   variant?: 'primary' | 'link';
@@ -12,6 +13,7 @@ export type BtnProps = {
 
 export type Ref = any;
 
+// Defining the Button component using forwardRef for passing the object by reference
 const Button = React.forwardRef<Ref, BtnProps>(function Button(props, ref) {
   const {
     text,
@@ -24,8 +26,10 @@ const Button = React.forwardRef<Ref, BtnProps>(function Button(props, ref) {
     ...btnProps
   } = props;
 
+  // Determine if the button should be disabled
   const isDisabled = !!(loading || disabled);
 
+  // Define the content of the button, either the text/icon or the loader
   let btnContent = (
     <>
       {icon && <span className={`inline-block ${text ? '' : ''}`}>{icon}</span>}
@@ -33,6 +37,7 @@ const Button = React.forwardRef<Ref, BtnProps>(function Button(props, ref) {
     </>
   );
 
+  // Replace button content with loader if in loading state
   if (!!loading) {
     btnContent = (
       <BeatLoader
@@ -47,12 +52,13 @@ const Button = React.forwardRef<Ref, BtnProps>(function Button(props, ref) {
 
   return (
     <button
+      // Disable button when loading or explicitly disabled
       disabled={isDisabled || loading}
       className={`btn ${variant === 'link' ? 'btn-link' : 'btn-primary'} ${
         (loading || isDisabled) && 'pointer-events-none bg-opacity-60'
       } ${
         className || ''
-      } transition-transform duration-150 hover:scale-105 active:scale-95`}
+      } transition-transform duration-150 active:scale-95 hover:scale-105`}
       ref={ref}
       {...btnProps}
     >
@@ -60,4 +66,5 @@ const Button = React.forwardRef<Ref, BtnProps>(function Button(props, ref) {
     </button>
   );
 });
+
 export default Button;
