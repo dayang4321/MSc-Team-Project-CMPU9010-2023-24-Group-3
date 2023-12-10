@@ -2,15 +2,15 @@ import { Dialog, Transition } from '@headlessui/react';
 import { FC, Fragment, PropsWithChildren, ReactNode } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
-// Defining the interface for MyModalProps with specific type definitions
+// Defining the interface for MyModalProps and the type definitions
 interface MyModalProps {
-  title: ReactNode; // Prop for the modal title, accepting any ReactNode
-  isOpen: boolean; // Prop to control the visibility of the modal
-  onModalClose: () => void; // Function to handle modal close event
-  size?: 'sm' | 'lg' | 'xl'; // Optional size prop to define modal sizes
+  title: ReactNode;
+  isOpen: boolean;
+  onModalClose: () => void;
+  size?: 'sm' | 'lg' | 'xl';
 }
 
-// MyModal component definition
+// Defining the MyModal component
 const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
   title,
   isOpen,
@@ -20,7 +20,7 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
 }) => {
   let sizeClass = 'max-w-2xl';
 
-  // Switch statement to set the sizeClass based on the size prop value
+  // Setting up size-based styling for the size prop value
   switch (size) {
     case 'sm':
       sizeClass = 'max-w-lg';
@@ -65,7 +65,7 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
                 leaveFrom='opacity-100 scale-100'
                 leaveTo='opacity-0 scale-95'
               >
-                {/* Modal panel with dynamic size classes */}
+                {/* Adding dynamic size classes for the Modal panel */}
                 <Dialog.Panel
                   className={`relative w-full ${sizeClass} transform overflow-hidden rounded-2xl bg-white p-8 pb-6 pt-10 text-left align-middle shadow-xl transition-all`}
                 >
