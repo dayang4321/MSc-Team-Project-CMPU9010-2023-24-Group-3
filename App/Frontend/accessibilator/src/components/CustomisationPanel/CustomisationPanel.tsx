@@ -183,9 +183,9 @@ const CustomisationPanel = ({
         </TabList>
         {/* Tab Panels for different categories */}
         <MyTabPanel id='text'>
-          {/* Text customisation options */}
-          {/* Each option is enclosed in a div and contains sliders, toggles, etc. */}
-          {/* The options include font style, size, line and character spacing, alignment, and italics removal */}
+          {/* Text customisation options
+          Each option is enclosed in a div and contains sliders, toggles, etc.
+          The options include font style, size, line and character spacing, alignment, and italics removal */}
           <div className='flex flex-col space-y-4 divide-y divide-gray-300 '>
             <div className='relative px-16 pb-3 pt-8'>
               <div className='absolute right-14 top-3'>
@@ -365,8 +365,8 @@ const CustomisationPanel = ({
           </div>
         </MyTabPanel>
         <MyTabPanel id='colour'>
-          {/* Colour customisation options */}
-          {/* Options to set text and background color, including a custom theme creator */}
+          {/* Colour customisation options
+          Options to set text and background color, including a custom theme creator */}
           <div className='flex flex-col space-y-4 divide-y divide-gray-300'>
             <div className='relative px-16 pb-3 pt-12'>
               <div className='absolute right-14 top-4'>
@@ -502,8 +502,8 @@ const CustomisationPanel = ({
           </div>
         </MyTabPanel>
         <MyTabPanel id='special'>
-          {/* Special customisation options */}
-          {/* Currently, it contains an option to generate a Table of Contents */}
+          {/* Special customisation options
+          Currently, it contains an option to generate a Table of Contents */}
           <div className='flex flex-col space-y-4 divide-y divide-gray-300'>
             <div className='px-16 py-6'>
               <div className='flex items-center justify-between'>
