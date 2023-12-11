@@ -20,16 +20,16 @@ spring.security.oauth2.client.registration.google.clientSecret=GOCSPX-qGl-auTwGI
 spring.security.oauth2.client.registration.google.scope=profile, email
 app.oauth2.redirectUri=http://localhost:3000/oauth2/redirect
 
-#config for magic link email
-magic.link.redirect.url=
+
 
 #spring config for swagger UI application name
 spring.application.name= accessibilator
 
 #spring config for email service for passwordless login
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username= accessibilator@gmail.com
-spring.mail.password= bbhl flyp jcep xpvq
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.host=
+spring.mail.port=
+spring.mail.username=
+spring.mail.password=
+spring.mail.properties.mail.smtp.auth=
+spring.mail.properties.mail.smtp.starttls.enable=
+magic.link.redirect.url=
