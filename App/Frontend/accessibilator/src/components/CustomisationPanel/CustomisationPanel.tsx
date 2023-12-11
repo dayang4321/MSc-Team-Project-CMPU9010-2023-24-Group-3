@@ -45,6 +45,10 @@ const CustomisationPanel = ({
     generateTOC: docConfigData?.generateTOC,
     backgroundColor: docConfigData?.backgroundColor,
     fontColor: docConfigData?.fontColor,
+    borderGeneration: docConfigData?.borderGeneration,
+    headerGeneration: docConfigData?.headerGeneration,
+    paragraphSplitting: docConfigData?.paragraphSplitting,
+    syllableSplitting: docConfigData?.syllableSplitting,
   });
 
   // State to toggle theme customisation
@@ -518,6 +522,74 @@ const CustomisationPanel = ({
                   checked={!!modificationsObj?.generateTOC}
                   onChange={(checked) =>
                     changeConfigHandler('generateTOC', checked)
+                  }
+                />
+              </div>
+            </div>
+            <div className='px-16 py-6'>
+              <div className='flex items-center justify-between'>
+                <InfoTooltip
+                  position='bottom'
+                  infoTip='For readers with dyslexia, large text blocks are overwhelming. Smaller paragraphs lessen visual confusion, making pages manageable and aiding in navigation. They also improve structural organization, enhancing the logical flow and ease of understanding.'
+                >
+                  <p>Split Long Paragraphs</p>
+                </InfoTooltip>
+                <MyToggle
+                  ariaLabel='Split Long Paragraphs'
+                  checked={!!modificationsObj?.paragraphSplitting}
+                  onChange={(checked) =>
+                    changeConfigHandler('paragraphSplitting', checked)
+                  }
+                />
+              </div>
+            </div>
+            <div className='px-16 py-6'>
+              <div className='flex items-center justify-between'>
+                <InfoTooltip
+                  position='bottom'
+                  infoTip='Headers clarify section topics, reducing cognitive strain for dyslexic readers who may find inferring main ideas challenging. Their distinct fonts and colors serve as visual guides, aiding in efficient navigation and information location'
+                >
+                  <p>Generate Section Headings</p>
+                </InfoTooltip>
+                <MyToggle
+                  ariaLabel='Generate Section Headings'
+                  checked={!!modificationsObj?.headerGeneration}
+                  onChange={(checked) =>
+                    changeConfigHandler('headerGeneration', checked)
+                  }
+                />
+              </div>
+            </div>
+            <div className='px-16 py-6'>
+              <div className='flex items-center justify-between'>
+                <InfoTooltip
+                  position='bottom'
+                  infoTip='Breaking words into smaller parts aids those with dyslexia in easier decoding and pronunciation. It enhances phonological awareness, crucial for reading and spelling, by helping  them recognize and manipulate word sounds'
+                >
+                  <p>Break Words Into Syllables</p>
+                </InfoTooltip>
+                <MyToggle
+                  ariaLabel='Break Words Into Syllables'
+                  checked={!!modificationsObj?.syllableSplitting}
+                  onChange={(checked) =>
+                    changeConfigHandler('syllableSplitting', checked)
+                  }
+                />
+              </div>
+            </div>
+            <div className='px-16 py-6'>
+              <div className='flex items-center justify-between'>
+                <InfoTooltip
+                  position='bottom'
+                  infoTip='Borders around paragraphs provide clear visual divisions, aiding focus on one section at a time and reducing visual stress. They guide the eyes for easier line tracking, beneficial for dyslexic readers who may struggle with text navigation.'
+                >
+                  <p>Borders Around Paragraphs</p>
+                </InfoTooltip>
+                <MyToggle
+                  ariaLabel='Break Words Into Syllables'
+                  checked={!!modificationsObj?.borderGeneration}
+                  onChange={(checked) =>
+                    changeConfigHandler('borderGeneration', checked)
                   }
                 />
               </div>

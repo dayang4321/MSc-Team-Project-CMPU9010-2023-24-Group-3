@@ -22,10 +22,14 @@ const defaultSettings: DocModifyParams = {
   removeItalics: true,
   alignment: 'LEFT',
   generateTOC: false,
+  borderGeneration: false,
+  headerGeneration: false,
+  paragraphSplitting: false,
+  syllableSplitting: false,
 };
 
 const PresetsPage = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, fetchUser, token } = useContext(AuthContext);
   const [userSettings, setUserSettings] = useState({
     ...defaultSettings,
   });
@@ -74,7 +78,8 @@ const PresetsPage = () => {
             ? userPresetData?.characterSpacing * 10
             : userPresetData?.characterSpacing,
         }),
-          setSlideModalOpen(false);
+          fetchUser(user);
+        setSlideModalOpen(false);
       })
       .catch((err) => {
         // console.log(err);
