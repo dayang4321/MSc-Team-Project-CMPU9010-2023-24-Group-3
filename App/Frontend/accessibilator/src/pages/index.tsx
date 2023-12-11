@@ -282,7 +282,7 @@ export default function Home() {
                   />
                   <Button
                     className='bg-zinc-50 px-6 py-2 text-base font-medium text-zinc-900'
-                    text={'Continue to review'}
+                    text={'Review'}
                     onClick={() => {
                       onUploadConfirm();
                     }}
