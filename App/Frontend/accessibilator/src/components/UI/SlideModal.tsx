@@ -27,7 +27,7 @@ interface SlideModalProps {
 const SlideModal: React.FC<SlideModalProps> = (props) => {
   const { open, setOpen, title, modalContentClasses, children } = props;
 
-  // The component uses the Transition component from Headless UI to handle show/hide animations
+  // This component uses the Transition component from Headless UI to handle show/hide animations
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -49,7 +49,7 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
           >
             <Dialog.Overlay className='absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
           </Transition.Child>
-          {/* Modal positioning and styling */}
+          {/* Defining the positioning and styling of the Modal */}
           <div className='pl:3 fixed inset-y-0 right-0 flex max-w-full pl-5 sm:pl-10'>
             <Transition.Child
               as={Fragment}
@@ -60,7 +60,7 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
               leaveFrom='translate-x-0'
               leaveTo='translate-x-full'
             >
-              {/* Modal dialog */}
+              {/* Dialog box for the Modal */}
               <div className='my-dialog relative w-[82vw] max-w-[34.375rem] overflow-y-scroll'>
                 {/* Transition for the close button */}
                 <Transition.Child
@@ -72,13 +72,14 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
                   leaveFrom='opacity-100'
                   leaveTo='opacity-0'
                 >
-                  {/* Close button */}
+                  {/* UI component for the Close button */}
                   <div className='absolute right-8 top-2 z-10  flex pr-2 pt-4 sm:-ml-10 sm:pr-4'>
                     <button
                       className='text-primary focus:ring-primary rounded-full bg-primary-50 p-1 focus:outline-none focus:ring-2 focus:ring-opacity-50'
                       onClick={() => setOpen(false)}
                     >
                       <span className='sr-only'>Close panel</span>
+                      {/* Close button Icon */}
                       <XMarkIcon className='h-6 w-6 ' aria-hidden='true' />
                     </button>
                   </div>
