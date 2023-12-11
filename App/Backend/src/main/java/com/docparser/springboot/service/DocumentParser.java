@@ -1,9 +1,8 @@
 package com.docparser.springboot.service;
 
-import com.docparser.springboot.Repository.DocumentRepository;
-import com.docparser.springboot.errorHandler.DocumentNotExist;
-import com.docparser.springboot.errorHandler.DuplicateUpload;
-import com.docparser.springboot.errorHandler.FileParsingException;
+import com.docparser.springboot.repository.DocumentRepository;
+import com.docparser.springboot.errorhandler.DocumentNotExist;
+import com.docparser.springboot.errorhandler.FileParsingException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.FileUtils;
 import com.docparser.springboot.utils.SessionUtils;
@@ -32,7 +31,7 @@ public class DocumentParser {
 
     // Constructor for dependency injection
     public DocumentParser(S3BucketStorage s3FileUploadService, DocumentRepository documentRepository,
-            DocumentProcessor documentProcessor, UserService userService) {
+                          DocumentProcessor documentProcessor, UserService userService) {
         this.s3FileUploadService = s3FileUploadService;
         this.documentRepository = documentRepository;
         this.documentProcessor = documentProcessor;
@@ -54,14 +53,13 @@ public class DocumentParser {
         try {
             OPCPackage opcPackage = OPCPackage.open(inputStream);
             XWPFDocument document = new XWPFDocument(opcPackage);
-            logger.info("modifying document " + tempFile.getName() + " with paragraphs : "
-                    + document.getParagraphs().size());
+            logger.info("modifying document: {} with paragraphs: {}",
+                    tempFile.getName(), document.getParagraphs().size());
             XWPFDocument updated = documentProcessor.process(document, formattingConfig);
             FileOutputStream out = new FileOutputStream(tempFile);
             updated.write(out);
             out.close();
         } catch (Exception e) {
-            logger.error("Error while modifying document" + e.getMessage());
             throw new FileParsingException("Error while modifying document" + e.getMessage());
         }
     }
@@ -69,7 +67,7 @@ public class DocumentParser {
     // Modifies a file based on a provided key, document ID, version ID, formatting
     // configuration, and user token
     public DocumentResponse modifyFile(String key, String docID, String versionID, DocumentConfig formattingConfig,
-            String token) throws IOException {
+                                       String token) {
         String userId = SessionUtils.getSessionIdFromToken(token);
         userService.checkUserLoggedIn(userId);
         DocumentInfo documentInfo = checkStoredDocumentConfigs(key, docID);
@@ -132,35 +130,42 @@ public class DocumentParser {
         String fileUrl = s3FileUploadService.getUploadedObjectUrl(fileName, s3response.versionId());
 
         updateDocumentInfo(docID, fileName, s3response);
-        file.delete();
+        boolean isDeleted = file.delete();
+        if (isDeleted) logger.info("file deletion from local ");
         return new S3StorageInfo(docID, fileUrl, fileName, s3response.versionId());
     }
 
     // Uploads a modified file after processing
-    public void uploadFileAfterModification(File file, DocumentInfo documentInfo) throws IOException {
+    public void uploadFileAfterModification(File file, DocumentInfo documentInfo) {
         String fileName = FileUtils.generateFileName(file);
         PutObjectResponse s3response = s3FileUploadService.uploadFileToS3(fileName, file);
         documentInfo.getDocumentVersions()
                 .add(new VersionInfo(s3response.versionId(), s3response.eTag(), Instant.now()));
         documentRepository.save(documentInfo);
-        file.delete();
+        boolean isDeleted = file.delete();
+        if (isDeleted) logger.info("file deletion from local");
     }
 
     // Retrieves document versions and generates URLs for the original and latest
     // version
-    public HashMap<String, DocumentVersion> getDocumentVersions(DocumentInfo documentInfo) {
+    public Map<String, DocumentVersion> getDocumentVersions(DocumentInfo documentInfo) {
         Optional<VersionInfo> versionInfoOriginal = documentInfo.getDocumentVersions().stream()
                 .min(Comparator.comparing(VersionInfo::getCreatedDate));
         Optional<VersionInfo> versionInfoLatest = documentInfo.getDocumentVersions().stream()
                 .max(Comparator.comparing(VersionInfo::getCreatedDate));
         HashMap<String, DocumentVersion> versions = new HashMap<>();
-        String originalUrl = s3FileUploadService.getUploadedObjectUrl(documentInfo.getDocumentKey(),
-                versionInfoOriginal.get().getVersionID());
-        String latestUrl = s3FileUploadService.getUploadedObjectUrl(documentInfo.getDocumentKey(),
-                versionInfoLatest.get().getVersionID());
 
-        versions.put("originalVersion", new DocumentVersion(originalUrl, versionInfoOriginal.get().getVersionID()));
-        versions.put("currentVersion", new DocumentVersion(latestUrl, versionInfoLatest.get().getVersionID()));
+        versionInfoOriginal.ifPresent(original -> {
+            String originalUrl = s3FileUploadService.getUploadedObjectUrl(documentInfo.getDocumentKey(),
+                    original.getVersionID());
+            versions.put("originalVersion", new DocumentVersion(originalUrl, original.getVersionID()));
+        });
+
+        versionInfoLatest.ifPresent(latest -> {
+            String latestUrl = s3FileUploadService.getUploadedObjectUrl(documentInfo.getDocumentKey(),
+                    latest.getVersionID());
+            versions.put("currentVersion", new DocumentVersion(latestUrl, latest.getVersionID()));
+        });
         return versions;
     }
 
@@ -181,9 +186,9 @@ public class DocumentParser {
         userService.checkUserLoggedIn(userId);
         Optional<DocumentInfo> documentInfo = documentRepository.getDocumentInfo(docID);
         DocumentResponse documentResponse = new DocumentResponse();
-        documentInfo.ifPresent(info -> {
-            setDocumentResponse(info, documentResponse);
-        });
+        documentInfo.ifPresent(info ->
+                setDocumentResponse(info, documentResponse)
+        );
         return documentResponse;
     }
 
@@ -196,10 +201,11 @@ public class DocumentParser {
 
     // Deletes stored documents that have expired
     public void deleteStoredDocuments() {
-        HashMap<String, List<String>> documentsList = documentRepository.getDocumentsExpired();
-        logger.info("deleting documents ID's" + documentsList.get("documentIDs").toString());
-        logger.info("deleting documents keys's" + documentsList.get("documentKeys").toString());
+        Map<String, Set<String>> documentsList = documentRepository.getDocumentsExpired();
+        logger.info("deleting documents ID's {}", documentsList.get("documentIDs"));
         if (!documentsList.isEmpty()) {
+            logger.info("deleting documents ID's {}", documentsList.get("documentIDs"));
+            logger.info("deleting documents keys {}", documentsList.get("documentKeys"));
             s3FileUploadService.deleteBucketObjects(documentsList.get("documentKeys"));
             documentRepository.deleteDocument(documentsList.get("documentIDs"));
         }

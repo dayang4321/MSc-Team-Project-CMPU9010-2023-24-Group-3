@@ -2,14 +2,10 @@ package com.docparser.springboot.service;
 
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.utils.ParsingUtils;
-import org.apache.poi.ooxml.POIXMLDocumentPart;
+
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFPictureData;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 
 // Mark this class as a Spring Component
 @Component
@@ -26,35 +22,7 @@ public class DocumentProcessor {
         this.runModifier = runMod;
     }
 
-    // Method to modify images within the document
-    private void modifyImage(XWPFDocument document) {
-        // Get all pictures in the document
-        List<XWPFPictureData> val = document.getAllPictures();
-        // Obtain parent of the first picture
-        POIXMLDocumentPart gg = val.get(0).getParent();
-        XWPFParagraph targetParagraph = null;
-        XWPFRun imageRun = null;
-        int runIndex = 0;
 
-        // Iterate over paragraphs to find the run containing the picture
-        for (XWPFParagraph p : document.getParagraphs()) {
-            for (XWPFRun run : p.getRuns()) {
-                if (!run.getEmbeddedPictures().isEmpty()) {
-                    targetParagraph = p;
-                    imageRun = run;
-                    break;
-                }
-            }
-            if (targetParagraph != null) {
-                break;
-            }
-        }
-        // If an image is found, add a label to the paragraph
-        if (targetParagraph != null && imageRun != null) {
-            XWPFRun labelRun = targetParagraph.createRun();
-            labelRun.setText("Figure 1: This is an image label.");
-        }
-    }
 
     // Main method to process the document
     public XWPFDocument process(XWPFDocument document, DocumentConfig config) {
