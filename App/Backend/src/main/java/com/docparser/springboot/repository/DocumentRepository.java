@@ -1,14 +1,12 @@
-package com.docparser.springboot.Repository;
+package com.docparser.springboot.repository;
 
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.model.DocumentInfo;
-import com.docparser.springboot.model.UserAccount;
 import com.docparser.springboot.model.VersionInfo;
-import com.docparser.springboot.service.S3BucketStorage;
 import com.docparser.springboot.utils.ParsingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags;
@@ -20,12 +18,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor
 public class DocumentRepository {
-    // Autowired dependencies for DynamoDB enhanced and standard clients
-    @Autowired
-    private DynamoDbEnhancedClient dynamoDbenhancedClient;
-    @Autowired
-    private DynamoDbClient dynamoDbClient;
+
+    private final DynamoDbEnhancedClient dynamoDbenhancedClient;
+
+    private final DynamoDbClient dynamoDbClient;
 
     // Logger to log information
     Logger logger = LoggerFactory.getLogger(DocumentRepository.class);
@@ -142,11 +140,9 @@ public class DocumentRepository {
         return Optional.of(documentInfoTable.getItem(key));
     }
 
-    // Retrieve documents that have expired based on current time
-    public HashMap<String, List<String>> getDocumentsExpired() {
+    public Map<String, Set<String>> getDocumentsExpired() {
         String expirationTime = Instant.now().toString();
-        Map<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
-        DynamoDbTable<DocumentInfo> documentInfoTable = getTable();
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
 
         expressionAttributeValues.put(":val", AttributeValue.builder().s(expirationTime).build());
 
@@ -156,26 +152,53 @@ public class DocumentRepository {
                 .expressionAttributeValues(expressionAttributeValues)
                 .build();
         ScanResponse response = dynamoDbClient.scan(scanRequest);
-
-        // Extract documentIDs and keys from response
-        List<String> documentIDs = response.items().stream().map(item -> item.get("documentID").s()).toList();
-        List<String> documentkeys = response.items().stream().map(item -> item.get("documentKey").s()).toList();
-        HashMap<String, List<String>> documentMap = new HashMap<>();
-
+        if (response.items().isEmpty()) {
+            return new HashMap<>();
+        }
+        if(response.items().size() == 1 && response.items().get(0).get("documentID")==null) {
+            return new HashMap<>();
+        }
+        Set<String> documentIDs = response.items().stream().map(item -> item.get("documentID").s()).collect(Collectors.toSet());
+        Set<String> documentkeys = response.items().stream().map(item -> item.get("documentKey").s()).collect(Collectors.toSet());
+        HashMap<String, Set<String>> documentMap = new HashMap<>();
         documentMap.put("documentIDs", documentIDs);
         documentMap.put("documentKeys", documentkeys);
 
         return documentMap;
     }
 
-    // Function to delete documents from the database based on a list of IDs
-    public void deleteDocument(List<String> documentIDs) {
-        logger.info("Deleting documents ID's from DB");
+    public void deleteSingleDocument(String documentID) {
+        DynamoDbTable<DocumentInfo> documentInfoTable = getTable();
+        // Construct the key with partition and sort key
+        Key key = Key.builder().partitionValue(documentID).build();
+        documentInfoTable.deleteItem(key);
+    }
 
+    public Set<String> getDocumentKeys(Set<String> documentIDs) {
+        Set<String> documentKeys = new HashSet<>();
+        if (documentIDs.isEmpty()) {
+            return documentKeys;
+        }
+        BatchGetItemRequest batchGetItemRequest = BatchGetItemRequest.builder()
+                .requestItems(Collections.singletonMap("DocumentInfo", KeysAndAttributes.builder()
+                        .keys(documentIDs.stream().map(id -> Collections.singletonMap("documentID", AttributeValue.builder().s(id).build())).toList())
+                        .build()))
+                .build();
+        BatchGetItemResponse batchGetItemResponse = dynamoDbClient.batchGetItem(batchGetItemRequest);
+        List<Map<String, AttributeValue>> items = batchGetItemResponse.responses().get("DocumentInfo");
+        for (Map<String, AttributeValue> item : items) {
+            documentKeys.add(item.get("documentKey").s());
+        }
+
+        return documentKeys;
+    }
+
+    public void deleteDocument(Set<String> documentIDs) {
+        logger.info("deleting documents ID's from db");
         if (!documentIDs.isEmpty()) {
             List<WriteRequest> requests = new ArrayList<>();
-            List<List<String>> documentIdBatchList = ParsingUtils.partitionList(documentIDs);
 
+            List<List<String>> documentIdBatchList = ParsingUtils.partitionList(documentIDs.stream().toList());
             for (List<String> dList : documentIdBatchList) {
                 for (String id : dList) {
                     AttributeValue value = AttributeValue.builder().s(id).build();

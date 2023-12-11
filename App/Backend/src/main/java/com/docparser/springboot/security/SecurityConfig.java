@@ -1,6 +1,6 @@
 package com.docparser.springboot.security;
 
-import com.docparser.springboot.errorHandler.ErrorResponse;
+import com.docparser.springboot.errorhandler.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

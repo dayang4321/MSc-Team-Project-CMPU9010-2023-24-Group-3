@@ -5,26 +5,20 @@ import com.docparser.springboot.model.TokenResponse;
 import com.docparser.springboot.service.SessionService;
 import com.docparser.springboot.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.poi.ss.formula.functions.T;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@CrossOrigin // Enable Cross-Origin Resource Sharing (CORS)
-@RestController // Marks the class as a Spring MVC Controller handling REST requests
+@CrossOrigin
+@RestController
+@RequiredArgsConstructor
 public class AuthController {
-    // Logger for logging information
-    Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    // Auto-wiring the SessionService dependency and the UserService dependency
-    @Autowired
-    private SessionService jwtTokenService;
-    @Autowired
-    private UserService userService;
+
+    private final SessionService jwtTokenService;
+    private final UserService userService;
 
     // Endpoint to authenticate and generate a new token
     @GetMapping("/auth/token")
@@ -48,7 +42,7 @@ public class AuthController {
         return ResponseEntity.ok(userService.validateMagicToken(token, email));
     }
 
-    // Endpoint to logout the user
+    // Endpoint to log out the user
     @PostMapping("/auth/logout")
     public ResponseEntity<Object> logoutUser(HttpServletRequest request) {
         // Extract the token from the Authorization header

@@ -1,8 +1,8 @@
-package com.docparser.springboot.Repository;
+package com.docparser.springboot.repository;
 
-import com.docparser.springboot.errorHandler.UserNotFoundException;
+import com.docparser.springboot.errorhandler.UserNotFoundException;
 import com.docparser.springboot.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags;
@@ -17,16 +17,16 @@ import java.util.Map;
 import java.util.Optional;
 
 // Static imports for shared constants
-import static com.docparser.springboot.Repository.DocumentRepository.DOCUMENT_CONFIG_PARAMS;
-import static com.docparser.springboot.Repository.SessionRepository.TABLE_SCHEMA_FEEDBACKFORM;
+import static com.docparser.springboot.repository.DocumentRepository.DOCUMENT_CONFIG_PARAMS;
+import static com.docparser.springboot.repository.SessionRepository.TABLE_SCHEMA_FEEDBACKFORM;
 
 @Repository
+@RequiredArgsConstructor
 public class UserRepository {
-    // Autowired dependencies for DynamoDB enhanced and standard clients
-    @Autowired
-    private DynamoDbEnhancedClient dynamoDbenhancedClient;
-    @Autowired
-    private DynamoDbClient dynamoDbClient;
+
+    private final DynamoDbEnhancedClient dynamoDbenhancedClient;
+
+    private final DynamoDbClient dynamoDbClient;
 
     // Define the TableSchema for UserDocument
     public static final TableSchema<UserDocument> TABLE_SCHEMA_DOCUMENTS = TableSchema.builder(UserDocument.class)
@@ -66,7 +66,7 @@ public class UserRepository {
                     .setter(UserAccount::setProvider))
             // Map 'userDocuments' attribute as a list of UserDocuments
             .addAttribute(EnhancedType
-                    .listOf(EnhancedType.documentOf(UserDocument.class, TABLE_SCHEMA_DOCUMENTS)),
+                            .listOf(EnhancedType.documentOf(UserDocument.class, TABLE_SCHEMA_DOCUMENTS)),
                     a -> a.name("userDocuments")
                             .getter(UserAccount::getUserDocuments)
                             .setter(UserAccount::setUserDocuments))
@@ -77,7 +77,7 @@ public class UserRepository {
                             .setter(UserAccount::setUserPresets))
             // Map 'feedBackForms' attribute as a list of FeedBackForms
             .addAttribute(EnhancedType
-                    .listOf(EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)),
+                            .listOf(EnhancedType.documentOf(FeedBackForm.class, TABLE_SCHEMA_FEEDBACKFORM)),
                     a -> a.name("feedBackForms")
                             .getter(UserAccount::getFeedBackForms)
                             .setter(UserAccount::setFeedBackForms))
@@ -111,7 +111,7 @@ public class UserRepository {
 
     // Retrieve user information based on email
     public Optional<UserAccount> getUserInfobyEmail(String email) {
-        Map<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         DynamoDbTable<UserAccount> userAccountDynamoDbTable = getTable();
         expressionAttributeValues.put(":val", AttributeValue.builder().s(email).build());
         ScanRequest scanRequest = ScanRequest.builder()
@@ -126,10 +126,9 @@ public class UserRepository {
             return Optional.empty();
         }
 
-        Optional<UserAccount> userAccount = Optional.ofNullable(userAccountDynamoDbTable
+        return Optional.ofNullable(userAccountDynamoDbTable
                 .getItem(Key.builder().partitionValue(item.get("userId").s()).build()));
 
-        return userAccount;
     }
 
 }

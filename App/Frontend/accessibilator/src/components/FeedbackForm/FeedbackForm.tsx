@@ -20,6 +20,10 @@ interface FeedbackFormFields {
   newFeatures: string;
 }
 
+/**
+ * The FeedbackForm component provides a modal-based form for users to submit feedback.
+ * It includes fields for email, likes, dislikes, and new feature suggestions.
+ */
 const FeedbackForm: FC<FeedbackFormProps> = ({
   isShowing,
   onFeedBackClose,
@@ -39,6 +43,9 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
   const [sendFeedbackSuccess, setSendFeedbackSuccess] =
     useState<boolean>(false);
 
+  /**
+   * Handles form submission. Posts data to the server, and manages loading state and error handling.
+   */
   const submitHandler: SubmitHandler<FeedbackFormFields> = async (data) => {
     setIsSubmitLoading(true);
     try {
@@ -66,12 +73,16 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
     }
   };
 
+  /**
+   * Handles closing the modal and resets feedback submission state.
+   */
   const onModalClose = () => {
     setSendFeedbackSuccess(false);
     setSendFeedbackError('');
     onFeedBackClose();
   };
 
+  // Loader UI component displayed during feedback submission
   const loader = (
     <div className='flex h-96 w-full flex-col items-center justify-center'>
       <HashLoader
@@ -84,17 +95,20 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
     </div>
   );
 
+  // Main form content
   const formContent = (
     <>
       {sendFeedbackSuccess ? (
         <div>
           <p className='mb-6 mt-12 text-xl'>We received your feedback</p>
-          <p className='mb-10 text-lg'>Your feedback means alot to us🫡</p>
+          <p className='mb-10 text-lg'>Your feedback means a lot to us🫡</p>
         </div>
       ) : (
+        // Form elements with validation and error handling
         <>
           {' '}
           <form className='mt-6'>
+            {/* Email input field */}
             <MyInput
               id='Email'
               label={'Email address (optional)'}
@@ -114,6 +128,7 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
               defaultValue={''}
               placeholder='e.g jamie@gmail.com'
             ></MyInput>
+            {/* Text area for user likes */}
             <MyTextArea
               id='whatUserLiked'
               label={'What did you like? (*)'}
@@ -177,6 +192,7 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
               rows={4}
             />
           </form>
+          {/* Button components for submitting and cancelling the form */}
           <div className='mb-2 mt-5 flex justify-end p-1'>
             <Button
               role='navigation'
@@ -200,6 +216,7 @@ const FeedbackForm: FC<FeedbackFormProps> = ({
         </>
       )}
 
+      {/* Error message display */}
       {sendFeedbackError && (
         <p className='mt-3 rounded-md bg-red-200 px-4 py-2 text-lg text-red-800'>
           {sendFeedbackError}

@@ -1,11 +1,10 @@
-package com.docparser.springboot.Repository;
+package com.docparser.springboot.repository;
 
 import com.docparser.springboot.model.FeedBackForm;
 import com.docparser.springboot.model.SessionInfo;
-import com.docparser.springboot.utils.ParsingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags;
@@ -13,17 +12,14 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class SessionRepository {
-    // Autowired dependencies for DynamoDB enhanced and standard clients
-    @Autowired
-    private DynamoDbEnhancedClient dynamoDbenhancedClient;
-    @Autowired
-    private DynamoDbClient dynamoDbClient;
+
+    private final DynamoDbEnhancedClient dynamoDbenhancedClient;
+    private final  DynamoDbClient dynamoDbClient;
     Logger logger = LoggerFactory.getLogger(SessionRepository.class);
     public static final TableSchema<FeedBackForm> TABLE_SCHEMA_FEEDBACKFORM = TableSchema
             .builder(FeedBackForm.class)
@@ -89,6 +85,6 @@ public class SessionRepository {
                 .tableName("SessionInfo")
                 .key(Collections.singletonMap("sessionID", value))
                 .build());
-        logger.info("session deleted" + deleteItemResponse.toString());
+        logger.info("session deleted:{}" ,deleteItemResponse);
     }
 }

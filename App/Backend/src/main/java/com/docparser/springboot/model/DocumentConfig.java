@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DocumentConfig implements Cloneable {
+public class DocumentConfig  {
     // Fields to store various configuration settings for a document
     private String fontType;
     private String fontSize;
@@ -27,20 +27,5 @@ public class DocumentConfig implements Cloneable {
     private Boolean borderGeneration; // Flag for generating borders
     private Boolean syllableSplitting; // Flag for splitting syllables
 
-    // Override the clone method to allow cloning of DocumentConfig objects
-    @Override
-    public DocumentConfig clone() {
-        try {
-            // Creating a clone of the current object.
-            DocumentConfig clone = (DocumentConfig) super.clone();
-            /*
-             * TODO: copy mutable state here, so the clone can't change the internals of the
-             * original
-             */
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            // If cloning is not supported, throw an AssertionError
-            throw new AssertionError();
-        }
-    }
+
 }
