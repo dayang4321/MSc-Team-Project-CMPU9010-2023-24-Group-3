@@ -1,8 +1,6 @@
 package com.docparser.springboot.controller;
 
-import com.docparser.springboot.model.DocumentConfig;
-import com.docparser.springboot.model.FeedBackForm;
-import com.docparser.springboot.model.UserAccount;
+import com.docparser.springboot.model.*;
 import com.docparser.springboot.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +57,15 @@ public class UserController {
         // Save feedback information with the provided feedback form
         userService.saveFeedbackInfo(token.get().substring(7), feedBackForm);
         return ResponseEntity.ok("Feedback saved successfully"); // Return success response
+    }
+
+    @GetMapping("/documents")
+    public ResponseEntity<Object> getUserDocumentInfo( HttpServletRequest request) {
+        // Code to save the file to a database or disk
+        Optional<String> token = Optional.of(request.getHeader(AUTHORISATION));
+        // Save feedback information with the provided feedback form
+        List<UserDocumentResponse> result = userService.getUserDocuments(token.get().substring(7));
+        return ResponseEntity.ok(result); // Return success response
     }
 
     @DeleteMapping("/documents/{documentids}")
