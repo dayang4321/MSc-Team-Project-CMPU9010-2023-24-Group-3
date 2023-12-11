@@ -1,7 +1,7 @@
 export const STORAGE_KEYS = {
   /**
    * This constant is used to store and retrieve the access token from a storage mechanism.
-   * The access token is typically used for authentication purposes in an application.
+   * The access token is used for authentication purposes in the application.
    */
   TOKEN: 'ACCESSIBILATOR@TOKEN',
 
