@@ -10,18 +10,23 @@ import Image from 'next/image';
 import MagicEmailForm from '../components/MagicEmailForm/MagicEmailForm';
 import { ToastQueue } from '@react-spectrum/toast';
 
+// LayoutProps interface is defined to be used as the properties accepted by the DefaultLayout component
 interface LayoutProps {
   children: React.ReactNode;
   variant?: 'regular' | 'slim';
   title?: React.ReactNode;
 }
 
+// Define the redirect URL for OAuth2 authentication based on whether the app is in development mode
 const redirectUrl = IS_DEV_MODE
   ? 'http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/oauth2/redirect'
   : 'https://hn6noz98uf.execute-api.eu-north-1.amazonaws.com/oauth2/authorization/google?redirect_uri=https://dev.d3gfcwg1uu11c0.amplifyapp.com/oauth2/redirect';
 
+// DefaultLayout is a functional component that uses LayoutProps
 const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
+  // AuthContext provides authentication related information
   const { isAuthenticated, user, logout } = useContext(AuthContext);
+  // useState hooks for managing local state in the component
   const [isShowingFeedback, setIsShowingFeedback] = useState(false);
   const [isShowingLoginModal, setIsShowingLoginModal] = useState(false);
 
@@ -35,18 +40,19 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
             variant === 'slim' ? 'py-2' : 'py-4'
           } `}
         >
-          <Link
-            className='text-3xl font-extrabold uppercase'
-            href='/'
-          >
+          {/* Link component for navigation */}
+          <Link className='text-3xl font-extrabold uppercase' href='/'>
             Accessibilator
           </Link>
+          {/* Conditional rendering of the title */}
           {title && (
             <p className='absolute left-1/2 top-1/2 inline-block -translate-x-1/2 -translate-y-1/2 text-lg font-medium'>
               {title}
             </p>
           )}
+          {/* Conditional rendering based on authentication status */}
           {isAuthenticated ? (
+            // User menu for authenticated users
             <Menu as='div' className='relative ml-auto'>
               <div>
                 <Menu.Button className='flex rounded-full border-2 border-primary-400 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-200'>
@@ -107,6 +113,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
               </Transition>
             </Menu>
           ) : (
+            // Login menu for unauthenticated users
             <Menu as='div' className='relative ml-auto'>
               <div>
                 <Menu.Button className='btn-primary'>
@@ -150,7 +157,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
               </Transition>
             </Menu>
           )}
-
+          {/* Display the Send Feedback button */}
           <Button
             role='navigation'
             variant='link'
@@ -162,8 +169,10 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
           />
         </nav>
         {children}
+        {/* Footer (currently invisible) */}
         <footer className='invisible p-5'>Footer</footer>
       </div>
+      {/* Render the following components - FeedbackForm and MagicEmailForm */}
       <FeedbackForm
         isShowing={isShowingFeedback}
         onFeedBackClose={() => {
