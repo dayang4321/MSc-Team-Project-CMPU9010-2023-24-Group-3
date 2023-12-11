@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
 import Button from '../components/UI/Button';
 import MyToggle from '../components/UI/MyToggle';
@@ -8,6 +8,7 @@ import axiosInit from '../services/axios';
 import InfoTooltip from '../components/InfoTooltip/InfoTooltip';
 import { reportException } from '../services/errorReporting';
 import { ToastQueue } from '@react-spectrum/toast';
+import { AuthContext } from '../contexts/AuthContext';
 
 type PrimaryFix =
   | 'fontStyle'
@@ -25,15 +26,34 @@ export default function AccessibilityReview() {
   const router = useRouter();
   const { doc_id, doc_key, version_id } = router.query;
 
-  const [choicesObj, setChoicesObj] = useState<Record<PrimaryFix, boolean>>({
-    fontStyle: true,
-    fontSize: true,
-    interSpacing: true,
-    lineSpacing: true,
-    contrast: true,
-    italics: true,
-    alignment: true,
-  });
+  const { user } = useContext(AuthContext);
+
+  const currentUserPresets = user?.userPresets;
+
+  const [choicesObj, setChoicesObj] = useState<Record<PrimaryFix, boolean>>(
+    user
+      ? {
+          fontStyle: !!user?.userPresets?.fontType,
+          fontSize: !!user?.userPresets?.fontSize,
+          interSpacing: !!user?.userPresets?.characterSpacing,
+          lineSpacing: !!user?.userPresets?.lineSpacing,
+          contrast: !!(
+            user?.userPresets?.backgroundColor ||
+            user?.userPresets?.backgroundColor
+          ),
+          italics: !!user?.userPresets?.removeItalics,
+          alignment: !!user?.userPresets?.alignment,
+        }
+      : {
+          fontStyle: true,
+          fontSize: true,
+          interSpacing: true,
+          lineSpacing: true,
+          contrast: true,
+          italics: true,
+          alignment: true,
+        }
+  );
 
   const setChoiceHandler = (choice: PrimaryFix) => {
     setChoicesObj((s) => ({
@@ -46,14 +66,30 @@ export default function AccessibilityReview() {
     setIsModifyLoading(true);
 
     const docModParams: Partial<DocModifyParams> = {
-      fontType: choicesObj.fontStyle ? 'arial' : undefined,
-      fontSize: choicesObj.fontSize ? 12 : undefined,
-      lineSpacing: choicesObj.lineSpacing ? 1.5 : undefined,
-      fontColor: choicesObj.contrast ? '000000' : undefined,
-      backgroundColor: choicesObj.contrast ? 'FFFFFF' : undefined,
-      characterSpacing: choicesObj.interSpacing ? 2.5 : undefined,
-      removeItalics: choicesObj.italics ? true : undefined,
-      alignment: choicesObj.alignment ? 'LEFT' : undefined,
+      fontType: choicesObj.fontStyle
+        ? currentUserPresets?.fontType || 'arial'
+        : undefined,
+      fontSize: choicesObj.fontSize
+        ? currentUserPresets?.fontSize || 12
+        : undefined,
+      lineSpacing: choicesObj.lineSpacing
+        ? currentUserPresets?.lineSpacing || 1.5
+        : undefined,
+      fontColor: choicesObj.contrast
+        ? currentUserPresets?.fontColor || '000000'
+        : undefined,
+      backgroundColor: choicesObj.contrast
+        ? currentUserPresets?.backgroundColor || 'FFFFFF'
+        : undefined,
+      characterSpacing: choicesObj.interSpacing
+        ? currentUserPresets?.characterSpacing || 2.5
+        : undefined,
+      removeItalics: choicesObj.italics
+        ? currentUserPresets?.removeItalics || true
+        : undefined,
+      alignment: choicesObj.alignment
+        ? currentUserPresets?.alignment || 'LEFT'
+        : undefined,
     };
 
     axiosInit
