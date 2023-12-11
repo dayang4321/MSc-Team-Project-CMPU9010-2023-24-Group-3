@@ -8,10 +8,11 @@ import { IS_DEV_MODE } from '../configs/configs';
 import { Menu, Transition } from '@headlessui/react';
 import Image from 'next/image';
 import MagicEmailForm from '../components/MagicEmailForm/MagicEmailForm';
+import { ToastQueue } from '@react-spectrum/toast';
 
 interface LayoutProps {
   children: React.ReactNode;
-  variant?: 'light' | 'dark';
+  variant?: 'regular' | 'slim';
   title?: React.ReactNode;
 }
 
@@ -31,10 +32,13 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
       <div className='flex min-h-screen flex-col'>
         <nav
           className={`relative flex px-8 shadow ${
-            variant === 'dark' ? 'bg-stone-900 py-2 text-stone-100' : 'py-4'
+            variant === 'slim' ? 'py-2' : 'py-4'
           } `}
         >
-          <Link className='text-3xl font-extrabold uppercase' href='/'>
+          <Link
+            className='text-3xl font-extrabold uppercase'
+            href='/'
+          >
             Accessibilator
           </Link>
           {title && (
@@ -89,6 +93,9 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
                     onClick={() => {
                       logout();
                       router.push('/');
+                      ToastQueue.neutral('User logged out', {
+                        timeout: 2000,
+                      });
                     }}
                     className={
                       'w-full bg-white px-4 py-2 text-left text-sm text-gray-800 file:block hover:bg-primary-100'
@@ -147,9 +154,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
           <Button
             role='navigation'
             variant='link'
-            className={`ml-6 inline-block  px-6 py-2 text-base font-medium underline  ${
-              variant === 'dark' ? 'text-stone-100' : 'text-stone-900'
-            } `}
+            className='ml-6 inline-block  px-6 py-2 text-base font-medium text-stone-900 underline'
             text={'Send Feedback'}
             onClick={() => {
               setIsShowingFeedback(true);

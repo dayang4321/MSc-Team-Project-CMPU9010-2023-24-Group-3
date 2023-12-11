@@ -2,8 +2,9 @@ import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import delay from 'lodash/delay';
+import { ToastQueue } from '@react-spectrum/toast';
 
-const SignInPage = () => {
+const GoogleSignInPage = () => {
   const { isAuthenticated, isAuthLoading, setAuth } = useContext(AuthContext);
 
   const router = useRouter();
@@ -11,7 +12,9 @@ const SignInPage = () => {
   useEffect(() => {
     if (isAuthenticated) {
       delay(() => {
-        // TODO: Toast sign in success
+        ToastQueue.positive('Logged in successfully', {
+          timeout: 2000,
+        });
         router.push('/');
       }, 500);
 
@@ -23,7 +26,9 @@ const SignInPage = () => {
           expiry: String(router.query.expiry),
         }).then((val) => {});
       } else {
-        // TODO: Toast sign in failure
+        ToastQueue.negative('Login failed, please try again', {
+          timeout: 2000,
+        });
         router.push('/');
       }
     }
@@ -53,4 +58,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default GoogleSignInPage;
