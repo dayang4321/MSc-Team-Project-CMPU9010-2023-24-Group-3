@@ -57,7 +57,7 @@ public class RunModifierImpl implements RunModifier {
 
     // Placeholder for adding image labelling functionality (currently not
     // implemented).
-    private void addImageLabelling(XWPFRun run, String fontSize) {
+    private void addImageLabelling(XWPFRun run) {
         if (!run.getEmbeddedPictures().isEmpty()) {
             run.getEmbeddedPictures().removeAll(run.getEmbeddedPictures());
         }
@@ -66,35 +66,32 @@ public class RunModifierImpl implements RunModifier {
     // Consumer function that applies various formatting changes to a line in a
     // document.
     BiConsumer<XWPFRun, DocumentConfig> modifyRun = (run, formattingConfig) -> {
-        boolean images = true;
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getFontSize()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontSize()))
             modifyLineFontSize(run, formattingConfig.getFontSize());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getFontColor()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontColor()))
             modifyLineFontColor(run, formattingConfig.getFontColor());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getBackgroundColor()))
             modifyLineBackgroundColor(run, formattingConfig.getBackgroundColor());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getFontType()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontType()))
             modifyFontFamily(run, formattingConfig.getFontType());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getCharacterSpacing()))
             modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getRemoveItalics()))
+        if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getRemoveItalics())
+                && formattingConfig.getRemoveItalics().equals(Boolean.TRUE))
             modifyToRemoveItalics(run);
-        // if(images)
-        // addImageLabelling(run,formattingConfig.getFontSize());
-        // Define the behavior of modifyRun here
     };
 
     // Consumer function for applying specific formatting to heading lines in a
     // document.
     private final BiConsumer<XWPFRun, DocumentConfig> modifyHeadingRun = (run, formattingConfig) -> {
         run.setBold(true);
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getFontSize()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontSize()))
             modifyHeadingFontSize(run, formattingConfig.getFontSize());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getFontColor()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontColor()))
             modifyLineFontColor(run, formattingConfig.getFontColor());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getFontType()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontType()))
             modifyFontFamily(run, formattingConfig.getFontType());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getCharacterSpacing()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getCharacterSpacing()))
             modifyCharSpacing(run, formattingConfig.getCharacterSpacing());
     };
 
@@ -102,7 +99,7 @@ public class RunModifierImpl implements RunModifier {
     // between regular and heading lines.
     @Override
     public void modify(XWPFRun run, DocumentConfig config, Boolean headingRun) {
-        if (headingRun)
+        if (headingRun.equals(Boolean.TRUE))
             modifyHeadingRun.accept(run, config);
         else
             modifyRun.accept(run, config);

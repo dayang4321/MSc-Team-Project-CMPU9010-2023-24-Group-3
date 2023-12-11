@@ -4,10 +4,8 @@ import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.utils.ParsingUtils;
 import lombok.AllArgsConstructor;
 import org.apache.poi.xwpf.usermodel.Borders;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTColor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTParaRPr;
@@ -30,7 +28,7 @@ public class ParagraphModifierImpl implements ParagraphModifier {
     }
 
     // Modifies text in a paragraph to add syllable styling
-    private void modifyTextToAddSyllableStyling(XWPFParagraph paragraph, DocumentConfig formattingConfig) {
+    private void modifyTextToAddSyllableStyling(XWPFParagraph paragraph) {
         String text = paragraph.getParagraphText();
         String formattedText = nlpService.hyphenateText(text);
         ParsingUtils.removeRuns(paragraph);
@@ -38,9 +36,8 @@ public class ParagraphModifierImpl implements ParagraphModifier {
 
     }
 
-    private void modifyText(XWPFParagraph paragraph, DocumentConfig formattingConfig) {
+    private void modifyText(XWPFParagraph paragraph) {
         String text = paragraph.getParagraphText();
-        String contentHash = Integer.toHexString(paragraph.getText().hashCode());
         String[] lines = ParsingUtils.countLines(text);
         if (lines != null && lines.length >= 2) {
             String[] paras = ParsingUtils.divideParagraph(text, 2);
@@ -81,19 +78,17 @@ public class ParagraphModifierImpl implements ParagraphModifier {
     }
 
     private void addHeader(XWPFParagraph paragraph) {
-        List<String> docHeadings = new ArrayList<>();
         Set<String> stopWords = ParsingUtils.stopWords();
-        if (!paragraph.getRuns().isEmpty() && !paragraph.getParagraphText().isEmpty()) {
-            if (!ParsingUtils.checkIfHeadingStylePresent(paragraph)) {
+        if (!paragraph.getRuns().isEmpty() && !paragraph.getParagraphText().isEmpty()
+                && (!ParsingUtils.checkIfHeadingStylePresent(paragraph))) {
+            XWPFRun run = paragraph.insertNewRun(0);
+            String headingText = nlpService.findMostCommonWord(paragraph.getParagraphText(), stopWords);
+            run.setText(headingText.toUpperCase());
+            run.addCarriageReturn();
+            run.setFontSize(16); // Set font size as needed
+            run.setBold(true);
 
-                XWPFRun run = paragraph.insertNewRun(0);
-                String headingText = nlpService.findMostCommonWord(paragraph.getParagraphText(), stopWords);
-                run.setText(headingText.toUpperCase());
-                run.addCarriageReturn();
-                run.setFontSize(16); // Set font size as needed
-                run.setBold(true);
 
-            }
         }
     }
 
@@ -109,20 +104,20 @@ public class ParagraphModifierImpl implements ParagraphModifier {
     // Lambda expression for modifying a paragraph with various styling options
     private final BiConsumer<XWPFParagraph, DocumentConfig> modifyParagraph = (paragraph, formattingConfig) -> {
         // Apply different modifications based on the formatting configuration
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getAlignment()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getAlignment()))
             modifyAlignment(paragraph, formattingConfig.getAlignment());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getLineSpacing()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getLineSpacing()))
             modifyLineSpacing(paragraph, formattingConfig.getLineSpacing());
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getBackgroundColor()))
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getBackgroundColor()))
             modifyColorShading(paragraph, formattingConfig.getBackgroundColor());
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getSyllableSplitting())
-                && formattingConfig.getSyllableSplitting())
-            modifyTextToAddSyllableStyling(paragraph, formattingConfig);
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getParagraphSplitting())
-                && formattingConfig.getParagraphSplitting())
-            modifyText(paragraph, formattingConfig);
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getBorderGeneration())
-                && formattingConfig.getBorderGeneration())
+        if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getSyllableSplitting())
+                && formattingConfig.getSyllableSplitting().equals(Boolean.TRUE))
+            modifyTextToAddSyllableStyling(paragraph);
+        if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getParagraphSplitting())
+                && formattingConfig.getParagraphSplitting().equals(Boolean.TRUE))
+            modifyText(paragraph);
+        if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getBorderGeneration())
+                && formattingConfig.getBorderGeneration().equals(Boolean.TRUE))
             addParagraphBorder(paragraph);
     };
 

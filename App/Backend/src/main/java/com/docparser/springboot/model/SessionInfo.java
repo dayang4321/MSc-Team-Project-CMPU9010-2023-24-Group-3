@@ -1,5 +1,6 @@
 package com.docparser.springboot.model;
 
+import lombok.ToString;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -9,6 +10,7 @@ import java.util.List;
 
 // Annotating the class to be a DynamoDB bean for ORM-like functionality
 @DynamoDbBean
+@ToString
 public class SessionInfo {
 
     // Declaring private fields for session information
@@ -21,12 +23,6 @@ public class SessionInfo {
     // List of feedback forms associated with the session
     private List<FeedBackForm> feedBackForms;
 
-    // Constructor for basic session info without expiration
-    public SessionInfo(String sessionID, String tokenID, Instant createdDate) {
-        this.tokenID = tokenID;
-        this.createdDate = createdDate;
-        this.sessionID = sessionID;
-    }
 
     // Constructor for session info including expiration time
     public SessionInfo(String sessionID, String tokenID, Instant createdDate, Instant expirationTime) {
@@ -90,6 +86,7 @@ public class SessionInfo {
     // Getter for feedback forms list with DynamoDB attribute mapping
     @DynamoDbAttribute("feedbackForms")
     public List<FeedBackForm> getFeedBackForms() {
+        FeedBackForm feedBackForm = new FeedBackForm();
         return feedBackForms;
     }
 

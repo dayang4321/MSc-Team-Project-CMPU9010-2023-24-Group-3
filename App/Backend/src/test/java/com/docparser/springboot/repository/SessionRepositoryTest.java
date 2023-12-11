@@ -1,6 +1,5 @@
 package com.docparser.springboot.repository;
 
-import com.docparser.springboot.Repository.SessionRepository;
 import com.docparser.springboot.model.SessionInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

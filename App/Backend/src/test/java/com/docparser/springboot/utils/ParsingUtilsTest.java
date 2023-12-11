@@ -1,25 +1,9 @@
 package com.docparser.springboot.utils;
 
-import com.docparser.springboot.Repository.UserRepository;
-import com.docparser.springboot.model.DocumentConfig;
-import com.docparser.springboot.model.UserAccount;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
-import org.springframework.stereotype.Component;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
-import java.awt.*;
-import java.io.IOException;
-import java.math.BigInteger;
 import java.util.List;
-import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,19 +25,19 @@ public class ParsingUtilsTest {
     @Test
     public void testCheckForFontParameterChange() {
         // Test when formatConfig is null
-        assertFalse(ParsingUtils.checkForFontParameterChange.apply(null));
+        assertFalse(ParsingUtils.checkForFontParameterChange.test(null));
         // Test when formatConfig is empty
-        assertFalse(ParsingUtils.checkForFontParameterChange.apply(""));
+        assertFalse(ParsingUtils.checkForFontParameterChange.test(""));
         // Test when formatConfig is not null and not empty
-        assertTrue(ParsingUtils.checkForFontParameterChange.apply("someValue"));
+        assertTrue(ParsingUtils.checkForFontParameterChange.test("someValue"));
     }
 
     @Test
    public void testCheckForBooleanFontParameterChange() {
         // Test when parameter is null
-        assertFalse(ParsingUtils.checkForBooleanFontParameterChange.apply(null));
+        assertFalse(ParsingUtils.checkForBooleanFontParameterChange.test(null));
         // Test when parameter is not null
-        assertTrue(ParsingUtils.checkForBooleanFontParameterChange.apply(true));
+        assertTrue(ParsingUtils.checkForBooleanFontParameterChange.test(true));
     }
     @Test
    public void testCountLines() {

@@ -1,6 +1,8 @@
 package com.docparser.springboot.utils;
 
+import com.docparser.springboot.errorhandler.JwtSecurityException;
 import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -9,8 +11,15 @@ import java.util.Date;
 @Component
 public class SessionUtils {
 
-    private static final String SECRET_KEY = "ana7263nsnakka838";
-    // SECRET_KEY: A private constant used for signing and verifying JWT tokens.
+    private SessionUtils() {
+        // Private constructor to prevent instantiation
+    }
+    private static String secretKey;
+
+    @Value("${jwt.secret}")
+    public void setSecretKey(String secretKey) {
+        SessionUtils.secretKey = secretKey;
+    }
 
     public static String generateToken(String sessionID, Date issuedAt, Date expirationTime) {
         // Generates a JWT token with given session ID, issue time, and expiration time.
@@ -21,7 +30,7 @@ public class SessionUtils {
                 /*
                  * Signing the JWT with the secret key using HS512 algorithm.
                  */
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .signWith(SignatureAlgorithm.HS512, secretKey)
                 // Building the JWT and converting it to a compact, URL-safe string.
                 .compact();
     }
@@ -30,12 +39,12 @@ public class SessionUtils {
         // Validates the JWT token. Returns true if valid, otherwise throws an
         // exception.
         try {
-            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             // Parsing the token with the secret key to validate it.
             return true;
         } catch (SignatureException | IllegalArgumentException | MalformedJwtException | ExpiredJwtException
                 | UnsupportedJwtException ex) {
-            throw new RuntimeException(ex.getMessage());
+            throw new JwtSecurityException(ex.getMessage());
             // Catching various JWT exceptions and rethrowing them as runtime exceptions.
         }
     }
@@ -52,7 +61,7 @@ public class SessionUtils {
 
     public static String getSessionIdFromToken(String token) {
         // Extracts and returns the session ID from the JWT token.
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getId();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getId();
     }
 
 }

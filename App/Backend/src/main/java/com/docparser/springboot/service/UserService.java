@@ -1,11 +1,10 @@
 package com.docparser.springboot.service;
 
 
-import com.docparser.springboot.Repository.DocumentRepository;
-import com.docparser.springboot.Repository.SessionRepository;
-import com.docparser.springboot.Repository.UserRepository;
-import com.docparser.springboot.errorHandler.SessionNotFoundException;
-import com.docparser.springboot.errorHandler.UserNotFoundException;
+import com.docparser.springboot.repository.DocumentRepository;
+import com.docparser.springboot.repository.UserRepository;
+import com.docparser.springboot.errorhandler.SessionNotFoundException;
+import com.docparser.springboot.errorhandler.UserNotFoundException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.ParsingUtils;
 import com.docparser.springboot.utils.SessionUtils;
@@ -26,16 +25,8 @@ public class UserService {
     private final EmailService emailService;
     private final DocumentRepository documentRepository;
     private final S3BucketStorage s3BucketStorage;
+    private static final String USER_NOT_FOUND = "User not found";
 
-    // Fetches a user by their email. Throws an exception if the user is not found.
-    public Optional<UserAccount> fetchUserByEmail(String email) {
-        Optional<UserAccount> existingAccount = userRepository.getUserInfobyEmail(email);
-        existingAccount.orElseThrow(() -> {
-            logger.error("User not found");
-            return new UserNotFoundException("User not found");
-        });
-        return existingAccount;
-    }
 
     // Fetches a user by their ID.
     public Optional<UserAccount> fetchUserById(String id) {
@@ -90,7 +81,7 @@ public class UserService {
             throw new SessionNotFoundException("Code Expired");
         }
         Optional<UserAccount> userAccount = userRepository.getUserInfobyEmail(email);
-        String userId = null;
+        String userId;
         if (userAccount.isEmpty()) {
             userId = UUID.randomUUID().toString();
             UserAccount userAccount1 = new UserAccount();
@@ -124,17 +115,17 @@ public class UserService {
             user.setUserPresets(targetConfig);
             userRepository.saveUser(user);
         }, () -> {
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException(USER_NOT_FOUND);
         });
     }
 
     // Checks if the user is logged in based on the session information.
     public void checkUserLoggedIn(String userId) {
         Optional<SessionInfo> userSession = sessionService.getSessionInfo(userId);
-        userSession.orElseThrow(() -> {
-            logger.error("User not logged in");
-            return new SessionNotFoundException("User not logged in");
-        });
+        logger.info(" session info :{}", userSession);
+        if (userSession.isEmpty()) {
+            throw new SessionNotFoundException("User not logged in");
+        }
     }
 
     // Logs out a user by deleting their session.
@@ -157,16 +148,18 @@ public class UserService {
             user.setFeedBackForms(feedBackForms);
             userRepository.saveUser(user);
         }, () -> {
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException(USER_NOT_FOUND);
         });
     }
 
     public void deleteUserDocuments(String token, Set<String> documentids) {
         String userId = SessionUtils.getSessionIdFromToken(token);
         checkUserLoggedIn(userId);
-        Set<String> documentKeys = new HashSet<>();
+        Set<String> documentKeys;
         if (documentids.size() == 1) {
-            documentKeys.add(documentRepository.getDocumentInfo(documentids.iterator().next()).get().getDocumentKey());
+            documentKeys = new HashSet<>();
+            documentRepository.getDocumentInfo(documentids.iterator().next()).ifPresent(documentInfo ->
+                    documentKeys.add(documentInfo.getDocumentKey()));
             documentRepository.deleteSingleDocument(documentids.iterator().next());
             s3BucketStorage.deleteBucketObjects(documentKeys);
         } else {
@@ -182,7 +175,7 @@ public class UserService {
             user.setUserDocuments(userDocuments);
             userRepository.saveUser(user);
         }, () -> {
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException(USER_NOT_FOUND);
         });
     }
 }

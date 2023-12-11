@@ -1,9 +1,6 @@
 package com.docparser.springboot.repository;
 
-import com.docparser.springboot.Repository.DocumentRepository;
-import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.model.DocumentInfo;
-import com.docparser.springboot.model.VersionInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,7 +12,6 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-import java.time.Instant;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;

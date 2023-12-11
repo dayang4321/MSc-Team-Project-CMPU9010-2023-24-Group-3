@@ -1,8 +1,7 @@
 package com.docparser.springboot.service;
 
-import com.docparser.springboot.Repository.SessionRepository;
-import com.docparser.springboot.Repository.UserRepository;
-import com.docparser.springboot.errorHandler.SessionNotFoundException;
+import com.docparser.springboot.repository.SessionRepository;
+import com.docparser.springboot.errorhandler.SessionNotFoundException;
 import com.docparser.springboot.model.*;
 import com.docparser.springboot.utils.SessionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,7 +49,7 @@ public class SessionService {
         // Retrieve session information from the database, throw exception if not found
         SessionInfo sessionInfo = Optional.of(sessionRepository.getSessionInfo(sessionID))
                 .orElseThrow(() -> {
-                    logger.info("Session not found in DB" + sessionID);
+                    logger.info("Session not found in DB :{}", sessionID);
                     return new SessionNotFoundException("Session not found" + sessionID);
                 });
 
@@ -63,12 +62,7 @@ public class SessionService {
         sessionInfo.setFeedBackForms(feedBackForms);
 
         // Log the saved feedback information
-        try {
-            logger.info("feedbackInfo saved in DB " + objectMapper.writeValueAsString(feedBackForms));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
+        logger.info("feedbackInfo saved in DB :{} ", feedBackForms);
         sessionRepository.save(sessionInfo);
     }
 

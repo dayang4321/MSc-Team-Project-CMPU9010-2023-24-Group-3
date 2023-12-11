@@ -1,8 +1,8 @@
 package com.docparser.springboot.service;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -18,23 +18,18 @@ import java.util.ArrayList;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class S3BucketStorage {
     Logger logger = LoggerFactory.getLogger(S3BucketStorage.class);
 
     // Injecting the S3 bucket name from application properties
     @Value("${amazonProperties.bucketName}")
     private String bucketName;
-
-    // Autowiring the Amazon S3 client for interacting with S3 service
-    @Autowired
-    private S3Client s3Client;
-
-    // Autowiring the S3Presigner for generating pre-signed URLs
-    @Autowired
-    private S3Presigner s3Presigner;
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     // Method to upload a file to S3
-    public PutObjectResponse uploadFileToS3(String key, File file) throws IOException {
+    public PutObjectResponse uploadFileToS3(String key, File file)  {
         // Creating a request object to upload a file
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -43,7 +38,7 @@ public class S3BucketStorage {
         // Uploading the file to S3 and getting the response
         PutObjectResponse response = s3Client.putObject(putObjectRequest, file.toPath());
         // Logging the response
-        logger.info("modified file successfully uploaded to s3" + response.toString());
+        logger.info("Modified file successfully uploaded to s3: {}", response);
         return response;
     }
 
@@ -63,7 +58,7 @@ public class S3BucketStorage {
         // Generating the pre-signed URL
         PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(getObjectPresignRequest);
         // Logging the URL
-        logger.info("successfully obtained presigned URL" + presignedGetObjectRequest.url().toString());
+        logger.info("Successfully obtained presigned URL: {}", presignedGetObjectRequest.url());
         return presignedGetObjectRequest.url().toString();
     }
 
@@ -78,8 +73,7 @@ public class S3BucketStorage {
         // Getting the object as a byte array
         ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
         // Converting byte array to InputStream
-        InputStream inputStream = new ByteArrayInputStream(objectBytes.asByteArray());
-        return inputStream;
+        return  new ByteArrayInputStream(objectBytes.asByteArray());
     }
 
     public void deleteBucketObjects(Set<String> documentKeys) {
@@ -104,8 +98,7 @@ public class S3BucketStorage {
                         .build();
 
                 s3Client.deleteObjects(multiObjectDeleteRequest);
-                System.out.println("Multiple objects are deleted!");
-
+                logger.info("Multiple objects are deleted!");
             } catch (S3Exception e) {
                 throw new RuntimeException("Error while deleting objects from S3 bucket");
             }

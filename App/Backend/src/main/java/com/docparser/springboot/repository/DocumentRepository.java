@@ -1,14 +1,12 @@
-package com.docparser.springboot.Repository;
+package com.docparser.springboot.repository;
 
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.model.DocumentInfo;
-import com.docparser.springboot.model.UserAccount;
 import com.docparser.springboot.model.VersionInfo;
-import com.docparser.springboot.service.S3BucketStorage;
 import com.docparser.springboot.utils.ParsingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags;
@@ -20,12 +18,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor
 public class DocumentRepository {
-    // Autowired dependencies for DynamoDB enhanced and standard clients
-    @Autowired
-    private DynamoDbEnhancedClient dynamoDbenhancedClient;
-    @Autowired
-    private DynamoDbClient dynamoDbClient;
+
+    private final DynamoDbEnhancedClient dynamoDbenhancedClient;
+
+    private final DynamoDbClient dynamoDbClient;
 
     // Logger to log information
     Logger logger = LoggerFactory.getLogger(DocumentRepository.class);
@@ -142,10 +140,9 @@ public class DocumentRepository {
         return Optional.of(documentInfoTable.getItem(key));
     }
 
-    public HashMap<String, Set<String>> getDocumentsExpired() {
+    public Map<String, Set<String>> getDocumentsExpired() {
         String expirationTime = Instant.now().toString();
-        Map<String, AttributeValue> expressionAttributeValues = new HashMap<String, AttributeValue>();
-        DynamoDbTable<DocumentInfo> documentInfoTable = getTable();
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
 
         expressionAttributeValues.put(":val", AttributeValue.builder().s(expirationTime).build());
 
@@ -184,7 +181,7 @@ public class DocumentRepository {
         }
         BatchGetItemRequest batchGetItemRequest = BatchGetItemRequest.builder()
                 .requestItems(Collections.singletonMap("DocumentInfo", KeysAndAttributes.builder()
-                        .keys(documentIDs.stream().map(id -> Collections.singletonMap("documentID", AttributeValue.builder().s(id).build())).collect(Collectors.toList()))
+                        .keys(documentIDs.stream().map(id -> Collections.singletonMap("documentID", AttributeValue.builder().s(id).build())).toList())
                         .build()))
                 .build();
         BatchGetItemResponse batchGetItemResponse = dynamoDbClient.batchGetItem(batchGetItemRequest);

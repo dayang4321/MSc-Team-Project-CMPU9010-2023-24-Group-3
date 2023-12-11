@@ -1,7 +1,6 @@
 package com.docparser.springboot.repository;
 
-import com.docparser.springboot.Repository.UserRepository;
-import com.docparser.springboot.errorHandler.UserNotFoundException;
+import com.docparser.springboot.errorhandler.UserNotFoundException;
 import com.docparser.springboot.model.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +13,6 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-import java.time.Instant;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;

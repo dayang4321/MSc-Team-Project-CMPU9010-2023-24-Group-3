@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 @Component
@@ -21,10 +21,13 @@ public class ParsingUtils {
         return paragraphs;
     }
 
+    private ParsingUtils() {
+        // Private constructor to prevent instantiation
+    }
     // Functions to check if a font parameter or boolean font parameter has changed
-    public static Function<String, Boolean> checkForFontParameterChange = formatConfig -> formatConfig != null
-            && !formatConfig.isEmpty();
-    public static Function<Boolean, Boolean> checkForBooleanFontParameterChange = Objects::nonNull;
+
+    public static final Predicate<String> checkForFontParameterChange = formatConfig -> formatConfig != null && !formatConfig.isEmpty();
+    public static final Predicate<Boolean> checkForBooleanFontParameterChange = Objects::nonNull;
 
     // Maps a string to a corresponding ParagraphAlignment enumeration
     public static ParagraphAlignment mapStringToAlignment(String alignmentString) {
@@ -108,7 +111,7 @@ public class ParsingUtils {
     // Counts lines in a text based on punctuation and whitespace patterns
     public static String[] countLines(String text) {
         if (text == null)
-            return new String[] {};
+            return new String[]{};
         Pattern re = Pattern.compile("(?<=[.!?])\\s+(?=[a-zA-Z0-9])", Pattern.MULTILINE | Pattern.COMMENTS);
         return re.split(text);
     }
@@ -170,14 +173,13 @@ public class ParsingUtils {
      * paragraph
      */
     public static CTPPr getCTPPr(XWPFParagraph paragraph) {
-        CTPPr ctpPr = paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
-        return ctpPr;
+        return paragraph.getCTP().isSetPPr() ? paragraph.getCTP().getPPr() : paragraph.getCTP().addNewPPr();
     }
 
     // Partitions a list of document IDs into sublists with a maximum size of 25
     public static List<List<String>> partitionList(List<String> documentIds) {
-        List<List<String>> subSets = ListUtils.partition(documentIds, 25);
-        return subSets;
+        return ListUtils.partition(documentIds, 25);
+
     }
 
     /*
@@ -198,41 +200,41 @@ public class ParsingUtils {
     public static void copyDocumentConfig(DocumentConfig source, DocumentConfig target) {
         // The following methods copy properties from source to target if they have
         // changed
-        target.setFontColor(checkForFontParameterChange.apply(source.getFontColor()) ? source.getFontColor()
+        target.setFontColor(checkForFontParameterChange.test(source.getFontColor()) ? source.getFontColor()
                 : target.getFontColor());
         target.setFontSize(
-                checkForFontParameterChange.apply(source.getFontSize()) ? source.getFontSize() : target.getFontSize());
+                checkForFontParameterChange.test(source.getFontSize()) ? source.getFontSize() : target.getFontSize());
         target.setFontType(
-                checkForFontParameterChange.apply(source.getFontType()) ? source.getFontType() : target.getFontType());
-        target.setLineSpacing(checkForFontParameterChange.apply(source.getLineSpacing()) ? source.getLineSpacing()
+                checkForFontParameterChange.test(source.getFontType()) ? source.getFontType() : target.getFontType());
+        target.setLineSpacing(checkForFontParameterChange.test(source.getLineSpacing()) ? source.getLineSpacing()
                 : target.getLineSpacing());
-        target.setAlignment(checkForFontParameterChange.apply(source.getAlignment()) ? source.getAlignment()
+        target.setAlignment(checkForFontParameterChange.test(source.getAlignment()) ? source.getAlignment()
                 : target.getAlignment());
         target.setBackgroundColor(
-                checkForFontParameterChange.apply(source.getBackgroundColor()) ? source.getBackgroundColor()
+                checkForFontParameterChange.test(source.getBackgroundColor()) ? source.getBackgroundColor()
                         : target.getBackgroundColor());
-        target.setFontColor(checkForFontParameterChange.apply(source.getFontColor()) ? source.getFontColor()
+        target.setFontColor(checkForFontParameterChange.test(source.getFontColor()) ? source.getFontColor()
                 : target.getFontColor());
         target.setRemoveItalics(
-                checkForBooleanFontParameterChange.apply(source.getRemoveItalics()) ? source.getRemoveItalics()
+                checkForBooleanFontParameterChange.test(source.getRemoveItalics()) ? source.getRemoveItalics()
                         : target.getRemoveItalics());
         target.setBorderGeneration(
-                checkForBooleanFontParameterChange.apply(source.getBorderGeneration()) ? source.getBorderGeneration()
+                checkForBooleanFontParameterChange.test(source.getBorderGeneration()) ? source.getBorderGeneration()
                         : target.getBorderGeneration());
-        target.setParagraphSplitting(checkForBooleanFontParameterChange.apply(source.getParagraphSplitting())
+        target.setParagraphSplitting(checkForBooleanFontParameterChange.test(source.getParagraphSplitting())
                 ? source.getParagraphSplitting()
                 : target.getParagraphSplitting());
         target.setHeaderGeneration(
-                checkForBooleanFontParameterChange.apply(source.getHeaderGeneration()) ? source.getHeaderGeneration()
+                checkForBooleanFontParameterChange.test(source.getHeaderGeneration()) ? source.getHeaderGeneration()
                         : target.getHeaderGeneration());
         target.setGenerateTOC(
-                checkForBooleanFontParameterChange.apply(source.getGenerateTOC()) ? source.getGenerateTOC()
+                checkForBooleanFontParameterChange.test(source.getGenerateTOC()) ? source.getGenerateTOC()
                         : target.getGenerateTOC());
         target.setSyllableSplitting(
-                checkForBooleanFontParameterChange.apply(source.getSyllableSplitting()) ? source.getSyllableSplitting()
+                checkForBooleanFontParameterChange.test(source.getSyllableSplitting()) ? source.getSyllableSplitting()
                         : target.getSyllableSplitting());
         target.setCharacterSpacing(
-                checkForFontParameterChange.apply(source.getCharacterSpacing()) ? source.getCharacterSpacing()
+                checkForFontParameterChange.test(source.getCharacterSpacing()) ? source.getCharacterSpacing()
                         : target.getCharacterSpacing());
     }
 

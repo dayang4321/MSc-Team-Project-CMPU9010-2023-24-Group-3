@@ -31,7 +31,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         CustomUserDetails customUserDetails = oAuth2UserInfoExtractor.extractUserInfo(oAuth2User);
 
         // Update or create a new user in the system based on extracted details
-        UserAccount user = upsertUser(customUserDetails);
+         upsertUser(customUserDetails);
 
         // Return the custom user details for further processing
         return customUserDetails;

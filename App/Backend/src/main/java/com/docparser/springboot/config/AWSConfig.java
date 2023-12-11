@@ -43,7 +43,7 @@ public class AWSConfig {
     }
 
     @Bean
-    S3Presigner S3Presigner() {
+    S3Presigner s3Presigner() {
         return S3Presigner.builder()
                 .region(Region.of(region))
                 .credentialsProvider(getAccessCredentials())

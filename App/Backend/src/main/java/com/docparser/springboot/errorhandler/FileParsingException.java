@@ -1,4 +1,4 @@
-package com.docparser.springboot.errorHandler;
+package com.docparser.springboot.errorhandler;
 
 public class FileParsingException extends RuntimeException {
     public FileParsingException(String errorMessage) {

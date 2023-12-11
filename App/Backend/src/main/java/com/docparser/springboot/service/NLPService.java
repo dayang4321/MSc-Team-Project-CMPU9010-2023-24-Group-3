@@ -4,9 +4,6 @@ import com.docparser.springboot.utils.ParsingUtils;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.semgraph.SemanticGraph;
-import edu.stanford.nlp.semgraph.SemanticGraphEdge;
-import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import lombok.RequiredArgsConstructor;
@@ -20,47 +17,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NLPService {
 
-    // Method to find the intent of a given text
-    public void findIntent() {
-        String text = "Java 17, released in September 2021, marks a significant milestone in the " +
-                "evolution of the Java programming language. This version brings forth a " +
-                "plethora of new features, enhancements, and performance improvements, making " +
-                "it a highly anticipated release in the Java community.  In this essay, we will " +
-                "explore the key features of Java 17 and delve into its diverse range of use cases";
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos, parse");
-        // Creating a pipeline with the given properties
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-        // Processing the text with the pipeline
-        Annotation annotation = pipeline.process(text);
-        // List to store topics or intents found
-        List<String> topics = new ArrayList<>();
-        // Iterating over sentences in the annotated text
-        for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-            // Getting the semantic graph of the sentence
-            SemanticGraph sg = sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
-            // Default intent if none is found
-            String intent = "It does not seem that the sentence expresses an explicit intent.";
-            // Iterating over the edges in the semantic graph
-            for (SemanticGraphEdge edge : sg.edgeIterable()) {
-                // Checking if the edge represents a direct object
-                if (edge.getRelation().getLongName() == "direct object") {
-                    // Extracting the verb and the direct object
-                    String tverb = edge.getGovernor().originalText();
-                    String dobj = edge.getDependent().originalText();
-                    // Forming a phrase that represents an intent
-                    dobj = dobj.substring(0, 1).toUpperCase() + dobj.substring(1).toLowerCase();
-                    intent = tverb + dobj;
-                }
-                topics.add(intent);
-            }
-            // Printing the sentence and its detected intent
-            System.out.println("Sentence:\t" + sentence);
-            System.out.println("Intent:\t\t" + intent + "\n");
-        }
-        // Printing all detected intents
-        System.out.println("Intent:\t\t" + topics + "\n");
-    }
 
     // Method to find the main topic in a given text
     public String findMainTopic(String text) {
@@ -75,7 +31,7 @@ public class NLPService {
         // Iterating over sentences
         for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
             // Default main topic
-            String mainTopic = "Main topic not found.";
+            String mainTopic;
             // Iterating over tokens (words) in the sentence
             for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
                 // Getting part of speech of the token
@@ -139,7 +95,7 @@ public class NLPService {
         // Iterating over each word
         for (String word : words) {
             // Hyphenating the word and appending to the result
-            syllabledText.append(hyphenateWord(word)).append(" ");
+            syllabledText.append(hyphenateWords(word)).append(" ");
         }
         return syllabledText.toString().trim();
     }
@@ -147,15 +103,15 @@ public class NLPService {
     public String hyphenateWords(String word) {
         // Basic pattern: Vowel followed by non-vowels (greedy), then optional non-vowels
         // This is a simplistic pattern and won't work correctly for all English words
-        //  String pattern = "([aeiouy]+[^aeiouy]*)([^aeiouy]*)";
-        String pattern = "([aeiouy]{1,2})([^aeiouy]+)|([^aeiouy]*)([aeiouy]{1,2})";
-        return word.replaceAll(pattern, "$1$3-$2$4").replaceAll("-{2,}", "-").replaceAll("-$", "");
+        String pattern = "([aeiouy]+[^aeiouy]*)([^aeiouy]*)";
+        return word.replaceAll(pattern, "$1-$2").replaceAll("-{2,}", "-").replaceAll("-$", "");
     }
+
 
     public List<String> identifySyllables(String word) {
         List<String> syllables = new ArrayList<>();
         String[] vowels = {"a", "e", "i", "o", "u", "y"};
-        String currentSyllable = "";
+        StringBuilder currentSyllable = new StringBuilder();
         boolean lastCharVowel = false;
         for (int i = 0; i < word.length(); i++) {
             String currentChar = word.substring(i, i + 1).toLowerCase();
@@ -168,31 +124,31 @@ public class NLPService {
             }
             if (currentCharVowel) {
                 if (!lastCharVowel) {
-                    syllables.add(currentSyllable);
-                    currentSyllable = "";
+                    syllables.add(currentSyllable.toString());
+                    currentSyllable = new StringBuilder();
                 }
                 lastCharVowel = true;
             } else {
-                currentSyllable += currentChar;
+                currentSyllable.append(currentChar);
                 lastCharVowel = false;
             }
         }
         if (!currentSyllable.isEmpty()) {
-            syllables.add(currentSyllable);
+            syllables.add(currentSyllable.toString());
         }
         return syllables;
     }
 
     public String hyphenateWord(String word) {
         List<String> syllables = identifySyllables(word);
-        String hyphenatedWord = "";
+        StringBuilder hyphenatedWord = new StringBuilder();
         for (int i = 0; i < syllables.size(); i++) {
-            hyphenatedWord += syllables.get(i);
+            hyphenatedWord.append(syllables.get(i));
             if (i < syllables.size() - 1) {
-                hyphenatedWord += "-";
+                hyphenatedWord.append("-");
             }
         }
-        return hyphenatedWord;
+        return hyphenatedWord.toString();
     }
 
 }

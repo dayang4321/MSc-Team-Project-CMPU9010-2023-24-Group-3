@@ -13,6 +13,9 @@ import java.util.regex.Pattern;
 @Component
 public class FileUtils {
 
+private FileUtils() {
+        // Private constructor to prevent instantiation
+    }
     // Converts a MultipartFile to a File
     public static File convertMultiPartToFile(MultipartFile file) throws IOException {
         // Create a File object from the original file name of the MultipartFile

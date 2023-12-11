@@ -1,7 +1,8 @@
 package com.docparser.springboot.utils;
 
-import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,6 +14,8 @@ class SessionUtilsTest {
     void testGenerateAndValidateToken() {
         Date issuedAt = SessionUtils.getTime();
         Date expirationTime = SessionUtils.getExpirationTime();
+        ReflectionTestUtils.setField(SessionUtils.class, "secretKey", "yourMockedSecretKey");
+
 
         // Generate a token
         String token = SessionUtils.generateToken(SESSION_ID, issuedAt, expirationTime);
@@ -24,6 +27,8 @@ class SessionUtilsTest {
     @Test
     void testValidateInvalidToken() {
         // Attempt to validate an invalid token
+        ReflectionTestUtils.setField(SessionUtils.class, "secretKey", "yourMockedSecretKey");
+
         assertThrows(RuntimeException.class, () -> SessionUtils.validateToken("invalidToken"));
     }
 
@@ -33,6 +38,8 @@ class SessionUtilsTest {
         Date expirationTime = SessionUtils.getExpirationTime();
 
         // Generate a token
+        ReflectionTestUtils.setField(SessionUtils.class, "secretKey", "yourMockedSecretKey");
+
         String token = SessionUtils.generateToken(SESSION_ID, issuedAt, expirationTime);
 
         // Extract session ID from the generated token

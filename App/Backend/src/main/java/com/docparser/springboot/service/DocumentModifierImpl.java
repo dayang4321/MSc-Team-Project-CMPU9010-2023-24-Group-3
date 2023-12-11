@@ -1,10 +1,10 @@
 package com.docparser.springboot.service;
 
+import com.docparser.springboot.errorhandler.FileParsingException;
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.utils.ParsingUtils;
 import lombok.AllArgsConstructor;
 import org.apache.poi.xwpf.usermodel.*;
-import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import org.springframework.stereotype.Component;
 
@@ -20,9 +20,9 @@ public class DocumentModifierImpl implements DocumentModifier {
         try {
             // Accessing private field ctSettings using reflection
             XWPFSettings settings = ParsingUtils.getSettings(document);
-            java.lang.reflect.Field _ctSettings = XWPFSettings.class.getDeclaredField("ctSettings");
-            _ctSettings.setAccessible(true);
-            CTSettings ctSettings = (CTSettings) _ctSettings.get(settings);
+            java.lang.reflect.Field ctSetting = XWPFSettings.class.getDeclaredField("ctSettings");
+            ctSetting.setAccessible(true);
+            CTSettings ctSettings = (CTSettings) ctSetting.get(settings);
 
             // Enabling background shape display
             CTOnOff onOff = CTOnOff.Factory.newInstance();
@@ -34,7 +34,7 @@ public class DocumentModifierImpl implements DocumentModifier {
             background.setColor(color);
         } catch (Exception e) {
             // Throwing an exception in case of failure
-            throw new RuntimeException(e);
+            throw new FileParsingException(e.getMessage());
         }
     }
 
@@ -46,36 +46,6 @@ public class DocumentModifierImpl implements DocumentModifier {
         run.setFontSize(16);
         run.setBold(true);
         run.addCarriageReturn();
-    }
-
-    // Adds a label to an image in the document
-    private void modifyImage(XWPFDocument document) {
-        XWPFParagraph targetParagraph = null;
-        XWPFRun imageRun = null;
-        int runIndex = 0;
-
-        // Looping through paragraphs to find embedded images
-        for (XWPFParagraph p : document.getParagraphs()) {
-            for (XWPFRun run : p.getRuns()) {
-                runIndex = p.getRuns().indexOf(run);
-
-                // If an embedded image is found, add a label
-                if (!run.getEmbeddedPictures().isEmpty()) {
-                    targetParagraph = p;
-                    imageRun = run;
-                    break;
-                }
-            }
-            if (targetParagraph != null) {
-                break;
-            }
-        }
-
-        // Adding label to the image
-        if (targetParagraph != null && imageRun != null) {
-            XWPFRun labelRun = targetParagraph.createRun();
-            labelRun.setText("Figure 1: This is an image label.");
-        }
     }
 
     // Adds a header to the document
@@ -138,45 +108,19 @@ public class DocumentModifierImpl implements DocumentModifier {
         }
     }
 
-    // Adds new text to a run
-    private void addNewText(XWPFRun run, String para) {
-        run.setText(para);
-        run.addCarriageReturn();
-    }
-
-    // Modifies the text within the document
-    private XWPFDocument modifyText(XWPFDocument document, XWPFDocument finalDoc) {
-        finalDoc = ParsingUtils.copyStylesAndContent(document, finalDoc);
-        document.getBodyElements();
-        for (int i = 0; i < document.getParagraphs().size(); i++) {
-            XWPFParagraph paragraph = document.getParagraphs().get(i);
-            String text = paragraph.getParagraphText();
-            if (ParsingUtils.countLines(text).length >= 3) {
-                String[] paras = ParsingUtils.divideParagraph(text, 3);
-                finalDoc.removeBodyElement(i);
-                XmlCursor cursor = finalDoc.getParagraphArray(i).getCTP().newCursor();
-                for (String para : paras) {
-                    XWPFParagraph newParagraph = finalDoc.insertNewParagraph(cursor);
-                    addNewText(newParagraph.createRun(), para);
-                    cursor = newParagraph.getCTP().newCursor();
-                }
-            }
-        }
-        return finalDoc;
-    }
 
     // Main method to modify the document
     @Override
     public XWPFDocument modify(XWPFDocument document, DocumentConfig formattingConfig) {
 
         // Applying various modifications based on formattingConfig
-        if (ParsingUtils.checkForFontParameterChange.apply(formattingConfig.getBackgroundColor())) {
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getBackgroundColor())) {
             modifyDocumentColor(document, formattingConfig.getBackgroundColor());
         }
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getHeaderGeneration()) && formattingConfig.getHeaderGeneration())
+        if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getHeaderGeneration()) && formattingConfig.getHeaderGeneration().equals(Boolean.TRUE))
             addHeader(document);
-        if (ParsingUtils.checkForBooleanFontParameterChange.apply(formattingConfig.getGenerateTOC())
-                && formattingConfig.getGenerateTOC()) {
+        if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getGenerateTOC())
+                && formattingConfig.getGenerateTOC().equals(Boolean.TRUE)) {
             modifyDocumentToc(document);
         }
         return document;

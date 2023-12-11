@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -26,6 +27,6 @@ public class DocumentResponse {
      * The key is a string (possibly version identifier) and the value is a
      * DocumentVersion object.
      */
-    private HashMap<String, DocumentVersion> versions;
+    private Map<String, DocumentVersion> versions;
 
 }
