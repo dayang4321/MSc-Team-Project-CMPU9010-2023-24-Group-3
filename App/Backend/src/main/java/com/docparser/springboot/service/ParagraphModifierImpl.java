@@ -1,8 +1,10 @@
 package com.docparser.springboot.service;
 
+import com.docparser.springboot.controller.DocxController;
 import com.docparser.springboot.model.DocumentConfig;
 import com.docparser.springboot.utils.ParsingUtils;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.xwpf.usermodel.Borders;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -10,15 +12,18 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTColor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTParaRPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STLineSpacingRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ParagraphModifierImpl implements ParagraphModifier {
     private final NLPService nlpService;
+    Logger logger = LoggerFactory.getLogger(ParagraphModifierImpl.class);
 
     // Adds new text to a paragraph with carriage returns
     private void addNewText(XWPFRun run, String para) {

@@ -63,5 +63,7 @@ public class SessionUtils {
         // Extracts and returns the session ID from the JWT token.
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getId();
     }
-
+    public static String getUsernameFromEmail(String email) {
+        return email.split("@")[0];
+    }
 }

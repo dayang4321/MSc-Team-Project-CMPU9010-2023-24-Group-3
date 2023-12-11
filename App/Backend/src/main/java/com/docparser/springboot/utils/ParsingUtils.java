@@ -45,8 +45,13 @@ public class ParsingUtils {
     public static BigInteger mapStringToLineSpacingValueInBigInt(String lineSpacing) {
         return switch (lineSpacing.toUpperCase()) {
             case "1" -> BigInteger.valueOf(240);
-            case "1.5" -> BigInteger.valueOf(360);
-            case "2" -> BigInteger.valueOf(480);
+            case "1.25" -> BigInteger.valueOf(360);
+            case "1.5" -> BigInteger.valueOf(480);
+            case "1.75" -> BigInteger.valueOf(600);
+            case "2" -> BigInteger.valueOf(720);
+            case "2.25" -> BigInteger.valueOf(840);
+            case "2.75" -> BigInteger.valueOf(960);
+            case "3" -> BigInteger.valueOf(1080);
             default -> BigInteger.valueOf(360); // Defaults to 1.5 if unrecognized
         };
     }
@@ -59,6 +64,23 @@ public class ParsingUtils {
             case "1.5" -> BigInteger.valueOf(30);
             case "2" -> BigInteger.valueOf(40);
             case "2.5" -> BigInteger.valueOf(50);
+            case "3" -> BigInteger.valueOf(60);
+            case "3.5" -> BigInteger.valueOf(70);
+            case "4" -> BigInteger.valueOf(80);
+            case "4.5" -> BigInteger.valueOf(90);
+            case "5" -> BigInteger.valueOf(100);
+            case "5.5" -> BigInteger.valueOf(110);
+            case "6" -> BigInteger.valueOf(120);
+            case "6.5" -> BigInteger.valueOf(130);
+            case "7" -> BigInteger.valueOf(140);
+            case "7.5" -> BigInteger.valueOf(150);
+            case "8" -> BigInteger.valueOf(160);
+            case "8.5" -> BigInteger.valueOf(170);
+            case "9" -> BigInteger.valueOf(180);
+            case "9.5" -> BigInteger.valueOf(190);
+            case "10" -> BigInteger.valueOf(200);
+
+
             default -> BigInteger.valueOf(20); // Defaults to 1 if unrecognized
         };
     }
@@ -151,7 +173,9 @@ public class ParsingUtils {
 
     // Checks if a paragraph has a heading style
     public static boolean checkIfHeadingStylePresent(XWPFParagraph paragraph) {
-        if (paragraph.getStyleID() != null && paragraph.getStyleID().startsWith("Heading"))
+        if (paragraph.getStyleID() != null && (paragraph.getStyleID().startsWith("Heading")))
+            return true;
+        if (paragraph.getStyleID() != null && (paragraph.getStyleID().startsWith("Title")))
             return true;
         if (!paragraph.getRuns().isEmpty()) {
             return paragraph.getRuns().get(0).isBold();
@@ -326,4 +350,4 @@ public class ParsingUtils {
 
         return stopWords;
     }
-}
+   }
