@@ -7,6 +7,11 @@ import {
 /**
  * FONT_STYLE_OPTIONS: Array of objects representing the different font style options.
  * Each option has an 'id' used for referencing the style and a 'name' that is the display name of the font.
+ * ==============================================================================
+ * `{
+ *    id (DocModifyParams): Use the font style value from the constant - DocModifyParams,
+ *    name (String): Define the text for font style value,
+ * }`
  */
 export const FONT_STYLE_OPTIONS: Array<{
   id: NonNullable<DocModifyParams['fontType']>;
@@ -24,6 +29,11 @@ export const FONT_STYLE_OPTIONS: Array<{
  * ALIGNMENT_OPTIONS: An Array of objects for options to define text alignment.
  * Each option has a 'name' representing the type of alignment and
  * 'content', which is a JSX Element of the corresponding icon.
+ * ==============================================================================
+ * `{
+ *    name (String): Options for text alignment ('LEFT', 'CENTRE', and 'RIGHT'),
+ *    content (JSX.Element): Define the JSX Code for an HTML Element,
+ * }`
  */
 export const ALIGNMENT_OPTIONS: Array<{
   name: string;
