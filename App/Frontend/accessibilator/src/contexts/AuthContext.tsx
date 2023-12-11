@@ -17,7 +17,10 @@ interface IAuthContext {
     expiry: string;
     user?: User;
   }) => Promise<User | null>;
-  fetchUser: () => void;
+  fetchUser: (
+    user?: User | null,
+    config?: AxiosRequestConfig
+  ) => Promise<User | null>;
   logout: () => void;
 }
 
@@ -28,7 +31,8 @@ export const AuthContext = createContext<IAuthContext>({
   isAuthLoading: true,
   setAuth: async ({ token, expiry, user }): Promise<User | null> =>
     Promise.reject(null),
-  fetchUser: () => {},
+  fetchUser: (user?: User | null, config?: AxiosRequestConfig) =>
+    Promise.resolve(null),
   logout: () => {},
 });
 
@@ -136,7 +140,7 @@ const AuthProvider = ({ children }) => {
           setToken(token);
           return await fetchUser(user);
         },
-        fetchUser,
+        fetchUser: fetchUser,
         logout: async () => {
           try {
             //  TODO: await userSignOutApi()

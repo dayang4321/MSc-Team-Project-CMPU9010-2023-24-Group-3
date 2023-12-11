@@ -3,6 +3,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import delay from 'lodash/delay';
 import axiosInit from '../../services/axios';
+import { ToastQueue } from '@react-spectrum/toast';
 
 const MagicLinkPage = () => {
   const { isAuthenticated, isAuthLoading, setAuth } = useContext(AuthContext);
@@ -34,8 +35,11 @@ const MagicLinkPage = () => {
   useEffect(() => {
     if (isAuthenticated) {
       delay(() => {
+        ToastQueue.positive('Logged in successfully', {
+          timeout: 2000,
+        });
         router.push('/');
-      }, 500);
+      }, 250);
       return;
     } else {
       if (!!router.query.token && !!router.query.email) {
@@ -46,7 +50,16 @@ const MagicLinkPage = () => {
           setAuth({
             token: tokenRes.data.token,
             expiry: tokenRes.data.expiry,
-          }).then(() => {});
+          })
+            .then(() => {})
+            .catch((err) => {
+              delay(() => {
+                ToastQueue.negative('Login failed, Please try again', {
+                  timeout: 2000,
+                });
+                router.push('/');
+              }, 250);
+            });
         });
       } else {
         router.push('/');

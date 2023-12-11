@@ -2,7 +2,6 @@ import React, { FC, useState } from 'react';
 import MyModal from '../UI/MyModal';
 import MyInput from '../UI/inputs/MyInput';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import MyTextArea from '../UI/inputs/MyTextArea';
 import Button from '../UI/Button';
 import axiosInit from '../../services/axios';
 import HashLoader from 'react-spinners/HashLoader';
@@ -105,10 +104,9 @@ const MagicEmailForm: FC<MagicEmailFormProps> = ({
         <div>
           <p className='mb-6 mt-12 text-lg'>
             We have sent a link to{' '}
-            <span className='font-semibold'>{getValues('email')}</span> log you
-            in!
+            <span className='font-semibold'>{getValues('email')}</span> to log
+            you in!
           </p>
-          {/* <p className='mb-10 text-lg'>Your feedback means alot to us🫡</p> */}
         </div>
       ) : (
         <>

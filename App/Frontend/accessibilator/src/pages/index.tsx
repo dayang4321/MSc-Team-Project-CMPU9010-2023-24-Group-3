@@ -182,7 +182,7 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <main className='flex flex-1 flex-col items-center justify-center bg-slate-50 text-center text-gray-900'>
+      <main className='flex flex-1 flex-col items-center justify-center bg-slate-50 text-center text-base text-gray-900'>
         <h1 className='mb-11 max-w-3xl text-4xl font-bold'>
           Making your documents easier to read
         </h1>
@@ -282,7 +282,7 @@ export default function Home() {
                   />
                   <Button
                     className='bg-zinc-50 px-6 py-2 text-base font-medium text-zinc-900'
-                    text={'Continue to review'}
+                    text={'Review'}
                     onClick={() => {
                       onUploadConfirm();
                     }}
