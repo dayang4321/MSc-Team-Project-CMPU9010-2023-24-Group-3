@@ -8,19 +8,23 @@ import axiosInit from '../../services/axios';
 import HashLoader from 'react-spinners/HashLoader';
 import delay from 'lodash/delay';
 
+// Define the props structure for the MagicEmailForm component
 interface MagicEmailFormProps {
   isShowing: boolean;
   onFormClose: () => void;
 }
 
+// Define the structure for form fields
 interface MagicEmailFormFields {
   email: string;
 }
 
+// Defining the JSX component for MagicEmailForm
 const MagicEmailForm: FC<MagicEmailFormProps> = ({
   isShowing,
   onFormClose,
 }) => {
+  // useForm hook from react-hook-form for form validation and handling
   const {
     handleSubmit,
     register,
@@ -32,28 +36,35 @@ const MagicEmailForm: FC<MagicEmailFormProps> = ({
     shouldUnregister: false,
   });
 
+  // State for managing the loading state during form submission
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+  // State to handle error messages from the server
   const [sendMagicEmailError, setSendMagicEmailError] = useState<null | string>(
     ''
   );
+  // State to track successful email sending
   const [sendMagicEmailSuccess, setSendMagicEmailSuccess] =
     useState<boolean>(false);
 
+  // Form submission handler
   const submitHandler: SubmitHandler<MagicEmailFormFields> = async (data) => {
     setIsSubmitLoading(true);
     try {
+      // Authenticating the user
       const feedbackRes = await axiosInit.post('/auth/login', data, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
+      // Handle response from the server
       if (feedbackRes.data) {
         setSendMagicEmailSuccess(true);
         setSendMagicEmailError(null);
       }
     } catch (error) {
       // TODO: Toast Error
+      // Handle any errors from the request
       setSendMagicEmailSuccess(false);
       setSendMagicEmailError(
         `An Error Occurred, Please try again ${
@@ -61,10 +72,12 @@ const MagicEmailForm: FC<MagicEmailFormProps> = ({
         }`
       );
     } finally {
+      // Stop the loading state after the request is completed
       delay(setIsSubmitLoading, 1000, false);
     }
   };
 
+  // Handler for closing the modal
   const onModalClose = () => {
     reset();
     onFormClose();
@@ -72,6 +85,7 @@ const MagicEmailForm: FC<MagicEmailFormProps> = ({
     setSendMagicEmailError('');
   };
 
+  // Loader component shown during form submission
   const loader = (
     <div className='flex h-96 w-full flex-col items-center justify-center'>
       <HashLoader
@@ -84,6 +98,7 @@ const MagicEmailForm: FC<MagicEmailFormProps> = ({
     </div>
   );
 
+  // Defining the form contents with a JSX variable
   const formContent = (
     <>
       {sendMagicEmailSuccess ? (
@@ -152,6 +167,7 @@ const MagicEmailForm: FC<MagicEmailFormProps> = ({
     </>
   );
 
+  // Overall componenet layout is based on conditional rendering to showcase the loading state
   return (
     <MyModal
       isOpen={isShowing}

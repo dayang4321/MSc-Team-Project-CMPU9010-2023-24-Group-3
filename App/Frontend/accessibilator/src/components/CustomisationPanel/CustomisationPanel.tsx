@@ -1,3 +1,4 @@
+// Importing necessary React components and custom UI components
 import React, { useState } from 'react';
 import { TabList, Tabs } from 'react-aria-components';
 import MySlider from '../UI/inputs/MySlider';
@@ -15,23 +16,29 @@ import { MyTab, MyTabPanel } from '../UI/tabs';
 import MyTagGroup from '../UI/inputs/MyTagGroup';
 import { findKey } from 'lodash';
 
+// Define the type for the props of CustomisationPanel component
 type CustomisationPanelProps = {
   customisationConfig: DocModifyParams;
   onConfigSave: (docParamData: DocModifyParams) => void;
   configSaveLoading: boolean;
 };
 
+// CustomisationPanel component definition
 const CustomisationPanel = ({
   customisationConfig,
   configSaveLoading,
   onConfigSave,
 }: CustomisationPanelProps) => {
+  // Initializing state for the document configuration and custom theme colors
   const docConfigData = { ...customisationConfig };
 
+  // State to manage the modifications made by the user
   const [modificationsObj, setModificationsObj] = useState<DocModifyParams>({
+    // Initial values are set based on the provided configuration
     fontSize: Number(docConfigData?.fontSize),
     lineSpacing: Number(docConfigData?.lineSpacing),
     characterSpacing: Number(docConfigData?.characterSpacing) / 10,
+    // Other configuration settings
     fontType: docConfigData?.fontType,
     alignment: docConfigData?.alignment,
     removeItalics: docConfigData?.removeItalics,
@@ -40,8 +47,10 @@ const CustomisationPanel = ({
     fontColor: docConfigData?.fontColor,
   });
 
+  // State to toggle theme customisation
   const [isCustomisingTheme, setIsCustomisingTheme] = useState(false);
 
+  // Determine initial custom theme based on the document configuration
   const initialCustomTheme =
     docConfigData?.backgroundColor &&
     docConfigData?.fontColor &&
@@ -58,9 +67,11 @@ const CustomisationPanel = ({
           textColor: null,
         };
 
+  // State for managing custom theme colors
   const [customThemeColors, setCustomThemeColors] =
     useState(initialCustomTheme);
 
+  // Handler to update configuration settings
   const changeConfigHandler = <T extends keyof DocModifyParams>(
     key: T,
     value: DocModifyParams[T]
@@ -73,7 +84,9 @@ const CustomisationPanel = ({
     });
   };
 
+  // Handler to change the theme
   const changeThemeHandler = (key: keyof typeof THEME_MAP | 'custom') => {
+    // Update the state based on the selected theme
     if (key === 'custom') {
       setModificationsObj((s) => {
         return {
@@ -93,6 +106,7 @@ const CustomisationPanel = ({
     }
   };
 
+  // Handler to reset the theme to default
   const resetThemeHandler = () => {
     setModificationsObj((s) => {
       return {
@@ -103,8 +117,10 @@ const CustomisationPanel = ({
     });
   };
 
+  // Function to convert value to pixels for display
   const valInPixels = (val: number) => `${val}px`;
 
+  // Function to get the selected theme key based on the current colors
   function getSelectedKey(currBgColor: string, currTextColor: string) {
     const themeKey = findKey(THEME_MAP, {
       bgColor: currBgColor,
@@ -116,6 +132,7 @@ const CustomisationPanel = ({
     return selectedKey;
   }
 
+  // Preparing theme tag options for display
   const themeTagOptions = Object.entries({
     ...THEME_MAP,
     ...(customThemeColors.bgColor &&
@@ -140,21 +157,35 @@ const CustomisationPanel = ({
     };
   });
 
+  /**
+   * The return statement contains the JSX for rendering the CustomisationPanel
+   * It includes tabs for different customisation options like Text, Colour, and Special
+   * Each tab panel contains various UI elements like sliders, toggles, and selectors
+   * to modify document properties like font size, color theme, etc.
+   */
   return (
+    // The main container for the CustomisationPanel
     <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
+      {/* Tabs for different sections of the customisation panel */}
       <Tabs
         className='flex  min-h-0 w-full flex-1 flex-col overflow-x-hidden overflow-y-hidden'
         // selectedKey={'colour'}
       >
+        {/* TabList contains individual tabs */}
         <TabList
           aria-label='Customisation Panel'
           className='flex space-x-8 bg-clip-padding shadow-bttm'
         >
+          {/* Tabs for selecting different customisation categories */}
           <MyTab id='text'>Text</MyTab>
           <MyTab id='colour'>Colour</MyTab>
           <MyTab id='special'>Special</MyTab>
         </TabList>
+        {/* Tab Panels for different categories */}
         <MyTabPanel id='text'>
+          {/* Text customisation options
+          Each option is enclosed in a div and contains sliders, toggles, etc.
+          The options include font style, size, line and character spacing, alignment, and italics removal */}
           <div className='flex flex-col space-y-4 divide-y divide-gray-300 '>
             <div className='relative px-16 pb-3 pt-8'>
               <div className='absolute right-14 top-3'>
@@ -334,6 +365,8 @@ const CustomisationPanel = ({
           </div>
         </MyTabPanel>
         <MyTabPanel id='colour'>
+          {/* Colour customisation options
+          Options to set text and background color, including a custom theme creator */}
           <div className='flex flex-col space-y-4 divide-y divide-gray-300'>
             <div className='relative px-16 pb-3 pt-12'>
               <div className='absolute right-14 top-4'>
@@ -469,6 +502,8 @@ const CustomisationPanel = ({
           </div>
         </MyTabPanel>
         <MyTabPanel id='special'>
+          {/* Special customisation options
+          Currently, it contains an option to generate a Table of Contents */}
           <div className='flex flex-col space-y-4 divide-y divide-gray-300'>
             <div className='px-16 py-6'>
               <div className='flex items-center justify-between'>
@@ -490,12 +525,14 @@ const CustomisationPanel = ({
           </div>
         </MyTabPanel>
       </Tabs>
+      {/* Button at the bottom to save the changes */}
       <div className='border bg-stone-50 px-16 py-5 text-right shadow-2xl shadow-black'>
         <Button
           className=' px-6 py-2 text-base'
           loading={configSaveLoading}
           text={'Save Changes'}
           onClick={() => {
+            // Call the onConfigSave function with the current modifications
             onConfigSave(modificationsObj);
           }}
         />
