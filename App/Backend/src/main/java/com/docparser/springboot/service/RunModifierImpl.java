@@ -89,6 +89,8 @@ public class RunModifierImpl implements RunModifier {
             modifyHeadingFontSize(run, formattingConfig.getFontSize());
         if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontColor()))
             modifyLineFontColor(run, formattingConfig.getFontColor());
+        if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getBackgroundColor()))
+            modifyLineBackgroundColor(run, formattingConfig.getBackgroundColor());
         if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontType()))
             modifyFontFamily(run, formattingConfig.getFontType());
         if (ParsingUtils.checkForFontParameterChange.test(formattingConfig.getCharacterSpacing()))

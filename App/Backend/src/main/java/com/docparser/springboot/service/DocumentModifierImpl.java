@@ -49,7 +49,7 @@ public class DocumentModifierImpl implements DocumentModifier {
     }
 
     // Adds a header to the document
-    private void addHeader(XWPFDocument document) {
+    private void addHeader(XWPFDocument document, DocumentConfig formattingConfig) {
         List<String> docHeadings = new ArrayList<>();
         Set<String> stopWords = ParsingUtils.stopWords();
 
@@ -64,6 +64,8 @@ public class DocumentModifierImpl implements DocumentModifier {
                 if (docHeadings.isEmpty()) {
                     XWPFRun run = paragraph.insertNewRun(0);
                     String headingText = nlpService.findMostCommonWord(paragraph.getParagraphText(), stopWords);
+                    String fontType =ParsingUtils.checkForFontParameterChange.test(formattingConfig.getFontType()) ? formattingConfig.getFontType() : "Open Sans";
+                    run.setFontFamily(fontType);
                     run.setText(headingText.toUpperCase());
                     run.addCarriageReturn();
                     run.setFontSize(16); // Set font size as needed
@@ -118,7 +120,7 @@ public class DocumentModifierImpl implements DocumentModifier {
             modifyDocumentColor(document, formattingConfig.getBackgroundColor());
         }
         if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getHeaderGeneration()) && formattingConfig.getHeaderGeneration().equals(Boolean.TRUE))
-            addHeader(document);
+            addHeader(document,formattingConfig);
         if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getGenerateTOC())
                 && formattingConfig.getGenerateTOC().equals(Boolean.TRUE)) {
             modifyDocumentToc(document);
