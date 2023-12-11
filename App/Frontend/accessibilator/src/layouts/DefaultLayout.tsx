@@ -68,6 +68,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
                   </div>
                 </Menu.Button>
               </div>
+              {/** Render this Transition Layout component once the user is authenticated */}
               <Transition
                 as={Fragment}
                 enter='transition ease-out duration-100'
@@ -113,7 +114,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
               </Transition>
             </Menu>
           ) : (
-            // Login menu for unauthenticated users
+            // Render the Login menu for the users who are not authenticated
             <Menu as='div' className='relative ml-auto'>
               <div>
                 <Menu.Button className='btn-primary'>
@@ -142,6 +143,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
                     </button>
                   </Menu.Item>
 
+                  {/** Conditionally render this component only when the application is in development mode */}
                   {IS_DEV_MODE && (
                     <Menu.Item>
                       <Link
@@ -169,16 +171,17 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
           />
         </nav>
         {children}
-        {/* Footer (currently invisible) */}
+        {/* Render the Footer element (currently invisible) */}
         <footer className='invisible p-5'>Footer</footer>
       </div>
-      {/* Render the following components - FeedbackForm and MagicEmailForm */}
+      {/* Render the FeedbackForm component */}
       <FeedbackForm
         isShowing={isShowingFeedback}
         onFeedBackClose={() => {
           setIsShowingFeedback(false);
         }}
       />
+      {/* Render the MagicEmailForm component */}
       <MagicEmailForm
         isShowing={isShowingLoginModal}
         onFormClose={() => {
