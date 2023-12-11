@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.*;
 
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -177,5 +178,39 @@ public class UserService {
         }, () -> {
             throw new UserNotFoundException(USER_NOT_FOUND);
         });
+    }
+
+    public String getDocumentVersions(DocumentInfo documentInfo) {
+        Optional<VersionInfo> versionInfoLatest = documentInfo.getDocumentVersions().stream()
+                .max(Comparator.comparing(VersionInfo::getCreatedDate));
+        String latestUrl="";
+        if(versionInfoLatest.isPresent()){
+            latestUrl = s3BucketStorage.getUploadedObjectUrl(documentInfo.getDocumentKey(), versionInfoLatest.get().getVersionID());
+        }
+        return latestUrl;
+    }
+
+    public List<UserDocumentResponse> getUserDocuments(String token) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        checkUserLoggedIn(userId);
+        Optional<UserAccount> userAccount = fetchUserById(userId);
+        List<UserDocumentResponse> documentResponseList = new ArrayList<>();
+        if (userAccount.isPresent()) {
+            List<UserDocument> userDocuments = userAccount.get().getUserDocuments();
+            List<String> documentIds = new ArrayList<>();
+            userDocuments.stream().forEach(userDocument -> documentIds.add(userDocument.getDocumentID()));
+            List<DocumentInfo> documentInfos = documentIds.stream().map(documentId -> documentRepository.getDocumentInfo(documentId).get()).toList();
+            documentResponseList = documentInfos.stream().map(documentInfo -> {
+                UserDocumentResponse documentResponse = new UserDocumentResponse();
+                documentResponse.setDocumentID(documentInfo.getDocumentID());
+                documentResponse.setDocumentKey(documentInfo.getDocumentKey());
+                documentResponse.setCreatedDate(documentInfo.getCreatedDate());
+                documentResponse.setVersion(getDocumentVersions(documentInfo));
+                return documentResponse;
+            }).toList();
+
+        }
+        logger.info("documentResponseList:{}", documentResponseList);
+        return documentResponseList;
     }
 }
