@@ -91,7 +91,7 @@ public class UserService {
             userAccount1.setProvider("magicLink");
             userAccount1.setUsername(SessionUtils.getUsernameFromEmail(email));
             userAccount1.setUserPresets(new DocumentConfig("arial", "12", "000000", "FFFFFF", "1.5", "2.5", "LEFT",
-                    false, false, false, false, false, false));
+                    false, false, false, false, false, false, false));
             userRepository.saveUser(userAccount1);
         } else {
             userId = userAccount.get().getUserId();
