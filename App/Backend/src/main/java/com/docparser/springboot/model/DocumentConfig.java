@@ -26,6 +26,7 @@ public class DocumentConfig  {
     private Boolean headerGeneration; // Flag for generating headers
     private Boolean borderGeneration; // Flag for generating borders
     private Boolean syllableSplitting; // Flag for splitting syllables
+    private Boolean handlePunctuations; // Flag for handling punctuations
 
 
 }
