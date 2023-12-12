@@ -3,15 +3,16 @@ package com.docparser.springboot.repository;
 import com.docparser.springboot.errorhandler.UserNotFoundException;
 import com.docparser.springboot.model.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
-import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
+import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import static com.docparser.springboot.repository.SessionRepository.TABLE_SCHEMA
 @Repository
 @RequiredArgsConstructor
 public class UserRepository {
+    Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
     private final DynamoDbEnhancedClient dynamoDbenhancedClient;
 
@@ -129,6 +131,14 @@ public class UserRepository {
         return Optional.ofNullable(userAccountDynamoDbTable
                 .getItem(Key.builder().partitionValue(item.get("userId").s()).build()));
 
+    }
+    public void deleteUser(String userId) {
+        AttributeValue value = AttributeValue.builder().s(userId).build();
+        DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(DeleteItemRequest.builder()
+                .tableName("Users")
+                .key(Collections.singletonMap("userId", value))
+                .build());
+        logger.info("user deleted:{}" ,deleteItemResponse);
     }
 
 }

@@ -214,4 +214,18 @@ public class UserService {
         logger.info("documentResponseList:{}", documentResponseList);
         return documentResponseList;
     }
+
+    public void deleteUser(String token) {
+        String userId = SessionUtils.getSessionIdFromToken(token);
+        checkUserLoggedIn(userId);
+        Optional<UserAccount> userAccount = fetchUserById(userId);
+        Set<String> documentIds=new HashSet<>();
+        if (userAccount.isPresent()) {
+            List<UserDocument> userDocuments = userAccount.get().getUserDocuments();
+            userDocuments.stream().forEach(userDocument -> documentIds.add(userDocument.getDocumentID()));
+        }
+        deleteUserDocuments(token,documentIds);
+        userRepository.deleteUser(userId);
+
+    }
 }
