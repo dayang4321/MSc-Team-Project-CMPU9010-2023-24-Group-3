@@ -1,6 +1,8 @@
 import { Dispatch, Fragment, SetStateAction, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+
+// SVG for the close button
 <svg
   xmlns='http://www.w3.org/2000/svg'
   fill='none'
@@ -12,6 +14,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
   <path strokeLinecap='round' strokeLinejoin='round' d='M6 18L18 6M6 6l12 12' />
 </svg>;
 
+// Defining the Interface SlideModalProps for the SlideModal component
 interface SlideModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -20,9 +23,11 @@ interface SlideModalProps {
   children: React.ReactNode;
 }
 
+// Defining the SlideModal functional component
 const SlideModal: React.FC<SlideModalProps> = (props) => {
   const { open, setOpen, title, modalContentClasses, children } = props;
 
+  // This component uses the Transition component from Headless UI to handle show/hide animations
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -32,6 +37,7 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
         onClose={setOpen}
       >
         <div className='absolute inset-0 overflow-hidden'>
+          {/* Transition for the overlay */}
           <Transition.Child
             as={Fragment}
             enter='ease-in-out duration-500'
@@ -43,6 +49,7 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
           >
             <Dialog.Overlay className='absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
           </Transition.Child>
+          {/* Defining the positioning and styling of the Modal */}
           <div className='pl:3 fixed inset-y-0 right-0 flex max-w-full pl-5 sm:pl-10'>
             <Transition.Child
               as={Fragment}
@@ -53,7 +60,9 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
               leaveFrom='translate-x-0'
               leaveTo='translate-x-full'
             >
+              {/* Dialog box for the Modal */}
               <div className='my-dialog relative w-[82vw] max-w-[34.375rem] overflow-y-scroll'>
+                {/* Transition for the close button */}
                 <Transition.Child
                   as={Fragment}
                   enter='ease-in-out duration-500'
@@ -63,21 +72,25 @@ const SlideModal: React.FC<SlideModalProps> = (props) => {
                   leaveFrom='opacity-100'
                   leaveTo='opacity-0'
                 >
+                  {/* UI component for the Close button */}
                   <div className='absolute right-8 top-2 z-10  flex pr-2 pt-4 sm:-ml-10 sm:pr-4'>
                     <button
                       className='text-primary focus:ring-primary rounded-full bg-primary-50 p-1 focus:outline-none focus:ring-2 focus:ring-opacity-50'
                       onClick={() => setOpen(false)}
                     >
                       <span className='sr-only'>Close panel</span>
+                      {/* Close button Icon */}
                       <XMarkIcon className='h-6 w-6 ' aria-hidden='true' />
                     </button>
                   </div>
                 </Transition.Child>
+                {/* Content inside the Modal */}
                 <div
                   className={`relative flex max-h-screen min-h-screen flex-1 flex-col overflow-hidden bg-white py-8 shadow-xl ${
                     modalContentClasses || ''
                   }`}
                 >
+                  {/* Title of the Modal */}
                   <div className=''>
                     <Dialog.Title
                       as='h2'

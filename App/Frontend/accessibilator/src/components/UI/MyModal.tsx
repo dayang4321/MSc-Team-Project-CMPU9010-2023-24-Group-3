@@ -1,6 +1,8 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { FC, Fragment, PropsWithChildren, ReactNode } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+
+// Defining the interface for MyModalProps and the type definitions
 interface MyModalProps {
   title: ReactNode;
   isOpen: boolean;
@@ -8,6 +10,7 @@ interface MyModalProps {
   size?: 'sm' | 'lg' | 'xl';
 }
 
+// Defining the MyModal component
 const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
   title,
   isOpen,
@@ -17,6 +20,7 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
 }) => {
   let sizeClass = 'max-w-2xl';
 
+  // Setting up size-based styling for the size prop value
   switch (size) {
     case 'sm':
       sizeClass = 'max-w-lg';
@@ -34,6 +38,7 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
 
   return (
     <>
+      {/* Handling the modal animation using the Transition component */}
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as='div' static className='relative z-10' onClose={() => {}}>
           <Transition.Child
@@ -48,6 +53,7 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
             <div className='fixed inset-0 bg-black/25' />
           </Transition.Child>
 
+          {/* Positioning and animation for the Modal */}
           <div className='fixed inset-0 overflow-y-auto'>
             <div className='flex min-h-full items-center justify-center p-4 text-center'>
               <Transition.Child
@@ -59,9 +65,11 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
                 leaveFrom='opacity-100 scale-100'
                 leaveTo='opacity-0 scale-95'
               >
+                {/* Adding dynamic size classes for the Modal panel */}
                 <Dialog.Panel
                   className={`relative w-full ${sizeClass} transform overflow-hidden rounded-2xl bg-white p-8 pb-6 pt-10 text-left align-middle shadow-xl transition-all`}
                 >
+                  {/* Close button UI for the Modal message */}
                   <div className='absolute right-8 top-4 z-10  flex pr-2 pt-4 sm:-ml-10 sm:pr-4'>
                     <button
                       className='rounded-full bg-transparent p-1 text-stone-900 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50'
@@ -71,6 +79,7 @@ const MyModal: FC<PropsWithChildren<MyModalProps>> = ({
                       <XMarkIcon className='h-6 w-6 ' aria-hidden='true' />
                     </button>
                   </div>
+                  {/* Adding a title to the Modal */}
                   <Dialog.Title
                     as='h3'
                     className='text-3xl font-medium leading-6 text-gray-900'

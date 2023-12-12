@@ -2,13 +2,19 @@ import React, { FC } from 'react';
 import { Tab, TabPanel } from 'react-aria-components';
 import type { TabPanelProps, TabProps } from 'react-aria-components';
 
+// Define the MyTab component, a custom tab component.
 export const MyTab: FC<TabProps> = ({ ...props }) => {
   return (
     <Tab
       {...props}
+      // Conditional styling applied based on the `isSelected` state.
       className={({ isSelected }) => `
         w-full cursor-pointer py-2.5 text-center text-lg font-medium outline-none ring-yellow-700 transition-colors focus-visible:ring-2
         ${
+          /**
+           * If the tab is selected, apply these styles (border bottom, background color, text color).
+           * If the tab is not selected, apply hover and pressed styles.
+           */
           isSelected
             ? 'border-b-2 border-b-yellow-800 bg-white text-yellow-800'
             : 'hover:bg-yellow-600/10 pressed:bg-yellow-600/10'
@@ -18,6 +24,7 @@ export const MyTab: FC<TabProps> = ({ ...props }) => {
   );
 };
 
+// Defining the MyTabPanel component, a custom tab panel component with custom styling.
 export const MyTabPanel: FC<TabPanelProps> = ({ ...props }) => {
   return (
     <TabPanel
