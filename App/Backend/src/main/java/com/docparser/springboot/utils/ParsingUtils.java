@@ -46,13 +46,14 @@ public class ParsingUtils {
     public static BigInteger mapStringToLineSpacingValueInBigInt(String lineSpacing) {
         return switch (lineSpacing.toUpperCase()) {
             case "1" -> BigInteger.valueOf(240);
-            case "1.25" -> BigInteger.valueOf(360);
-            case "1.5" -> BigInteger.valueOf(480);
-            case "1.75" -> BigInteger.valueOf(600);
-            case "2" -> BigInteger.valueOf(720);
-            case "2.25" -> BigInteger.valueOf(840);
-            case "2.75" -> BigInteger.valueOf(960);
-            case "3" -> BigInteger.valueOf(1080);
+            case "1.25" -> BigInteger.valueOf(300);
+            case "1.5" -> BigInteger.valueOf(360);
+            case "1.75" -> BigInteger.valueOf(420);
+            case "2" -> BigInteger.valueOf(480);
+            case "2.25" -> BigInteger.valueOf(540);
+            case "2.5" -> BigInteger.valueOf(600);
+            case "2.75" -> BigInteger.valueOf(660);
+            case "3" -> BigInteger.valueOf(720);
             default -> BigInteger.valueOf(360); // Defaults to 1.5 if unrecognized
         };
     }
