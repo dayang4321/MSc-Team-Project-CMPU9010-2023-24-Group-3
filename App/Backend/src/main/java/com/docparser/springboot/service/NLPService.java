@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NLPService {
 
-
     // Method to find the main topic in a given text
     public String findMainTopic(String text) {
         // NLP pipeline setup
@@ -62,11 +61,8 @@ public class NLPService {
         String[] lines = ParsingUtils.countLines(paragraph);
         // Map to track word frequencies
         Map<String, Integer> wordFrequencyMap = new HashMap<>();
-        // Iterating over each line
         for (String line : lines) {
-            // Splitting the line into words
             String[] words = line.split("\\s+");
-            // Iterating over each word
             for (String word : words) {
                 // Cleaning and normalizing the word
                 word = word.replaceAll("[^a-zA-Z]", "").toLowerCase();
@@ -101,16 +97,18 @@ public class NLPService {
     }
 
     public String hyphenateWords(String word) {
-        // Basic pattern: Vowel followed by non-vowels (greedy), then optional non-vowels
-        // This is a simplistic pattern and won't work correctly for all English words
+        /**
+         * Basic pattern: Vowel followed by non-vowels (greedy), then optional
+         * non-vowels
+         * This is a simplistic pattern and won't work correctly for all English words
+         */
         String pattern = "([aeiouy]+[^aeiouy]*)([^aeiouy]*)";
         return word.replaceAll(pattern, "$1-$2").replaceAll("-{2,}", "-").replaceAll("-$", "");
     }
 
-
     public List<String> identifySyllables(String word) {
         List<String> syllables = new ArrayList<>();
-        String[] vowels = {"a", "e", "i", "o", "u", "y"};
+        String[] vowels = { "a", "e", "i", "o", "u", "y" };
         StringBuilder currentSyllable = new StringBuilder();
         boolean lastCharVowel = false;
         for (int i = 0; i < word.length(); i++) {
