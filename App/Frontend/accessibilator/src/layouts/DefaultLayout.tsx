@@ -84,7 +84,7 @@ const DefaultLayout: FC<LayoutProps> = ({ children, title, variant }) => {
                       href={'/user/presets'}
                       className='block bg-white px-4 py-2 text-sm text-gray-800 hover:bg-primary-100'
                     >
-                      Your Presets
+                      My Settings
                     </Link>
                   </Menu.Item>
                   <Menu.Item>
