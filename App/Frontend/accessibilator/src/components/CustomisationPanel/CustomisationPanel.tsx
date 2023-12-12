@@ -49,6 +49,7 @@ const CustomisationPanel = ({
     headerGeneration: docConfigData?.headerGeneration,
     paragraphSplitting: docConfigData?.paragraphSplitting,
     syllableSplitting: docConfigData?.syllableSplitting,
+    handlePunctuations: docConfigData?.handlePunctuations,
   });
 
   // State to toggle theme customisation
@@ -590,6 +591,23 @@ const CustomisationPanel = ({
                   checked={!!modificationsObj?.borderGeneration}
                   onChange={(checked) =>
                     changeConfigHandler('borderGeneration', checked)
+                  }
+                />
+              </div>
+            </div>
+            <div className='px-16 py-6'>
+              <div className='flex items-center justify-between'>
+                <InfoTooltip
+                  position='bottom'
+                  infoTip='Adjusting punctuations in paragraphs'
+                >
+                  <p>Adjust Punctuations</p>
+                </InfoTooltip>
+                <MyToggle
+                  ariaLabel='Adjust Punctuations'
+                  checked={!!modificationsObj?.handlePunctuations}
+                  onChange={(checked) =>
+                    changeConfigHandler('handlePunctuations', checked)
                   }
                 />
               </div>
