@@ -339,7 +339,14 @@ const Reader = (props: Props) => {
             className='mr-10 border border-yellow-900  px-6 py-2 text-base font-medium'
             text={'Go back to review'}
             onClick={() => {
-              router.push('/accessibility-review');
+              router.push({
+                pathname: '/accessibility-review',
+                query: {
+                  doc_key: currDocData?.documentKey,
+                  doc_id: currDocData?.documentID,
+                  version_id: currDocData?.versions.originalVersion.versionID,
+                },
+              });
             }}
           />
           {docUri && (

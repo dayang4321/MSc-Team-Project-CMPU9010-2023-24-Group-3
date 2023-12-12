@@ -50,9 +50,17 @@ const PresetsPage = () => {
 
       setIsUserPresetLoading(false);
       return Promise.resolve(currUserPresets);
-    } catch (error) {
+    } catch (err) {
+      ToastQueue.negative(
+        `Failed to load settings! ${
+          err?.response?.data.detail || err?.message || ''
+        }`,
+        {
+          timeout: 3000,
+        }
+      );
       setIsUserPresetLoading(false);
-      return Promise.reject(error);
+      return Promise.reject(err);
     }
   };
 
@@ -79,7 +87,10 @@ const PresetsPage = () => {
             ? userPresetData?.characterSpacing * 10
             : userPresetData?.characterSpacing,
         }),
-          fetchUser(user);
+          ToastQueue.positive('Settings saved successfully', {
+            timeout: 3000,
+          });
+        fetchUser(user);
         setSlideModalOpen(false);
       })
       .catch((err) => {
@@ -89,7 +100,7 @@ const PresetsPage = () => {
             err?.response?.data.detail || err?.message || ''
           }`,
           {
-            timeout: 5000,
+            timeout: 3000,
           }
         );
         reportException(err, {
@@ -123,7 +134,7 @@ const PresetsPage = () => {
     <>
       <DefaultLayout>
         <Head>
-          <title>Accessibilator | Your presets</title>
+          <title>Accessibilator | My Settings</title>
           <link rel='icon' href='/favicon.ico' />
         </Head>
         <main className='flex flex-1 flex-col justify-center py-16  pb-8 text-center text-base text-gray-900'>
@@ -152,7 +163,7 @@ const PresetsPage = () => {
             </div>
 
             <div className='col-span-3 flex flex-col rounded border border-gray-400/60 bg-stone-50 px-16 py-10 text-left'>
-              <h2 className='text-3xl font-medium'>Your Presets</h2>
+              <h2 className='text-3xl font-medium'>My Settings</h2>
 
               <div className='mt-10 flex flex-wrap gap-x-5 gap-y-6 '>
                 {presetsArr.map((val, idx) => {
@@ -183,7 +194,7 @@ const PresetsPage = () => {
               <div className='mt-auto'>
                 <Button
                   className='px-6 py-2 text-base'
-                  text={'Change'}
+                  text={'Modify Settings'}
                   onClick={() => {
                     setSlideModalOpen(true);
                   }}

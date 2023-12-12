@@ -2,6 +2,10 @@ const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  i18n: {
+    locales: ['en'],
+    defaultLocale: 'en',
+  },
   transpilePackages: [
     '@adobe/react-spectrum',
     '@react-spectrum/actionbar',
