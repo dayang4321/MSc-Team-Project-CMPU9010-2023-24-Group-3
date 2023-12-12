@@ -75,4 +75,11 @@ public class UserController {
         userService.deleteUserDocuments(token.get().substring(7), documentids);
         return ResponseEntity.ok("Documents deleted successfully");
     }
+    @DeleteMapping
+    public ResponseEntity<String> deleteUser( HttpServletRequest request) {
+        // Code to save the file to a database or disk
+        Optional<String> token = Optional.of(request.getHeader(AUTHORISATION));
+        userService.deleteUser(token.get().substring(7));
+        return ResponseEntity.ok("User deleted successfully");
+    }
 }

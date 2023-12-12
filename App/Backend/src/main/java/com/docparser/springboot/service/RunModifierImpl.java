@@ -25,6 +25,9 @@ public class RunModifierImpl implements RunModifier {
     private void modifyLineBackgroundColor(XWPFRun run, String fontColor) {
         CTRPr rpr = run.getCTR().isSetRPr() ? run.getCTR().getRPr() : run.getCTR().addNewRPr();
         CTShd cTShd = rpr.isSetShd() ? rpr.getShd() : rpr.addNewShd();
+        if(rpr.isSetHighlight()){
+            rpr.getHighlight().setVal(STHighlightColor.NONE);
+        }
         run.getCTR().getRPr().addNewColor().setThemeColor(STThemeColor.NONE);
         cTShd.setVal(STShd.CLEAR);
         cTShd.setColor("auto");
