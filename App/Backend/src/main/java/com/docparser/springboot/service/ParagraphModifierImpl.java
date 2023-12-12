@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import org.apache.commons.lang3.StringUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -79,7 +80,6 @@ public class ParagraphModifierImpl implements ParagraphModifier {
         paragraph.setBorderRight(Borders.BASIC_BLACK_DOTS);
         paragraph.setBorderTop(Borders.BASIC_BLACK_DOTS);
 
-
     }
 
     private void addHeader(XWPFParagraph paragraph) {
@@ -92,7 +92,6 @@ public class ParagraphModifierImpl implements ParagraphModifier {
             run.addCarriageReturn();
             run.setFontSize(16); // Set font size as needed
             run.setBold(true);
-
 
         }
     }
@@ -124,7 +123,71 @@ public class ParagraphModifierImpl implements ParagraphModifier {
         if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getBorderGeneration())
                 && formattingConfig.getBorderGeneration().equals(Boolean.TRUE))
             addParagraphBorder(paragraph);
+        if (ParsingUtils.checkForBooleanFontParameterChange.test(formattingConfig.getHandlePunctuations())
+                && formattingConfig.getHandlePunctuations().equals(Boolean.TRUE))
+            modifyPunctuationMarks(paragraph);
     };
+
+    /*
+     * Method to replace semicolons or exclamation marks with a full stop and
+     * capitalize the next word
+     */
+    public void modifyPunctuationMarks(XWPFParagraph paragraph) {
+        List<XWPFRun> runs = paragraph.getRuns();
+        if (runs != null) {
+            for (XWPFRun run : runs) {
+                String text = run.getText(0);
+                if (text != null) {
+                    String modifiedText = modifyPunctuation(text);
+                    // logger.info(modifiedText);
+                    run.setText(modifiedText, 0);
+                }
+            }
+        }
+    }
+
+    // Helper method to modify the punctuation in a text string
+    private String modifyPunctuation(String text) {
+        // Define all possible punctuation marks
+        char[] punctuationMarks = { '.', ',', ';', ':', '!', '?' };
+
+        // Replace each punctuation mark with a larger version and additional space
+        for (char punctuation : punctuationMarks) {
+            if (punctuation == ';' || punctuation == '!') {
+                text = text.replace(String.valueOf(punctuation), ".");
+                continue;
+            }
+            text = text.replace(String.valueOf(punctuation), punctuation + " ");
+        }
+
+        StringBuilder result = new StringBuilder(text.length());
+        boolean capitalize = true;
+
+        // Go through all the characters in the text.
+        for (int i = 0; i < text.length(); i++) {
+            // Get current char
+            char c = text.charAt(i);
+
+            /**
+             * If the current character is a period ('.'), update the capitalize flag to
+             * true
+             */
+            if (c == '.') {
+                capitalize = true;
+            }
+            // Check if the next character is an alphabet
+            else if (capitalize && Character.isAlphabetic(c)) {
+                // If the next character is an alphabet, we convert it UPPERCASE
+                c = Character.toUpperCase(c);
+                // Only capitalize the first character so set the capitalize flag to false
+                capitalize = false;
+            }
+
+            result.append(c);
+        }
+        String modifiedText = String.valueOf(result);
+        return modifiedText;
+    }
 
     // Method to apply modifications to a paragraph
     @Override
