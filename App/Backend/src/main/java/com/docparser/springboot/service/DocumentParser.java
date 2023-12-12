@@ -176,7 +176,8 @@ public class DocumentParser {
         documentResponse.setDocumentID(documentInfo.getDocumentID());
         documentResponse.setVersions(getDocumentVersions(documentInfo));
         documentResponse.setDocumentConfig(Optional.ofNullable(documentInfo.getDocumentConfig()).orElse(
-                new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null, null, null)));
+                new DocumentConfig(null, null, null, null, null, null, null, null, null, null, null, null, null,
+                        null)));
     }
 
     // Fetches a document based on the document ID and user token, and returns the

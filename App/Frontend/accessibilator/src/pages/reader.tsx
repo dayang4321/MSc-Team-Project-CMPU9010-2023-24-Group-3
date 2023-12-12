@@ -98,6 +98,7 @@ const Reader = (props: Props) => {
       headerGeneration: docParamData.headerGeneration,
       paragraphSplitting: docParamData.paragraphSplitting,
       syllableSplitting: docParamData.syllableSplitting,
+      handlePunctuations: docParamData.handlePunctuations,
     };
 
     axiosInit

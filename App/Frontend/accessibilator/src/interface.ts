@@ -19,6 +19,7 @@ interface DocModifyParams {
   headerGeneration: boolean | null;
   borderGeneration: boolean | null;
   syllableSplitting: boolean | null;
+  handlePunctuations: boolean | null;
 }
 interface DocumentData {
   documentID: string;

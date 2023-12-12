@@ -26,6 +26,7 @@ const defaultSettings: DocModifyParams = {
   headerGeneration: false,
   paragraphSplitting: false,
   syllableSplitting: false,
+  handlePunctuations: false,
 };
 
 const PresetsPage = () => {

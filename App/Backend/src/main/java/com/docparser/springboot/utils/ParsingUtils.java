@@ -26,7 +26,8 @@ public class ParsingUtils {
     }
     // Functions to check if a font parameter or boolean font parameter has changed
 
-    public static final Predicate<String> checkForFontParameterChange = formatConfig -> formatConfig != null && !formatConfig.isEmpty();
+    public static final Predicate<String> checkForFontParameterChange = formatConfig -> formatConfig != null
+            && !formatConfig.isEmpty();
     public static final Predicate<Boolean> checkForBooleanFontParameterChange = Objects::nonNull;
 
     // Maps a string to a corresponding ParagraphAlignment enumeration
@@ -80,7 +81,6 @@ public class ParsingUtils {
             case "9.5" -> BigInteger.valueOf(190);
             case "10" -> BigInteger.valueOf(200);
 
-
             default -> BigInteger.valueOf(20); // Defaults to 1 if unrecognized
         };
     }
@@ -133,7 +133,7 @@ public class ParsingUtils {
     // Counts lines in a text based on punctuation and whitespace patterns
     public static String[] countLines(String text) {
         if (text == null)
-            return new String[]{};
+            return new String[] {};
         Pattern re = Pattern.compile("(?<=[.!?])\\s+(?=[a-zA-Z0-9])", Pattern.MULTILINE | Pattern.COMMENTS);
         return re.split(text);
     }
@@ -257,6 +257,10 @@ public class ParsingUtils {
         target.setSyllableSplitting(
                 checkForBooleanFontParameterChange.test(source.getSyllableSplitting()) ? source.getSyllableSplitting()
                         : target.getSyllableSplitting());
+        target.setHandlePunctuations(
+                checkForBooleanFontParameterChange.test(source.getHandlePunctuations())
+                        ? source.getHandlePunctuations()
+                        : target.getHandlePunctuations());
         target.setCharacterSpacing(
                 checkForFontParameterChange.test(source.getCharacterSpacing()) ? source.getCharacterSpacing()
                         : target.getCharacterSpacing());
@@ -350,4 +354,4 @@ public class ParsingUtils {
 
         return stopWords;
     }
-   }
+}

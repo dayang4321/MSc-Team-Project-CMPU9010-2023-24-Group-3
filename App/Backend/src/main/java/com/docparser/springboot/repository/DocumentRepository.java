@@ -29,7 +29,8 @@ public class DocumentRepository {
     Logger logger = LoggerFactory.getLogger(DocumentRepository.class);
 
     // Define schema for DocumentConfig table
-    public static final TableSchema<DocumentConfig> DOCUMENT_CONFIG_PARAMS = TableSchema.builder(DocumentConfig.class)
+    public static final TableSchema<DocumentConfig> DOCUMENT_CONFIG_PARAMS = TableSchema
+            .builder(DocumentConfig.class)
             .newItemSupplier(DocumentConfig::new)
 
             // Define the attributes of the DocumentConfig table
@@ -72,6 +73,9 @@ public class DocumentRepository {
             .addAttribute(Boolean.class, a -> a.name("syllableSplitting")
                     .getter(DocumentConfig::getSyllableSplitting)
                     .setter(DocumentConfig::setSyllableSplitting))
+            .addAttribute(Boolean.class, a -> a.name("handlePunctuations")
+                    .getter(DocumentConfig::getHandlePunctuations)
+                    .setter(DocumentConfig::setHandlePunctuations))
             .build();
 
     // Define the schema for VersionInfo table
@@ -91,7 +95,8 @@ public class DocumentRepository {
             .build();
 
     // Define the schema for DocumentInfo table
-    public static final TableSchema<DocumentInfo> DOCUMENT_INFO_TABLE_SCHEMA = TableSchema.builder(DocumentInfo.class)
+    public static final TableSchema<DocumentInfo> DOCUMENT_INFO_TABLE_SCHEMA = TableSchema
+            .builder(DocumentInfo.class)
             .newItemSupplier(DocumentInfo::new)
 
             // Define the attributes of the DocumentInfo table
