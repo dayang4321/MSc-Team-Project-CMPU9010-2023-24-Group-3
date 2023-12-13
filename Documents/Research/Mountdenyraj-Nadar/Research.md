@@ -108,19 +108,19 @@ This issue was discussed with a Cloud expert and we concluded that since the tec
 - AWS EC2 Large instance of type `t3.xlarge` with 16 GiB RAM and 4 vCPUs and the integration of Ollama onto the EC2 machines with successful execution.
 - Check `EC2-Large-Instance-Ollama-Run-Check-1.mp4` to `EC2-Large-Instance-Ollama-Run-Check-7.mp4` for implementation videos on step-by-step EC2 commands for running Ollama.
 
-https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/06c87c37-606f-4529-aea9-afd8777059b8
+<https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/06c87c37-606f-4529-aea9-afd8777059b8>
 
-https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/78039ec8-9831-49a7-9e61-7784ab9e9e72
+<https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/78039ec8-9831-49a7-9e61-7784ab9e9e72>
 
-https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/36434557-90e0-4323-a842-0b261147f798
+<https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/36434557-90e0-4323-a842-0b261147f798>
 
-https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/aa4b0440-9e29-4954-8e71-50e7e4e71623
+<https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/aa4b0440-9e29-4954-8e71-50e7e4e71623>
 
-https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/f44890cf-87bb-463d-87e3-a7f7d7ec6880
+<https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/f44890cf-87bb-463d-87e3-a7f7d7ec6880>
 
-https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/b9f1633e-ebae-4fed-9688-61f241b941ea
+<https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/b9f1633e-ebae-4fed-9688-61f241b941ea>
 
-https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/1f5ace3e-9f55-4ae1-8a22-e3dd1b7d4e0e
+<https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/50550566/1f5ace3e-9f55-4ae1-8a22-e3dd1b7d4e0e>
 
 ### Key Resources
 
@@ -141,5 +141,12 @@ https://github.com/dayang4321/MSc-Team-Project-CMPU9010-2023-24-Group-3/assets/5
 
 - **SpringBoot AI API Documentation**: [SpringBoot AI API](https://docs.spring.io/spring-ai/reference/api/aiclient.html)
 - **SpringBoot Package pom.xml**: [GitHub pom.xml](https://github.com/spring-projects/spring-ai/blob/main/pom.xml)
+
+### Using vllm Package within Python
+
 - **Issues with vllm Package**: [GitHub Issue](https://github.com/vllm-project/vllm/issues/451)
 - **LLM Text Generation with vLLM on Windows 11**: [Medium Article](https://betterprogramming.pub/superfast-llm-text-generation-with-vllm-on-windows-11-4a6617d4e0b3)
+
+### Hosting Windows laptop as a standalone server
+
+- **Setting up a server using a personal Windows laptop**: [Windows laptop as a server] (<https://medium.com/@amaanlari5/how-to-access-your-localhost-from-mobile-windows-and-macos-7cb7bdb4aa4f>)
