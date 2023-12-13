@@ -4,4 +4,4 @@
 
 ## The Accessibilator Final Demo Video
 
-[![The Accessibilator Demo Video Link](https://img.youtube.com/vi/TePcnHnr0ag/0.jpg)](https://youtu.be/TePcnHnr0ag)
+[![The Accessibilator Demo Video Link](https://img.youtube.com/vi/uho12DUedV4/0.jpg)](https://youtu.be/uho12DUedV4)
