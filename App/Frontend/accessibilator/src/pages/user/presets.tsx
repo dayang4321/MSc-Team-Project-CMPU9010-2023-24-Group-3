@@ -1,3 +1,4 @@
+// Importing necessary React and Next.js components
 import React, { useContext, useEffect, useState } from 'react';
 import DefaultLayout from '../../layouts/DefaultLayout';
 import Head from 'next/head';
@@ -12,6 +13,7 @@ import axiosInit from '../../services/axios';
 import { ToastQueue } from '@react-spectrum/toast';
 import { reportException } from '../../services/errorReporting';
 
+// Default settings for document modification parameters
 const defaultSettings: DocModifyParams = {
   fontType: 'arial',
   fontSize: 12,
@@ -30,22 +32,26 @@ const defaultSettings: DocModifyParams = {
 };
 
 const PresetsPage = () => {
+  // Using the context Object to access the authentication-related data
   const { user, logout, fetchUser, token } = useContext(AuthContext);
+
+  // Define the state hooks to manage user settings and modal visibility
   const [userSettings, setUserSettings] = useState({
     ...defaultSettings,
   });
-
   const [slideModalOpen, setSlideModalOpen] = useState(false);
-
   const [isUserPresetLoading, setIsUserPresetLoading] = useState(true);
 
+  /**
+   * Define the async function for fetching user's preset configurations
+   * @returns The user pre-defined settings
+   */
   const fetchUserPresets = async () => {
     setIsUserPresetLoading(true);
     try {
       const fetchUserRes = await axiosInit.get<{ user: User | null }>(
         '/api/user/me'
       );
-
       const currUserPresets = fetchUserRes?.data?.user?.userPresets;
 
       setIsUserPresetLoading(false);
@@ -64,12 +70,14 @@ const PresetsPage = () => {
     }
   };
 
+  // Define the useEffect hook to fetch the user presets on component mount
   useEffect(() => {
     fetchUserPresets().then((value) => {
       !!value && setUserSettings((state) => ({ ...state, ...value }));
     });
   }, []);
 
+  // Define the function for handling the save action of user configurations
   const onSaveConfig = (userPresetData: DocModifyParams) => {
     setIsUserPresetLoading(true);
 
@@ -116,6 +124,7 @@ const PresetsPage = () => {
       });
   };
 
+  // Parsing the user settings Object to display as preset options
   const presetsArr = [
     `Font Type: ${FONT_STYLE_OPTIONS.find(
       (opt) => opt.id === userSettings.fontType
@@ -130,6 +139,7 @@ const PresetsPage = () => {
     `Remove Italics: ${userSettings.removeItalics ? 'Yes' : 'No'}`,
     `Align Text: ${userSettings?.alignment?.toLowerCase()}`,
   ];
+
   return (
     <>
       <DefaultLayout>
@@ -204,11 +214,13 @@ const PresetsPage = () => {
           </div>
         </main>
       </DefaultLayout>
+      {/* Slide Modal for customisation panel */}
       <SlideModal
         open={slideModalOpen}
         setOpen={setSlideModalOpen}
         title={'Customisation Panel'}
       >
+        {/* Conditional rendering of Customisation Panel */}
         {userSettings && (
           <CustomisationPanel
             onConfigSave={onSaveConfig}
@@ -221,4 +233,5 @@ const PresetsPage = () => {
   );
 };
 
+// Wrapping the component with a higher-order component for route protection
 export default IsProtectedRoute(PresetsPage);

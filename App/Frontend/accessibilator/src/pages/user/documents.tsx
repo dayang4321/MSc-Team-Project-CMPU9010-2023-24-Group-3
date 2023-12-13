@@ -1,3 +1,4 @@
+// Importing necessary components and hooks from React and other libraries
 import React, { useEffect, useState } from 'react';
 import DefaultLayout from '../../layouts/DefaultLayout';
 import Head from 'next/head';
@@ -15,6 +16,10 @@ import Link from 'next/link';
 import { ToastQueue } from '@react-spectrum/toast';
 import { reportException } from '../../services/errorReporting';
 
+/**
+ * Defining the Loader component
+ * It is displayed while the data is being loaded on the screen
+ */
 const loader = (
   <div className='flex h-96 w-full flex-col items-center justify-center'>
     <HashLoader
@@ -27,7 +32,9 @@ const loader = (
   </div>
 );
 
+// Defining the main DocumentsPage functional component
 const DocumentsPage = () => {
+  // Initialize the state to store user documents and loading states
   const [userDocuments, setUserDocuments] = useState<
     {
       documentID: string;
@@ -43,6 +50,7 @@ const DocumentsPage = () => {
     [docID: string]: boolean;
   }>({});
 
+  // Function to fetch user documents from the server
   const fetchUserDocuments = async () => {
     setIsLoadingDocs(true);
     try {
@@ -65,6 +73,7 @@ const DocumentsPage = () => {
     }
   };
 
+  // Define an Async function to delete a specific document
   const deleteDocument = async (id: string, name: string) => {
     setIsLoadingDeleteDocObj((s) => ({
       ...s,
@@ -107,14 +116,17 @@ const DocumentsPage = () => {
       });
   };
 
+  // useEffect to fetch documents on component mount
   useEffect(() => {
     fetchUserDocuments().then((value) => {
       setUserDocuments(value);
     });
 
+    // Cleanup function if needed to get rid of any lingering side effects on the UI
     return () => {};
   }, []);
 
+  // Render the UI for the Documents page
   return (
     <>
       <DefaultLayout>
@@ -218,4 +230,5 @@ const DocumentsPage = () => {
   );
 };
 
+// Wrapping the component with a higher-order component for route protection
 export default IsProtectedRoute(DocumentsPage);
